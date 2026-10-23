@@ -188,6 +188,54 @@ pub fn first_copy_line(b : str) -> u32 {
     return NO_LINE;
 }
 
+pub const NO_VALUE : u64 = 4294967295;
+
+/// The decimal value the text b declares for name ("... const NAME : T = V;"), or NO_VALUE when no code line
+/// declares it, its value is not a plain decimal, or the value runs past six digits.
+pub fn owner_value(b : str, name : str) -> u64 {
+    var s : usize = 0;
+    while (s < b.len) {
+        var e : usize = s;
+        while (e < b.len and b[e] != '\n') { e += 1; }
+        if (is_prose(b, s, e) == false) {
+            const c : usize = code_end(b, s, e);
+            var i : usize = s;
+            while (i + 6 <= c) {
+                if (b[i] == 'c' and b[i + 1] == 'o' and b[i + 2] == 'n' and b[i + 3] == 's' and b[i + 4] == 't' and is_space(b[i + 5]) and (i == s or is_word(b[i - 1]) == false)) {
+                    var p : usize = i + 6;
+                    while (p < c and is_space(b[p])) { p += 1; }
+                    var q : usize = p;
+                    while (q < c and is_word(b[q])) { q += 1; }
+                    if (q > p and name_in_list(b, p, q, name)) {
+                        var k : usize = q;
+                        while (k < c and b[k] != '=') { k += 1; }
+                        k += 1;
+                        while (k < c and is_space(b[k])) { k += 1; }
+                        var v : u64 = 0;
+                        var n : u32 = 0;
+                        while (k < c and is_digit(b[k]) and n < 6) {
+                            v = v * 10 + ((b[k] - '0') as u64);
+                            n += 1;
+                            k += 1;
+                        }
+                        if (n == 0 or (k < c and is_word(b[k]))) { return NO_VALUE; }
+                        return v;
+                    }
+                }
+                i += 1;
+            }
+        }
+        s = e + 1;
+    }
+    return NO_VALUE;
+}
+
+/// Are the fingerprints still the owner's values? owner is the text of petal_menu.t27 on t27 master; the tick
+/// trusts copies() only when this holds, and otherwise reports the stale fingerprint instead of a clean tree.
+pub fn fingerprints_fresh(owner : str) -> bool {
+    return owner_value(owner, "PETAL_COUNT") == FP_PETAL_COUNT and owner_value(owner, "PETALS_PER_REALM") == FP_PETALS_PER_REALM;
+}
+
 fn verdict_of(b : str) -> u8 {
     return line_verdict(b, 0, b.len);
 }
@@ -245,4 +293,31 @@ test the_registry_holds_every_owned_name_once {
     assert name_in_list("MAILBOX_CAP", 0, 11, OWNED_NAMES);
     assert name_in_list("PETAL", 0, 5, OWNED_NAMES) == false;
     assert name_in_list("MAILBOX_CAPS", 0, 12, OWNED_NAMES) == false;
+}
+
+test the_fingerprints_match_the_owner_on_t27_master {
+    // lifted from gHashTag/t27 specs/t27f/petal_menu.t27:37-42 on master f308c9388
+    const owner : str = "module T27fPetalMenu;\n\npub const PETAL_COUNT : u32 = 27;\npub const PETALS_PER_REALM : u32 = 9;\npub const REALM_COUNT : u32 = 3;\npub const PETAL_NONE : u32 = 255;\n";
+    assert owner_value(owner, "PETAL_COUNT") == 27;
+    assert owner_value(owner, "PETALS_PER_REALM") == 9;
+    assert owner_value(owner, "PETAL_NONE") == 255;
+    assert fingerprints_fresh(owner);
+}
+
+test a_changed_or_missing_owner_value_makes_the_fingerprint_stale {
+    // negative controls: the owner moves to 28 petals, or to 7 per realm, or renames the constant
+    assert fingerprints_fresh("pub const PETAL_COUNT : u32 = 28;\npub const PETALS_PER_REALM : u32 = 9;\n") == false;
+    assert fingerprints_fresh("pub const PETAL_COUNT : u32 = 27;\npub const PETALS_PER_REALM : u32 = 7;\n") == false;
+    assert fingerprints_fresh("pub const PETALS : u32 = 27;\npub const PETALS_PER_REALM : u32 = 9;\n") == false;
+    assert owner_value("pub const PETALS : u32 = 27;\n", "PETAL_COUNT") == NO_VALUE;
+}
+
+test only_a_code_declaration_of_the_exact_name_counts {
+    // a commented-out line and a longer name that starts like the owned one are not the declaration
+    const owner : str = "; pub const PETAL_COUNT : u32 = 99;\n// const PETAL_COUNT : u32 = 98;\npub const PETAL_COUNT_SHOWN : u32 = 4;\npub const PETAL_COUNT : u32 = 27;\n";
+    assert owner_value(owner, "PETAL_COUNT") == 27;
+    // a value that is not a plain decimal, or runs past six digits, is not read as a smaller number
+    assert owner_value("pub const PETAL_COUNT : u32 = 0x1B;\n", "PETAL_COUNT") == NO_VALUE;
+    assert owner_value("pub const PETAL_COUNT : u32 = 27000000;\n", "PETAL_COUNT") == NO_VALUE;
+    assert owner_value("pub const PETAL_COUNT : u32 = PETALS_PER_REALM * 3;\n", "PETAL_COUNT") == NO_VALUE;
 }
