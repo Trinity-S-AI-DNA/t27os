@@ -1,0 +1,248 @@
+// SPDX-License-Identifier: Apache-2.0
+; specs/os/sync_gate.t27 -- the sync gate of T27 OS: catch a copied t27-owned constant before it becomes a fork
+; (issue Trinity-S-AI-DNA/t27os#6). The SSOT rule (#2) couples the two trees by reference: the petal count, the
+; realm size, the petal letters and world names live in gHashTag/t27 specs/t27f/petal_menu.t27, the agent cap
+; (EV_MAX_AGENTS) in specs/t27os/evolve.t27 and the mailbox cap in specs/queen/actors.t27. This tree NAMES those owners and must not
+; restate them. A restated value is a fork waiting to happen: the owner changes, the copy does not.
+; This file holds the rule as a function of one line of source bytes, so the night tick can run it over every
+; .t27 file of this tree and fail naming file:line. Reading the files is plumbing; the verdict is here.
+; Three ways a line can copy an owned constant:
+;   COPY_DECL     it declares a const with an owned NAME (pub const PETAL_COUNT ...)
+;   COPY_LITERAL  its code (not a comment, not a string) uses an owned VALUE as a bare number (PETAL / 9)
+;   OK            anything else: prose, a string naming the owner path, a number that is not a fingerprint
+; The FINGERPRINTS below are not definitions: they are what a copy looks like. When the owner changes a value the
+; fingerprint goes stale, and the tick compares them against petal_menu.t27 on t27 master before it trusts them.
+; REALM_COUNT (3) has no fingerprint: 3 is too common to tell a copy from an index, so it is caught by name only.
+; ASCII only (L3)
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module T27osSyncGate;
+
+pub const ID : str = "t27os-sync-gate";
+pub const ISSUE : str = "Trinity-S-AI-DNA/t27os#6";
+
+// the owned names, one per field, and where each one lives in gHashTag/t27
+pub const OWNED_NAMES : str = "PETAL_COUNT|PETALS_PER_REALM|REALM_COUNT|PETAL_LETTERS|WORLD_NAMES|REALM_NAMES|EV_MAX_AGENTS|MAILBOX_CAP";
+pub const OWNED_COUNT : u32 = 8;
+pub const OWNER_PETALS : str = "t27:specs/t27f/petal_menu.t27";
+pub const OWNER_AGENTS : str = "t27:specs/t27os/evolve.t27";
+pub const OWNER_MAILBOX : str = "t27:specs/queen/actors.t27";
+
+// fingerprints: the owned values a bare number in code would be copying
+pub const FP_PETAL_COUNT : u64 = 27;
+pub const FP_PETALS_PER_REALM : u64 = 9;
+
+pub const V_OK : u8 = 0;
+pub const V_COPY_DECL : u8 = 1;
+pub const V_COPY_LITERAL : u8 = 2;
+
+pub const NO_LINE : u32 = 0;
+
+fn is_digit(c : u8) -> bool {
+    return c >= '0' and c <= '9';
+}
+
+fn is_word(c : u8) -> bool {
+    return is_digit(c) or (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or c == '_';
+}
+
+fn is_space(c : u8) -> bool {
+    return c == ' ' or c == '\t' or c == '\r';
+}
+
+/// The end of the code part of b[s..e): the first "//" outside a string literal, or e.
+pub fn code_end(b : str, s : usize, e : usize) -> usize {
+    var i : usize = s;
+    var quoted : bool = false;
+    while (i < e) {
+        if (b[i] == '"') {
+            quoted = quoted == false;
+        } else if (quoted == false and b[i] == '/' and i + 1 < e and b[i + 1] == '/') {
+            return i;
+        }
+        i += 1;
+    }
+    return e;
+}
+
+/// A line whose first non-space byte opens a comment (; or //), or a blank line, carries no code.
+pub fn is_prose(b : str, s : usize, e : usize) -> bool {
+    var i : usize = s;
+    while (i < e and is_space(b[i])) { i += 1; }
+    if (i == e) { return true; }
+    if (b[i] == ';') { return true; }
+    return code_end(b, i, e) == i;
+}
+
+/// Is b[p..q) one of the |-separated names of list?
+pub fn name_in_list(b : str, p : usize, q : usize, list : str) -> bool {
+    var f : usize = 0;
+    while (f < list.len) {
+        var g : usize = f;
+        while (g < list.len and list[g] != '|') { g += 1; }
+        if (g - f == q - p) {
+            var k : usize = 0;
+            var same : bool = true;
+            while (k < q - p) {
+                if (b[p + k] != list[f + k]) { same = false; }
+                k += 1;
+            }
+            if (same) { return true; }
+        }
+        f = g + 1;
+    }
+    return false;
+}
+
+/// How many names list holds: one more than its separators.
+pub fn list_count(list : str) -> u32 {
+    var n : u32 = 1;
+    var i : usize = 0;
+    while (i < list.len) {
+        if (list[i] == '|') { n += 1; }
+        i += 1;
+    }
+    return n;
+}
+
+/// Does the code b[s..e) declare a const whose name is owned? "const" must stand as a word.
+pub fn declares_owned(b : str, s : usize, e : usize) -> bool {
+    var i : usize = s;
+    var quoted : bool = false;
+    while (i + 6 <= e) {
+        if (b[i] == '"') { quoted = quoted == false; }
+        if (quoted == false and b[i] == 'c' and b[i + 1] == 'o' and b[i + 2] == 'n' and b[i + 3] == 's' and b[i + 4] == 't' and is_space(b[i + 5])) {
+            if (i == s or is_word(b[i - 1]) == false) {
+                var p : usize = i + 6;
+                while (p < e and is_space(b[p])) { p += 1; }
+                var q : usize = p;
+                while (q < e and is_word(b[q])) { q += 1; }
+                if (q > p and name_in_list(b, p, q, OWNED_NAMES)) { return true; }
+            }
+        }
+        i += 1;
+    }
+    return false;
+}
+
+/// Does the code b[s..e) use a fingerprint value as a bare decimal number, outside a string literal?
+/// A number is a whole word of digits: 19, 270, t27 and 0x27 are not 27.
+pub fn uses_fingerprint(b : str, s : usize, e : usize) -> bool {
+    var i : usize = s;
+    var quoted : bool = false;
+    while (i < e) {
+        if (b[i] == '"') {
+            quoted = quoted == false;
+            i += 1;
+        } else if (quoted == false and is_word(b[i]) and (i == s or is_word(b[i - 1]) == false)) {
+            var j : usize = i;
+            var digits : bool = true;
+            var v : u64 = 0;
+            while (j < e and is_word(b[j])) {
+                if (is_digit(b[j]) == false) { digits = false; }
+                if (digits and v < 1000000) { v = v * 10 + ((b[j] - '0') as u64); }
+                j += 1;
+            }
+            if (digits and (v == FP_PETAL_COUNT or v == FP_PETALS_PER_REALM)) { return true; }
+            i = j;
+        } else {
+            i += 1;
+        }
+    }
+    return false;
+}
+
+/// The verdict on the line b[s..e). A declaration of an owned name outranks a literal on the same line.
+pub fn line_verdict(b : str, s : usize, e : usize) -> u8 {
+    if (is_prose(b, s, e)) { return V_OK; }
+    const c : usize = code_end(b, s, e);
+    if (declares_owned(b, s, c)) { return V_COPY_DECL; }
+    if (uses_fingerprint(b, s, c)) { return V_COPY_LITERAL; }
+    return V_OK;
+}
+
+/// How many lines of the text b copy an owned constant.
+pub fn copies(b : str) -> u32 {
+    var n : u32 = 0;
+    var s : usize = 0;
+    while (s < b.len) {
+        var e : usize = s;
+        while (e < b.len and b[e] != '\n') { e += 1; }
+        if (line_verdict(b, s, e) != V_OK) { n += 1; }
+        s = e + 1;
+    }
+    return n;
+}
+
+/// The 1-based number of the first line of b that copies an owned constant, or NO_LINE: the gate names file:line.
+pub fn first_copy_line(b : str) -> u32 {
+    var line : u32 = 1;
+    var s : usize = 0;
+    while (s < b.len) {
+        var e : usize = s;
+        while (e < b.len and b[e] != '\n') { e += 1; }
+        if (line_verdict(b, s, e) != V_OK) { return line; }
+        line += 1;
+        s = e + 1;
+    }
+    return NO_LINE;
+}
+
+fn verdict_of(b : str) -> u8 {
+    return line_verdict(b, 0, b.len);
+}
+
+test the_cards_realm_rule_is_a_literal_copy_of_the_realm_size {
+    // lifted from specs/os/cards/graph_card.t27 and live_card.t27 on t27os master 40b0d3e
+    assert verdict_of("    assert PETAL / 9 == REALM;") == V_COPY_LITERAL;
+    assert verdict_of("    assert PETAL >= 9 and PETAL <= 17;") == V_COPY_LITERAL;
+    assert verdict_of("    assert PETAL < 9;") == V_COPY_LITERAL;
+}
+
+test declaring_an_owned_name_is_a_copy_even_with_the_right_value {
+    assert verdict_of("pub const PETALS_PER_REALM : u32 = 9;") == V_COPY_DECL;
+    assert verdict_of("const REALM_COUNT : u32 = 3;") == V_COPY_DECL;
+    assert verdict_of("pub const EV_MAX_AGENTS : u32 = 3;  // mirrors evolve.t27") == V_COPY_DECL;
+    // a longer name that only starts like an owned one is not that name
+    assert verdict_of("pub const PETAL_COUNT_SHOWN : u32 = 4;") == V_OK;
+    assert verdict_of("pub const MY_PETAL_COUNT : u32 = 4;") == V_OK;
+}
+
+test prose_strings_and_other_numbers_are_not_copies {
+    // lifted from specs/os/home.t27 and the cards' header comments
+    assert verdict_of("pub const HOME_SPEC : str = \"gHashTag/t27:specs/t27f/petal_menu.t27\";") == V_OK;
+    assert verdict_of("pub const BOOT_HOME : u32 = 1;         // the 27-petal triangle, no petal open") == V_OK;
+    assert verdict_of("; 12 / 9 == 1 == REALM_MATERIYA (the middle ring, petals 9-17)") == V_OK;
+    assert verdict_of("// 7 / 9 == 0 == REALM_RAZUM (the outer ring, petals 0-8)") == V_OK;
+    assert verdict_of("pub const NOTE : str = \"27 petals, 9 per realm\";") == V_OK;
+    assert verdict_of("pub const CARD0_PETAL : u32 = 12;") == V_OK;
+    assert verdict_of("    x = 19 + 270 + 0x27;") == V_OK;
+    assert verdict_of("") == V_OK;
+    assert verdict_of("   ") == V_OK;
+}
+
+test the_same_number_flips_with_where_it_stands {
+    // one byte sequence, three verdicts: code, trailing comment, string
+    assert verdict_of("n = 27;") == V_COPY_LITERAL;
+    assert verdict_of("n = 2; // 27") == V_OK;
+    assert verdict_of("n = \"27\";") == V_OK;
+    // a "//" inside a string does not end the code
+    assert verdict_of("u = \"http://x\"; n = 9;") == V_COPY_LITERAL;
+}
+
+test the_gate_names_the_first_copying_line_of_a_file {
+    const tree : str = "module M;\n; 27 petals, owned by petal_menu.t27\npub const A : u32 = 1;\n    return p / 9;\npub const PETAL_COUNT : u32 = 27;\n";
+    assert copies(tree) == 2;
+    assert first_copy_line(tree) == 4;
+    const clean : str = "module M;\npub const HOME : str = \"t27:specs/t27f/petal_menu.t27\";\n";
+    assert copies(clean) == 0;
+    assert first_copy_line(clean) == NO_LINE;
+}
+
+test the_registry_holds_every_owned_name_once {
+    assert list_count(OWNED_NAMES) == OWNED_COUNT;
+    assert name_in_list("PETAL_COUNT", 0, 11, OWNED_NAMES);
+    assert name_in_list("MAILBOX_CAP", 0, 11, OWNED_NAMES);
+    assert name_in_list("PETAL", 0, 5, OWNED_NAMES) == false;
+    assert name_in_list("MAILBOX_CAPS", 0, 12, OWNED_NAMES) == false;
+}
