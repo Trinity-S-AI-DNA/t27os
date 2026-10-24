@@ -384,6 +384,31 @@ jobs:
           cp /tmp/out/summary.txt "runs/${{ steps.sha.outputs.resolved }}.${c8}.summary.txt"
           cat "$file"
 
+      - name: the typed result section (t27 specs/t27os/receipt_result.t27)
+        shell: bash
+        run: |
+          # integer rows and one branchable ok (t27os#18); a row with a non-integer count is not reported
+          sha=${{ steps.sha.outputs.resolved }}
+          file=$(git ls-files -o --exclude-standard -- "runs/$sha.*.json" | head -1)
+          [ -n "$file" ] || { echo "::error::no receipt to type"; exit 1; }
+          set -- ${{ inputs.specs }}
+          asked=$#
+          reported=0; fail=0; vac=0; blocked=0; bad=0; rows=""
+          while IFS='|' read -r spec t p f v b; do
+            t=${t#tests=}; p=${p#pass=}; f=${f#FAIL=}; v=${v#vacuous=}; b=${b#blocked=}
+            typed=1
+            for n in "$t" "$p" "$f" "$v" "$b"; do case "$n" in ''|*[!0-9]*) typed=0;; esac; done
+            [ $typed -eq 1 ] || continue
+            [ $((p + f)) -eq "$t" ] && [ "$v" -le "$t" ] || bad=$((bad + 1))
+            reported=$((reported + 1)); fail=$((fail + f)); vac=$((vac + v)); blocked=$((blocked + b))
+            rows="$rows${rows:+, }$(printf '{"spec": "%s", "tests": %d, "pass": %d, "fail": %d, "vacuous": %d, "blocked": %d}' "$spec" "$t" "$p" "$f" "$v" "$b")"
+          done < /tmp/out/summary.txt
+          ok=false
+          [ "$asked" -gt 0 ] && [ "$reported" -eq "$asked" ] && [ $((bad + fail + vac + blocked)) -eq 0 ] && ok=true
+          sed -i '$d' "$file"
+          { printf '  ,"result": {"specs": [%s], "ok": %s, "asked": %d, "reported": %d}' "$rows" "$ok" "$asked" "$reported"; echo; echo '}'; } >> "$file"
+          cat "$file"
+
       - name: publish the receipt
         shell: bash
         run: |
