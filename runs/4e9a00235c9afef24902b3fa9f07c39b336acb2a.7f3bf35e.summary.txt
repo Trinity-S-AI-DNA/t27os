@@ -1,0 +1,3 @@
+specs/t27os/devices.t27|tests=25|pass=25|FAIL=0|vacuous=0|blocked=0
+specs/t27os/agent_parts.t27|tests=23|pass=23|FAIL=0|vacuous=0|blocked=0
+specs/t27f/petal_menu.t27|tests=12|pass=12|FAIL=0|vacuous=0|blocked=0

@@ -1,0 +1,18 @@
+{
+  "sha": "cdf234594d154fdc12557b9dea3eb2151455ee6a",
+  "challenge_sha256": "e524ee41fd781cd4e04a6a3655a8dbb981c83b51166a06a39a97150d912b2579",
+  "t27c_build_stamp": "cdf234594d154fdc12557b9dea3eb2151455ee6a",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-10-24T10:53:15Z",
+  "specs": [
+    {"spec": "compiler/cli/git.t27", "tests": "tests=11", "pass": "pass=11", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/fpga/petal_framebuffer.t27", "tests": "tests=4", "pass": "pass=4", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27os/labs.t27", "tests": "tests=10", "pass": "pass=10", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/lab/receipt.t27", "tests": "tests=9", "pass": "pass=9", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+}

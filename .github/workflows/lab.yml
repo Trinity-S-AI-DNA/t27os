@@ -42,6 +42,8 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
+    outputs:
+      resolved: ${{ steps.sha.outputs.resolved }}
     timeout-minutes: 40
     steps:
       - name: check out this repo (receipt home)
@@ -327,3 +329,49 @@ jobs:
             echo "Run log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           } > /tmp/fail_comment.md
           gh api repos/Trinity-S-AI-DNA/trinity/issues/1717/comments -F body=@/tmp/fail_comment.md || echo "comment failed; the run log above still names it"
+
+  t27b:
+    needs: run
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 40
+    steps:
+      - name: check out this repo (receipt home)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: check out t27 at the sha the run job resolved
+        uses: actions/checkout@v4
+        with:
+          repository: Trinity-S-AI-DNA/t27
+          ref: ${{ needs.run.outputs.resolved }}
+          path: t27
+          persist-credentials: false
+      - name: t27b leg -- test every named spec natively on arm64 (t27#11889)
+        shell: bash
+        env:
+          SPECS: ${{ inputs.specs }}
+        run: |
+          set -f
+          sha=${{ needs.run.outputs.resolved }}
+          out="$GITHUB_WORKSPACE/runs/$sha.t27b.txt"
+          mkdir -p "$GITHUB_WORKSPACE/runs"
+          : > "$out"
+          cd t27
+          cargo build --release -p t27b
+          for spec in $SPECS; do
+            ./target/release/t27b test "$spec" --check > /tmp/b.txt 2>&1 || true
+            set -- $(grep -E 'passed, [0-9]+ failed, [0-9]+ total$' /tmp/b.txt | tail -1 | awk '{print $(NF-5), $(NF-3), $(NF-1)}')
+            asserts=$(grep -E ': runtime asserts ' /tmp/b.txt | tail -1 | awk '{print $NF}')
+            vac=0
+            if [ "$asserts" = "0" ]; then vac=1; fi
+            echo "${spec}|leg=t27b|tests=${3:-NA}|pass=${1:-NA}|FAIL=${2:-NA}|vacuous=${vac}|asserts=${asserts:-NA}" >> "$out"
+          done
+          cat "$out"
+      - name: publish the t27b leg beside the receipt
+        shell: bash
+        run: |
+          git config user.name "t27os lab"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add runs/*.t27b.txt
+          git commit -m "lab: t27b leg for ${{ needs.run.outputs.resolved }}"
+          for i in 1 2 3; do git pull --rebase origin master && git push origin HEAD:master && break; sleep 5; done
