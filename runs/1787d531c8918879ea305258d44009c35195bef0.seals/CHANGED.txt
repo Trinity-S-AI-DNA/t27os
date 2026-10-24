@@ -1,0 +1,2 @@
+.trinity/seals/t27f_live_mode.json
+.trinity/seals/t27f_measure_live.json
