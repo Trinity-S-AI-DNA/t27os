@@ -1,1 +1,1 @@
-render: 108.18 fps, 9.24 ms/frame avg over 900 frames (t27c gen frame_render.t27 -> zig ReleaseFast, whole loop clocked)
+render: 109.71 fps, 9.12 ms/frame avg over 900 frames (t27c gen frame_render.t27 -> zig ReleaseFast, whole loop clocked)
