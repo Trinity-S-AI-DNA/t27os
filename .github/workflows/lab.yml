@@ -31,6 +31,10 @@ on:
         description: 'true = build the live closure scalar-plane wasm'
         required: false
         default: 'false'
+      seal:
+        description: 'true = reseal what drifted (tri seals drift --fix) and publish the changed seals beside the receipt'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -97,6 +101,21 @@ jobs:
             echo "${spec}|tests=${tests:-NA}|pass=${pass:-NA}|FAIL=${fail:-NA}|vacuous=${vac:-NA}|blocked=${blocked}" >> /tmp/out/summary.txt
           done
           cat /tmp/out/summary.txt
+
+      - name: seal leg -- reseal what drifted with the lab's own t27c (t27#11840)
+        if: inputs.seal == 'true'
+        shell: bash
+        run: |
+          set -e
+          sha=${{ steps.sha.outputs.resolved }}
+          out="$GITHUB_WORKSPACE/runs/$sha.seals"
+          mkdir -p "$out"
+          cd t27
+          cargo build --release -p tri
+          ./target/release/tri seals drift --fix 2>&1 | tee "$out/drift.txt"
+          git ls-files -z -m -o --exclude-standard -- .trinity/seals | xargs -0 -r cp -t "$out"
+          git ls-files -m -o --exclude-standard -- .trinity/seals > "$out/CHANGED.txt"
+          wc -l < "$out/CHANGED.txt"
 
       - name: check the encoder plumbing (M6 -- export_video encodes on the lab; distro ffmpeg first, static build as fallback, never fatal -- t27os#10)
         shell: bash
