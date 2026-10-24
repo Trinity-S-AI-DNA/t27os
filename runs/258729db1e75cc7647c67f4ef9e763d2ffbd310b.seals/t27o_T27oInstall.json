@@ -1,0 +1,28 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+258729db1",
+  "closure": [],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:3a5551e9dc30e9adc0ceed3378f9466b3a5a7caa03ef3fdadebe4627917aeaf0",
+  "gen_hash_rust": "sha256:12adb99ec2a1e73b60e1de395020fabde9ef5f6bc5a41c753102805f0e4ca00a",
+  "gen_hash_verilog": "sha256:07e6bb13a7565143a63ea10129edcfc1bfdf84e7099f776a4bc237879d4918c8",
+  "gen_hash_zig": "sha256:f5ab7ef8b23a7138f9a1e88852d2f6d482045214f0e20a765879d426bbdae605",
+  "module": "T27oInstall",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-10-24T14:07:02Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:29198f103aa7362ed7cb4bf328ee63cfd4244cf4061669b21561b30b352779e6",
+  "spec_path": "specs/tools/t27o/install.t27",
+  "tests": {
+    "failed": 0,
+    "failing": [],
+    "forced": false,
+    "passed": 12,
+    "total": 12,
+    "vacuous": 0
+  },
+  "toolchain": {
+    "test_runner": "sha256:8512b80da533b79289110fca4a65f3336abd7a059ca4b72ea595d5e33ff8ad10",
+    "zig": "0.16.0"
+  }
+}
