@@ -1,0 +1,1 @@
+specs/t27os/labs.t27|leg=t27b|tests=12|pass=12|FAIL=0|vacuous=0|asserts=58
