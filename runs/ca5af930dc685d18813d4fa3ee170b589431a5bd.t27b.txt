@@ -1,0 +1,2 @@
+specs/tri/t27b/wasm.t27|leg=t27b|tests=50|pass=50|FAIL=0|vacuous=0|asserts=443
+specs/tri/t27b/macho.t27|leg=t27b|tests=22|pass=22|FAIL=0|vacuous=0|asserts=172
