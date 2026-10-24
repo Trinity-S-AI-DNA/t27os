@@ -1,0 +1,28 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+3337cc733",
+  "closure": [],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:4bd50a293e40146a900ff2422316fcc44311dffd196308da5b315f19733600ba",
+  "gen_hash_rust": "sha256:babd50a1b89cdbcb9a75e59c839be12541467617eff7009ce0b4ef2c50c0ac0c",
+  "gen_hash_verilog": "sha256:667908c8262a76be1dc1ef7c38c7e01d2aeda0e8cb3904e2ad59a4a2ee9ec409",
+  "gen_hash_zig": "sha256:ecf5b189b1705db779fbdd6933501828a0ac0f3fc5ef95ef0c48dfb59ffccdcd",
+  "module": "T27fPetalMenu",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-10-24T14:48:29Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:42b447b3c588842fa967265d588549a83a75fa2f88396c674895f314c5d8955d",
+  "spec_path": "specs/t27f/petal_menu.t27",
+  "tests": {
+    "failed": 0,
+    "failing": [],
+    "forced": false,
+    "passed": 12,
+    "total": 12,
+    "vacuous": 0
+  },
+  "toolchain": {
+    "test_runner": "sha256:8512b80da533b79289110fca4a65f3336abd7a059ca4b72ea595d5e33ff8ad10",
+    "zig": "0.16.0"
+  }
+}
