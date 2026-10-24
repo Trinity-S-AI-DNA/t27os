@@ -1,0 +1,12 @@
+{
+  "sha": "69eef64da108d79238f6316715c38c32c35a7972",
+  "challenge_sha256": "27b6b423950d4f89e5d8e77473e34a73f8b6c19b880b9867e489e4869d42f10a",
+  "t27c_build_stamp": "69eef64da108d79238f6316715c38c32c35a7972",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-10-24T16:49:54Z",
+  "specs": [
+    {"spec": "specs/t27os/labs.t27", "tests": "tests=8", "pass": "pass=8", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+}
