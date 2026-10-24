@@ -1,0 +1,53 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+36d781bbe",
+  "closure": [
+    {
+      "spec": "specs/t27os/agents.t27",
+      "spec_hash": "sha256:e309191d6606f3a67cd0cfade08b3fb82f9c042360c7234b59928a05128f4f8f"
+    },
+    {
+      "spec": "specs/t27os/editors.t27",
+      "spec_hash": "sha256:fc3608c5131f7fae21d6084102a019fc0425117ecf7544ec1eebfa8155d74f72"
+    },
+    {
+      "spec": "specs/t27os/keys.t27",
+      "spec_hash": "sha256:7ae1302004eb8cef406a74314dea2b644f7ec82e21fd0558bfb3326991b0572b"
+    },
+    {
+      "spec": "specs/t27os/pane_state.t27",
+      "spec_hash": "sha256:c7c7ca610b0f69c66dd5518c93f045bfa3f666c1849c12ca2de0c6542d73d1fc"
+    },
+    {
+      "spec": "specs/t27os/pty_proto.t27",
+      "spec_hash": "sha256:fe9dee96f99eccaa6273124bb9022a66ca916bc9a0f6c3f415c2f4b6ab964ab1"
+    },
+    {
+      "spec": "specs/t27os/session_store.t27",
+      "spec_hash": "sha256:97be1cf60001e62ae06795b36075e5ac1cb309aac19a8494be0caed2151a16ae"
+    }
+  ],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:2467f23df1c775cf13d3c3bea30f763edc44c1791b42ee145c08d8c3b2cdc91f",
+  "gen_hash_rust": "sha256:ba015ba41e36e4bedb355bf1d652cc99188b93850aa5684f267159c2ebd9ec60",
+  "gen_hash_verilog": "sha256:1b943947f8c1edb05ac4a230030fba4f5cf553c1c6abeb886a8859b817ca032c",
+  "gen_hash_zig": "sha256:ad969f647bac1ffc6a8d0d796752948d1e66b356043b6deb4973fdc082ed4dfc",
+  "module": "T27osPtyLogic",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-10-24T16:33:53Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:be435e0c6782c633653671ec52a574ffe4a23151f527b0eacfdf1dcf7509f092",
+  "spec_path": "specs/t27os/pty_logic.t27",
+  "tests": {
+    "failed": 0,
+    "failing": [],
+    "forced": false,
+    "passed": 58,
+    "total": 58,
+    "vacuous": 0
+  },
+  "toolchain": {
+    "test_runner": "sha256:8512b80da533b79289110fca4a65f3336abd7a059ca4b72ea595d5e33ff8ad10",
+    "zig": "0.16.0"
+  }
+}

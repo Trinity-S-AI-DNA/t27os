@@ -1,0 +1,33 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+36d781bbe",
+  "closure": [
+    {
+      "spec": "specs/base/types.t27",
+      "spec_hash": "sha256:3c2fb2a2edf20e90bc76798fb5d12690b2f60fc0f5bbf2f6052936e22d6e62e2"
+    }
+  ],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:8780bd008431238db3e88656f1de9e8b949aa602297b90ff281460898e9590cc",
+  "gen_hash_rust": "sha256:8c4cd3bd26333fc374d53fe66e41e9e74005b7dde1cb67f8397f64c42aebb9b9",
+  "gen_hash_verilog": "sha256:8cf8fb6d37f41b5cdd2081168f4a635ec9ee723da0162b1f8b08cefd4f1ed080",
+  "gen_hash_zig": "sha256:15b52061cf6f278f4b37bfcf223335bd3e791657e181be8b61dc76493867b4f8",
+  "module": "HSLM",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-10-24T16:33:28Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:a59d22284d9b95cbe331e0d3a434dbfe7b5cf01ff86cb217503260eb02064822",
+  "spec_path": "specs/nn/hslm.t27",
+  "tests": {
+    "failed": 0,
+    "failing": [],
+    "forced": false,
+    "passed": 61,
+    "total": 61,
+    "vacuous": 0
+  },
+  "toolchain": {
+    "test_runner": "sha256:8512b80da533b79289110fca4a65f3336abd7a059ca4b72ea595d5e33ff8ad10",
+    "zig": "0.16.0"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+093bf4713",
+  "closure": [],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:f56e9fe542a2100557ade0c734d956f2de7f476a8e1b952f07d0fa0f0ddbb1d8",
+  "gen_hash_rust": "sha256:5edbe897e62d9470abe11ea68a3136a45e757d6770526573dcdd6ab553487016",
+  "gen_hash_verilog": "sha256:456c5d0263a774c775a7462d93e5953f330172c26e1f0e57e5d01783f5fe2521",
+  "gen_hash_zig": "sha256:b85e4dec465e182c7f29327e7d1961218a13c0df6ccc4b18478e8adee2d8b088",
+  "module": "lsp-protocol",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-10-24T16:32:16Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:9702b7f3c29989804c5067bc2b909678efe6fc5a921d1f36607e08266f2754e9",
+  "spec_path": "specs/lsp/protocol.t27",
+  "tests": {
+    "failed": 0,
+    "failing": [],
+    "forced": false,
+    "passed": 20,
+    "total": 20,
+    "vacuous": 0
+  },
+  "toolchain": {
+    "test_runner": "sha256:1982ae948e24d00c5d221ccec12dfce1eb01204b53e37b0f857f93b16d64629d",
+    "zig": "0.16.0"
+  }
+}

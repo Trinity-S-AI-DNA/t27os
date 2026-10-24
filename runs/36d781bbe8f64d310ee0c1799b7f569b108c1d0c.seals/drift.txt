@@ -1,0 +1,235 @@
+  specs whose seals no longer describe them   182
+
+      compiler/cli/git.t27  moved: gen_hash_rust
+      compiler/codegen/zig/codegen.t27  moved: gen_hash_rust
+      compiler/runtime/commands.t27  moved: gen_hash_rust
+      specs/analog/accept_sar.t27  moved: gen_hash_rust
+      specs/analog/board/sar_cmp_qi_unit.t27  moved: gen_hash_rust
+      specs/analog/linear.t27  moved: gen_hash_rust
+      specs/analog/mos_psp103.t27  moved: gen_hash_rust
+      specs/analog/mos_psp103_inv20.t27  moved: gen_hash_rust
+      specs/analog/sar_adc.t27  moved: gen_hash_rust
+      specs/analog/sar_comparator.t27  moved: gen_hash_rust
+      specs/analog/sar_comparator_psp.t27  moved: gen_hash_rust
+      specs/analog/sar_comparator_q.t27  moved: gen_hash_rust
+      ... and 170 more
+      resealed  compiler/cli/git.t27  (gen_hash_rust)
+      resealed  compiler/codegen/zig/codegen.t27  (gen_hash_rust)
+      resealed  compiler/runtime/commands.t27  (gen_hash_rust)
+      resealed  specs/analog/accept_sar.t27  (gen_hash_rust)
+      resealed  specs/analog/board/sar_cmp_qi_unit.t27  (gen_hash_rust)
+      resealed  specs/analog/linear.t27  (gen_hash_rust)
+      resealed  specs/analog/mos_psp103.t27  (gen_hash_rust)
+      resealed  specs/analog/mos_psp103_inv20.t27  (gen_hash_rust)
+      resealed  specs/analog/sar_adc.t27  (gen_hash_rust)
+      resealed  specs/analog/sar_comparator.t27  (gen_hash_rust)
+      resealed  specs/analog/sar_comparator_psp.t27  (gen_hash_rust)
+      resealed  specs/analog/sar_comparator_q.t27  (gen_hash_rust)
+      resealed  specs/analog/sar_comparator_qi.t27  (gen_hash_rust)
+      resealed  specs/analog/sar_kick_net.t27  (gen_hash_rust)
+      resealed  specs/analog/sar_logic.t27  (gen_hash_rust)
+      resealed  specs/analog/sar_switch.t27  (gen_hash_rust)
+      resealed  specs/analog/sar_switch_q.t27  (gen_hash_rust)
+      resealed  specs/claw/check_latest.t27  (gen_hash_rust)
+      resealed  specs/claw/check_state.t27  (gen_hash_rust)
+      resealed  specs/claw/criteria.t27  (gen_hash_rust)
+      resealed  specs/claw/ledger_union.t27  (gen_hash_rust)
+      resealed  specs/claw/merge_judge.t27  (gen_hash_rust)
+      resealed  specs/claw/merge_lane.t27  (gen_hash_rust)
+      resealed  specs/claw/mut_known.t27  (gen_hash_rust)
+      resealed  specs/claw/queue_cost.t27  (gen_hash_rust)
+      resealed  specs/claw/refresh.t27  (gen_hash_rust)
+      resealed  specs/claw/required_red.t27  (gen_hash_rust)
+      resealed  specs/claw/sarif.t27  (gen_hash_rust)
+      resealed  specs/claw/sarif_feed.t27  (gen_hash_rust)
+      resealed  specs/claw/shape_race.t27  (gen_hash_rust)
+      resealed  specs/claw/suggest_feed.t27  (gen_hash_rust)
+      resealed  specs/claw/text.t27  (gen_hash_rust)
+      resealed  specs/claw/token_shape.t27  (gen_hash_rust)
+      resealed  specs/compiler/stdlib.t27  (gen_hash_rust)
+      resealed  specs/compiler/theory/speed_quality.t27  (gen_hash_rust)
+      resealed  specs/compiler/theory/warmup.t27  (gen_hash_rust)
+      resealed  specs/crons/t27os-night-loop.t27  (spec_hash, gen_hash_zig, gen_hash_c, gen_hash_rust, gen_hash_verilog)
+      resealed  specs/fpga/wasm_board_ax7203.t27  (spec_hash, gen_hash_zig, gen_hash_c, gen_hash_rust, gen_hash_verilog)
+      resealed  specs/graph/knowledge_graph.t27  (gen_hash_rust)
+      resealed  specs/hslm/forward_pass.t27  (gen_hash_rust)
+      resealed  specs/igla/coder/arch.t27  (gen_hash_rust)
+      resealed  specs/igla/coder/pipeline.t27  (gen_hash_rust)
+      resealed  specs/igla/coder/tokenizer.t27  (gen_hash_rust)
+      resealed  specs/igla/coder/training.t27  (gen_hash_rust)
+      resealed  specs/igla/coder/weights.t27  (gen_hash_rust)
+      resealed  specs/isa/ternary_bitwise.t27  (gen_hash_rust)
+      resealed  specs/isa/ternary_shift.t27  (gen_hash_rust)
+      resealed  specs/lab/lab_t27b_cache.t27  (gen_hash_rust)
+      resealed  specs/lab/lab_t27b_ratchet.t27  (gen_hash_rust)
+      resealed  specs/lab/lab_t27b_report.t27  (gen_hash_rust)
+      resealed  specs/lab/lab_t27b_run.t27  (gen_hash_rust)
+      resealed  specs/lab/paths.t27  (gen_hash_rust)
+      resealed  specs/lab/plan.t27  (gen_hash_rust)
+      resealed  specs/lab/prune.t27  (gen_hash_rust)
+      resealed  specs/lab/text.t27  (gen_hash_rust)
+      resealed  specs/lab/verdict.t27  (gen_hash_rust)
+      resealed  specs/lsp/protocol.t27  (gen_hash_rust)
+      resealed  specs/ml/activation/elu_activation.t27  (gen_hash_rust)
+      resealed  specs/ml/activation/gelu_activation.t27  (gen_hash_rust)
+      resealed  specs/ml/activation/leaky_relu_activation.t27  (gen_hash_rust)
+      resealed  specs/ml/activation/relu_activation.t27  (gen_hash_rust)
+      resealed  specs/ml/activation/silu_swish_activation.t27  (gen_hash_rust)
+      resealed  specs/ml/activation/softmax.t27  (gen_hash_rust)
+      resealed  specs/ml/activation/tanh_activation.t27  (gen_hash_rust)
+      resealed  specs/ml/arena_heap.t27  (gen_hash_rust)
+      resealed  specs/ml/file_io_contract.t27  (gen_hash_rust)
+      resealed  specs/ml/host_io_model.t27  (gen_hash_rust)
+      resealed  specs/ml/layers/avgpool2d_layer.t27  (gen_hash_rust)
+      resealed  specs/ml/layers/batchnorm_layer.t27  (gen_hash_rust)
+      resealed  specs/ml/layers/conv2d_layer.t27  (gen_hash_rust)
+      resealed  specs/ml/layers/dense_layer.t27  (gen_hash_rust)
+      resealed  specs/ml/layers/dropout_layer.t27  (gen_hash_rust)
+      resealed  specs/ml/layers/embedding_layer.t27  (gen_hash_rust)
+      resealed  specs/ml/layers/flatten_layer.t27  (gen_hash_rust)
+      resealed  specs/ml/layers/maxpool2d_layer.t27  (gen_hash_rust)
+      resealed  specs/ml/layers/residual_connection.t27  (gen_hash_rust)
+      resealed  specs/ml/loss/binary_crossentropy_loss.t27  (gen_hash_rust)
+      resealed  specs/ml/loss/cross_entropy_loss.t27  (gen_hash_rust)
+      resealed  specs/ml/loss/mse_loss.t27  (gen_hash_rust)
+      resealed  specs/ml/ngram_hslm.t27  (gen_hash_rust)
+      resealed  specs/ml/optimizer/adagrad.t27  (gen_hash_rust)
+      resealed  specs/ml/optimizer/adam.t27  (gen_hash_rust)
+      resealed  specs/ml/optimizer/adamw.t27  (gen_hash_rust)
+      resealed  specs/ml/optimizer/lamb.t27  (gen_hash_rust)
+      resealed  specs/ml/optimizer/rmsprop.t27  (gen_hash_rust)
+      resealed  specs/ml/optimizer/sgd.t27  (gen_hash_rust)
+      resealed  specs/ml/optimizer/sgd_momentum.t27  (gen_hash_rust)
+      resealed  specs/ml/pathway/mlp.t27  (gen_hash_rust)
+      resealed  specs/ml/recurrent/attention_mechanism.t27  (gen_hash_rust)
+      resealed  specs/ml/recurrent/bilstm.t27  (gen_hash_rust)
+      resealed  specs/ml/recurrent/gru_cell.t27  (gen_hash_rust)
+      resealed  specs/ml/recurrent/lstm_cell.t27  (gen_hash_rust)
+      resealed  specs/ml/recurrent/lstm_single.t27  (gen_hash_rust)
+      resealed  specs/ml/recurrent/rnn_cell.t27  (gen_hash_rust)
+      resealed  specs/ml/recurrent/seq2seq.t27  (gen_hash_rust)
+      resealed  specs/ml/rl/dqn.t27  (gen_hash_rust)
+      resealed  specs/ml/rl/dqn_target_network.t27  (gen_hash_rust)
+      resealed  specs/ml/rl/ppo_actor.t27  (gen_hash_rust)
+      resealed  specs/ml/rl/ppo_critic.t27  (gen_hash_rust)
+      resealed  specs/ml/rl/sac_actor.t27  (gen_hash_rust)
+      resealed  specs/ml/thread_model.t27  (gen_hash_rust)
+      resealed  specs/ml/train_hslm.t27  (gen_hash_rust)
+      resealed  specs/ml/train_slice_model.t27  (gen_hash_rust)
+      resealed  specs/ml/transformer/encoder_block.t27  (gen_hash_rust)
+      resealed  specs/ml/transformer/feed_forward_network.t27  (gen_hash_rust)
+      resealed  specs/ml/transformer/positional_enc.t27  (gen_hash_rust)
+      resealed  specs/ml/transformer/positional_encoding.t27  (gen_hash_rust)
+      resealed  specs/nn/attention.t27  (gen_hash_rust)
+      resealed  specs/nn/gla.t27  (gen_hash_rust)
+      resealed  specs/nn/hslm.t27  (gen_hash_rust)
+      resealed  specs/nn/hslm_backward.t27  (gen_hash_rust)
+      resealed  specs/nn/hslm_data.t27  (gen_hash_rust)
+      resealed  specs/nn/ternary_ste.t27  (gen_hash_rust)
+      resealed  specs/pins/parser.t27  (gen_hash_rust)
+      resealed  specs/port/bootstrap/src/weight_bram.t27  (gen_hash_rust)
+      resealed  specs/port/browseros/trios/agent-server/apps/server/src/tools/filesystem/ls.t27  (gen_hash_rust)
+      resealed  specs/port/scripts/bulk-create-notebooks.t27  (gen_hash_rust)
+      resealed  specs/port/scripts/gen_w369.t27  (gen_hash_rust)
+      resealed  specs/port/scripts/gen_w375.t27  (gen_hash_rust)
+      resealed  specs/port/scripts/gen_w384_lean.t27  (gen_hash_rust)
+      resealed  specs/port/scripts/repair/unscar_4639b38cd.t27  (gen_hash_rust)
+      resealed  specs/port/tools/gft_generalize_demo.t27  (gen_hash_rust)
+      resealed  specs/port/trinity/fpga/openxc7-synth/d_f19_test.t27  (gen_hash_rust)
+      resealed  specs/port/trinity/src/tri/gen_leb128.t27  (gen_hash_rust)
+      resealed  specs/port/trinity/src/tri/gen_temp_file.t27  (gen_hash_rust)
+      resealed  specs/port/trinity/src/tri/gen_varint.t27  (gen_hash_rust)
+      resealed  specs/port/trinity/src/tri/gen_xor_cipher.t27  (gen_hash_rust)
+      resealed  specs/port/trinity/src/tri_lang/content_registry.t27  (gen_hash_rust)
+      resealed  specs/port/trinity/src/vibeec/trinity_tokenizer.t27  (gen_hash_rust)
+      resealed  specs/port/trios/crates/trios-train-cpu/src/bin/gradient.t27  (gen_hash_rust)
+      resealed  specs/port/trios/crates/trios-train-cpu/src/bin/tjepa_modules/encoder.t27  (gen_hash_rust)
+      resealed  specs/runtime/process.t27  (gen_hash_rust)
+      resealed  specs/sandbox/orphan_detection.t27  (gen_hash_rust)
+      resealed  specs/sync/schema.t27  (gen_hash_rust)
+      resealed  specs/t27f/a11y_mirror.t27  (gen_hash_rust)
+      resealed  specs/t27f/deps_card.t27  (gen_hash_rust)
+      resealed  specs/t27f/display_list.t27  (gen_hash_rust)
+      resealed  specs/t27f/frame_render.t27  (gen_hash_rust)
+      resealed  specs/t27f/idea_factory.t27  (gen_hash_rust)
+      resealed  specs/t27f/live_mode.t27  (gen_hash_rust)
+      resealed  specs/t27f/measure_live.t27  (gen_hash_rust)
+      resealed  specs/t27f/reel_beats.t27  (gen_hash_rust)
+      resealed  specs/t27f/reel_factory.t27  (gen_hash_rust)
+      resealed  specs/t27f/reel_factory_plan.t27  (gen_hash_rust)
+      resealed  specs/t27f/reel_particles.t27  (gen_hash_rust)
+      resealed  specs/t27f/token_floor.t27  (gen_hash_rust)
+      resealed  specs/t27f/why_card.t27  (gen_hash_rust)
+      resealed  specs/t27f/work_graph.t27  (gen_hash_rust)
+      resealed  specs/t27os/dash.t27  (gen_hash_rust)
+      resealed  specs/t27os/editors.t27  (gen_hash_rust)
+      resealed  specs/t27os/fanout.t27  (gen_hash_rust)
+      resealed  specs/t27os/homes.t27  (gen_hash_rust)
+      resealed  specs/t27os/keys.t27  (gen_hash_rust)
+      resealed  specs/t27os/keysync.t27  (gen_hash_rust)
+      resealed  specs/t27os/lanes_view.t27  (gen_hash_rust)
+      resealed  specs/t27os/orbit_view.t27  (gen_hash_rust)
+      resealed  specs/t27os/pins.t27  (gen_hash_rust)
+      resealed  specs/t27os/plist_main.t27  (gen_hash_rust)
+      resealed  specs/t27os/pty_logic.t27  (gen_hash_rust)
+      resealed  specs/t27os/queen_dash.t27  (gen_hash_rust)
+      resealed  specs/t27os/session_store.t27  (gen_hash_rust)
+      resealed  specs/t27os/term_input.t27  (gen_hash_rust)
+      resealed  specs/t27os/term_pane.t27  (gen_hash_rust)
+      resealed  specs/t27os/vt.t27  (gen_hash_rust)
+      resealed  specs/tools/t27o/rust_std.t27  (gen_hash_rust)
+      resealed  specs/tri/crypto/hex.t27  (gen_hash_rust)
+      resealed  specs/tri/io/filesystem.t27  (gen_hash_rust)
+      resealed  specs/tri/io/fs.t27  (gen_hash_rust)
+      resealed  specs/tri/sort/merge_sort.t27  (gen_hash_rust)
+      resealed  specs/tri/t27b/conformance/big_frame.t27  (gen_hash_rust)
+      resealed  specs/tri/t27b/conformance/frame_address_caller_owned.t27  (gen_hash_rust)
+      resealed  specs/tri/t27b/conformance/large_frame.t27  (gen_hash_rust)
+      resealed  specs/tri/t27b/conformance/libm_powf.t27  (gen_hash_rust)
+      resealed  specs/tri/t27b/conformance/libm_rounding.t27  (gen_hash_rust)
+      resealed  specs/tri/t27b/conformance/undefined_arg.t27  (gen_hash_rust)
+      resealed  specs/tri/t27b/libm.t27  (gen_hash_rust)
+      resealed  specs/tri/t27b/wasm.t27  (gen_hash_rust)
+      resealed  specs/tri/trees/rtree.t27  (gen_hash_rust)
+      resealed  specs/tri/utils/logging.t27  (gen_hash_rust)
+      resealed  specs/tri/utils/template.t27  (gen_hash_rust)
+      resealed  specs/vsa/ops.t27  (gen_hash_rust)
+      resealed  specs/vsa/vsa_core.t27  (gen_hash_rust)
+
+  re-sealed                                   182
+
+  unread  specs/brain/gwt_model.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/avs_controller_48.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/avs_controller_96.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/avs_reconf.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/dfs_gate.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/drowsy_ret.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/fbb_active_path.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/gf16_to_fp16.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/gf16_to_posit16.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/gf32_to_fp32.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/holo_mux_x4.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/lane_l_precheck.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/lut_npu_81_entry.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/null_pe.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/purkinje_thermal_gate.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/sparse_mask.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/sparse_skip.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/spec_exit.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/stoch_round.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/subth_clk.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/ml/ternary_loss.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/ml/ternary_mlp.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/network/d2d_conformance.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/binary16.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/fp8_e4m3.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/fp8_e5m2.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/int4.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/int8.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/nf4.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/posit16.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/tri_net_formats.t27  -- `t27c seal` did not produce five hashes
+
+  twinned specs already consistent  497
+  seal files written           0
+  NOT COMPUTED, nothing claimed     31
