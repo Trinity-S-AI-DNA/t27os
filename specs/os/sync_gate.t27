@@ -44,15 +44,18 @@ pub const OWNER_PETALS : str = "t27:specs/t27f/petal_menu.t27";
 pub const OWNER_KERNEL : str = "t27:specs/t27os/kernel.t27";
 pub const OWNER_EVOLVE : str = "t27:specs/t27os/evolve.t27";
 pub const OWNER_ACTORS : str = "t27:specs/queen/actors.t27";
+pub const OWNER_PARTS : str = "t27:specs/t27os/agent_parts.t27";
 pub const OWNER_PETALS_PATH : str = "specs/t27f/petal_menu.t27";
 
 // the owned NAMES, one home each, |-separated. case-sensitive exact words, like the tick's grep.
 // owner of the first ten: OWNER_PETALS; of agent_cap, LANE_MB, LANE_HARD_MAX: OWNER_KERNEL;
 // of EV_MAX_AGENTS: OWNER_EVOLVE; of MAILBOX_CAP: OWNER_ACTORS. TOOL_LETTER is the tick's watched
 // name for the owner's letter registry (not yet declared there; a hit means someone declared it
-// here first, which the rule forbids all the same).
-pub const OWNED_NAMES : str = "PETAL_COUNT|PETALS_PER_REALM|REALM_COUNT|PETAL_NONE|PETAL_LETTERS|WORLD_NAMES|REALM_NAMES|REALM_RAZUM|REALM_MATERIYA|REALM_DUKH|agent_cap|LANE_MB|LANE_HARD_MAX|EV_MAX_AGENTS|MAILBOX_CAP|TOOL_LETTER";
-pub const OWNED_COUNT : u32 = 16;
+// here first, which the rule forbids all the same). The registry the owner does declare is
+// OWNER_PARTS: LETTER_COUNT (line 31), TOOL_NAMES, TOOL_PAGES, TOOL_ARTIFACTS (lines 937-946 at
+// t27 master 0be237ca1).
+pub const OWNED_NAMES : str = "PETAL_COUNT|PETALS_PER_REALM|REALM_COUNT|PETAL_NONE|PETAL_LETTERS|WORLD_NAMES|REALM_NAMES|REALM_RAZUM|REALM_MATERIYA|REALM_DUKH|agent_cap|LANE_MB|LANE_HARD_MAX|EV_MAX_AGENTS|MAILBOX_CAP|TOOL_LETTER|LETTER_COUNT|TOOL_NAMES|TOOL_PAGES|TOOL_ARTIFACTS";
+pub const OWNED_COUNT : u32 = 20;
 
 // --- verdicts ---
 pub const V_OK : u8 = 0;          // prose, string, pointer, or code that owns no owned name
@@ -286,6 +289,13 @@ test the_owned_registry_round_trips {
     assert name_in_list("PETAL_COUNT_SHOWN", 0, 17, OWNED_NAMES) == false;
     assert name_in_list("AGENT_CAP", 0, 9, OWNED_NAMES) == false;
     assert name_in_list("TOOL_LETTERS", 0, 12, OWNED_NAMES) == false;
+    // the four names OWNER_PARTS declares are registered, their near-names are not
+    assert name_in_list("LETTER_COUNT", 0, 12, OWNED_NAMES);
+    assert name_in_list("TOOL_NAMES", 0, 10, OWNED_NAMES);
+    assert name_in_list("TOOL_PAGES", 0, 10, OWNED_NAMES);
+    assert name_in_list("TOOL_ARTIFACTS", 0, 14, OWNED_NAMES);
+    assert name_in_list("TOOL_NAME", 0, 9, OWNED_NAMES) == false;
+    assert name_in_list("LETTER_COUNTS", 0, 13, OWNED_NAMES) == false;
 }
 
 test comments_strings_and_blanks_carry_no_copy {
@@ -326,6 +336,14 @@ test a_code_mention_of_an_owned_name_is_a_copy {
     assert verdict_of("    assert agent_cap(m, f, c, l, b) == 3;") == V_COPY_USE;
     // a declaration outranks nothing: either way the line is a copy
     assert verdict_of("pub const PETAL_COUNT : u32 = 27; // see petal_menu.t27") == V_COPY_DECL;
+    // the agent_parts.t27 registry, lifted from t27 master 0be237ca1 lines 31 and 937: before
+    // OWNER_PARTS was registered both lines scanned V_OK (night tick 64 finding)
+    assert verdict_of("pub const LETTER_COUNT : u32 = 27;") == V_COPY_DECL;
+    assert verdict_of("pub const TOOL_NAMES : [27]str = [") == V_COPY_DECL;
+    assert verdict_of("    return TOOL_PAGES[i];") == V_COPY_USE;
+    // and a pointer to that owner stays a reference
+    assert verdict_of("pub const PARTS_HOME : str = \"gHashTag/t27:specs/t27os/agent_parts.t27\";") == V_OK;
+    assert contains(OWNER_PARTS, "specs/t27os/agent_parts.t27");
 }
 
 test whole_word_and_case_boundaries_hold {
@@ -389,7 +407,7 @@ test the_gate_names_the_line_of_a_future_copy {
 test the_gate_applies_to_itself {
     // this spec names every owned constant -- inside strings and comments, which is the only
     // place the rule allows. its own real lines must scan clean:
-    assert verdict_of("pub const OWNED_NAMES : str = \"PETAL_COUNT|PETALS_PER_REALM|REALM_COUNT|PETAL_NONE|PETAL_LETTERS|WORLD_NAMES|REALM_NAMES|REALM_RAZUM|REALM_MATERIYA|REALM_DUKH|agent_cap|LANE_MB|LANE_HARD_MAX|EV_MAX_AGENTS|MAILBOX_CAP|TOOL_LETTER\";") == V_OK;
+    assert verdict_of("pub const OWNED_NAMES : str = \"PETAL_COUNT|PETALS_PER_REALM|REALM_COUNT|PETAL_NONE|PETAL_LETTERS|WORLD_NAMES|REALM_NAMES|REALM_RAZUM|REALM_MATERIYA|REALM_DUKH|agent_cap|LANE_MB|LANE_HARD_MAX|EV_MAX_AGENTS|MAILBOX_CAP|TOOL_LETTER|LETTER_COUNT|TOOL_NAMES|TOOL_PAGES|TOOL_ARTIFACTS\";") == V_OK;
     assert verdict_of("pub const OWNER_PETALS : str = \"t27:specs/t27f/petal_menu.t27\";") == V_OK;
     // the negative-control lines above are strings here too, so the whole file could be scanned
     // by the same law it states -- the self-application the pointer pattern lives by
