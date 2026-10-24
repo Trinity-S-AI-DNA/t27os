@@ -39,6 +39,10 @@ on:
         description: 'true = regenerate the tracked gen/rust and gen/c copies of the named specs and publish them beside the receipt'
         required: false
         default: 'false'
+      witness_json:
+        description: 'optional die witness (t27os#3, law specs/os/lab.t27): JSON with spec, entry, x, y, die_word, native, bitstream_sha256 and bit_exact true -- a crossing measured host-side on the AX7203 bench; shape-checked and embedded in the receipt as evidence about the second node'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -284,6 +288,63 @@ jobs:
           cp t27f_live.wasm "$GITHUB_WORKSPACE/runs/t27f_live.wasm"
           cp t27f_live.wasm.sha256 "$GITHUB_WORKSPACE/runs/t27f_live.wasm.sha256"
 
+      # The die witness (t27os#3): the runner CANNOT touch the board, so a witness spec's
+      # crossing of the AX7203 die is measured HOST-side (the owner's bench) and handed to
+      # this run as witness_json. This step validates the SHAPE against specs/os/lab.t27's
+      # witness_shape law -- the seven data fields present and well-formed, bit_exact
+      # exactly true, a FULL 64-hex bitstream digest -- and stages the fragment. A witness
+      # that fails any of this fails the run BEFORE the receipt is written: no half-witness
+      # can land. What the runner embeds is EVIDENCE ABOUT the second node; the runner did
+      # not verify the die run, and the note quoted into the receipt says exactly that.
+      - name: die witness -- shape-check a host-measured crossing (t27os#3)
+        if: inputs.witness_json != ''
+        shell: bash
+        env:
+          WITNESS: ${{ inputs.witness_json }}
+        run: |
+          set -e
+          printf '%s' "$WITNESS" > /tmp/witness.in.json
+          cat > /tmp/witness_check.py <<'PY'
+          import json, re, sys
+          def err(msg):
+              print("::error::die witness rejected: " + msg + " (specs/os/lab.t27, witness_shape)")
+              sys.exit(1)
+          try:
+              w = json.load(open("/tmp/witness.in.json"))
+          except Exception as e:
+              err("not valid JSON: " + str(e))
+          if not isinstance(w, dict):
+              err("not a JSON object")
+          DATA = ["spec", "entry", "x", "y", "die_word", "native", "bitstream_sha256"]
+          for k in DATA:
+              if k not in w:
+                  err("missing field " + k)
+          for k in ("spec", "entry", "die_word", "bitstream_sha256"):
+              if not (isinstance(w[k], str) and len(w[k]) > 0):
+                  err("field " + k + " must be a non-empty string")
+          for k in ("x", "y", "native"):
+              if isinstance(w[k], bool) or not isinstance(w[k], int):
+                  err("field " + k + " must be an integer")
+          if not re.fullmatch(r"[0-9a-f]{1,6}", w["die_word"]):
+              err("die_word must be 1..6 lowercase hex (the 24-bit word the wire answered)")
+          if not re.fullmatch(r"[0-9a-f]{64}", w["bitstream_sha256"]):
+              err("bitstream_sha256 must be a full 64-hex digest, never a truncation")
+          if w.get("bit_exact") is not True:
+              err("bit_exact must be exactly true; a crossing that was not bit-exact is not evidence")
+          law = open("specs/os/lab.t27").read()
+          m = re.search(r'WITNESS_NOTE : str = "([^"]*)"', law)
+          if not m:
+              err("specs/os/lab.t27 carries no WITNESS_NOTE; the receipt cannot quote the law")
+          out = {"die_witness": {k: w[k] for k in DATA + ["bit_exact"]},
+                 "die_witness_note": m.group(1)}
+          with open("/tmp/witness.frag.json", "w") as f:
+              json.dump(out, f, indent=2)
+          print("die witness staged: 7 data fields, bit_exact true; note quoted from specs/os/lab.t27")
+          PY
+          # the heredoc carried the block-scalar indent; strip exactly 10 leading spaces
+          sed -i 's/^          //' /tmp/witness_check.py
+          python3 /tmp/witness_check.py
+
       - name: write the receipt
         shell: bash
         run: |
@@ -314,6 +375,12 @@ jobs:
             echo '  ]'
             echo '}'
           } > "$file"
+          # the die witness, when one was staged: merged as a dict AFTER the receipt is
+          # written, so the result is valid JSON by construction (t27os#3). The note the
+          # runner quotes beside it comes verbatim from specs/os/lab.t27 WITNESS_NOTE.
+          if [ -f /tmp/witness.frag.json ]; then
+            python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); r.update(json.load(open(sys.argv[2]))); json.dump(r,open(sys.argv[1],"w"),indent=2)' "$file" /tmp/witness.frag.json
+          fi
           cp /tmp/out/summary.txt "runs/${{ steps.sha.outputs.resolved }}.${c8}.summary.txt"
           cat "$file"
 
