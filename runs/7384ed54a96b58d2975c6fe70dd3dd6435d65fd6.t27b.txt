@@ -1,0 +1,2 @@
+specs/crons/t27os-night-loop.t27|leg=t27b|tests=45|pass=45|FAIL=0|vacuous=0|asserts=122
+specs/t27os/receipt_result.t27|leg=t27b|tests=13|pass=13|FAIL=0|vacuous=0|asserts=48
