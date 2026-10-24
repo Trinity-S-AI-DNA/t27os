@@ -1,0 +1,2 @@
+.trinity/seals/fpga_fpga_wasm_board.json
+.trinity/seals/t27os_T27osDevices.json
