@@ -1,0 +1,2 @@
+specs/analog/mos_psp103_data.t27|leg=t27b|tests=13|pass=13|FAIL=0|vacuous=0|asserts=45797
+specs/fpga/psp103_inv_ax7203.t27|leg=t27b|tests=16|pass=16|FAIL=0|vacuous=0|asserts=unknown
