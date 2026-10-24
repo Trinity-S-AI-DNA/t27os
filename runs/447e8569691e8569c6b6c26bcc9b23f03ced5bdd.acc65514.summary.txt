@@ -1,0 +1,1 @@
+specs/t27os/lab_seal.t27|tests=NA|pass=NA|FAIL=NA|vacuous=NA|blocked=0
