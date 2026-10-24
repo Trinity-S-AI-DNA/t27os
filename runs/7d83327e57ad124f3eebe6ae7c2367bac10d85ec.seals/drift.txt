@@ -1,0 +1,42 @@
+  specs whose seals no longer describe them   1
+
+      specs/t27os/lanes_view.t27  moved: spec_hash, gen_hash_zig, gen_hash_c, gen_hash_rust, gen_hash_verilog
+      resealed  specs/t27os/lanes_view.t27  (spec_hash, gen_hash_zig, gen_hash_c, gen_hash_rust, gen_hash_verilog)
+
+  re-sealed                                   1
+
+  unread  specs/brain/gwt_model.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/avs_controller_48.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/avs_controller_96.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/avs_reconf.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/dfs_gate.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/drowsy_ret.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/fbb_active_path.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/gf16_to_fp16.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/gf16_to_posit16.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/gf32_to_fp32.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/holo_mux_x4.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/lane_l_precheck.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/lut_npu_81_entry.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/null_pe.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/purkinje_thermal_gate.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/sparse_mask.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/sparse_skip.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/spec_exit.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/stoch_round.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/fpga/subth_clk.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/ml/ternary_loss.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/ml/ternary_mlp.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/network/d2d_conformance.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/binary16.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/fp8_e4m3.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/fp8_e5m2.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/int4.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/int8.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/nf4.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/posit16.t27  -- `t27c seal` did not produce five hashes
+  unread  specs/numeric/tri_net_formats.t27  -- `t27c seal` did not produce five hashes
+
+  twinned specs already consistent  497
+  seal files written           0
+  NOT COMPUTED, nothing claimed     31
