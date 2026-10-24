@@ -1,0 +1,13 @@
+{
+  "sha": "7384ed54a96b58d2975c6fe70dd3dd6435d65fd6",
+  "challenge_sha256": "ffba88dfe163d59d27bc7e624ba0261bffe53b7810d99d1d1204b6ef3e66e1f2",
+  "t27c_build_stamp": "7384ed54a96b58d2975c6fe70dd3dd6435d65fd6",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-10-24T23:06:33Z",
+  "specs": [
+    {"spec": "specs/crons/t27os-night-loop.t27", "tests": "tests=45", "pass": "pass=45", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/crons/t27os-night-loop.t27", "tests": 45, "pass": 45, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
