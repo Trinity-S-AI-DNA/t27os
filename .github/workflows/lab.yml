@@ -277,23 +277,21 @@ jobs:
       - name: publish the receipt
         shell: bash
         run: |
+          # the receipt home is master, whatever ref was dispatched (t27 specs/t27os/lab_publish.t27)
           git config user.name "t27os-lab"
           git config user.email "admin@t27.ai"
           git add runs/
-          git commit -m "lab receipt: t27@${{ steps.sha.outputs.resolved }} challenge-sha256-published"
-          # the surface master moves while a run builds; rebase onto it before publishing
+          git commit -q -m "lab receipt (staging)"
+          rcpt=$(git rev-parse HEAD)
           for attempt in 1 2 3; do
-            git fetch origin
-            if git rebase origin/master; then
-              git push && break
-            fi
-            git rebase --abort 2>/dev/null || true
-            git rebase --onto origin/master HEAD~1 2>/dev/null || true
-            # redo the commit on the fresh base, then try again
-            git reset --soft origin/master
-            git commit -m "lab receipt: t27@${{ steps.sha.outputs.resolved }} challenge-sha256-published"
+            git fetch origin master
+            git checkout -q -f -B receipt origin/master
+            git diff --name-only --diff-filter=AM "$rcpt~1" "$rcpt" -- runs/ | xargs git checkout "$rcpt" --
+            git commit -q -m "lab receipt: t27@${{ steps.sha.outputs.resolved }} challenge-sha256-published"
+            git push origin HEAD:master && exit 0
+            sleep 5
           done
-          git push
+          exit 1
 
       # The verdict gate (t27os#9): a named spec that is BLOCKED, FAIL or NA fails the run,
       # after the receipt landed, so the evidence never disappears again.
@@ -370,8 +368,18 @@ jobs:
       - name: publish the t27b leg beside the receipt
         shell: bash
         run: |
+          # the receipt home is master, whatever ref was dispatched (t27 specs/t27os/lab_publish.t27)
           git config user.name "t27os lab"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add runs/*.t27b.txt
-          git commit -m "lab: t27b leg for ${{ needs.run.outputs.resolved }}"
-          for i in 1 2 3; do git pull --rebase origin master && git push origin HEAD:master && break; sleep 5; done
+          git commit -q -m "lab t27b leg (staging)"
+          rcpt=$(git rev-parse HEAD)
+          for i in 1 2 3; do
+            git fetch origin master
+            git checkout -q -f -B receipt origin/master
+            git checkout "$rcpt" -- runs/${{ needs.run.outputs.resolved }}.t27b.txt
+            git commit -q -m "lab: t27b leg for ${{ needs.run.outputs.resolved }}"
+            git push origin HEAD:master && exit 0
+            sleep 5
+          done
+          exit 1
