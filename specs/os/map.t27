@@ -7,12 +7,13 @@
 // language (own-language-first); every prose line here is a comment, so the map reads as text
 // to anything that cannot compile it, and the rows below are checked by the tests at the end.
 //
-// CENSUS (2026-10-24, t27 master f308c9388, git ls-tree on specs/<dir>, *.t27 only):
-//   specs/t27os   61 specs  (kernel, keys, labs, glass_window, lanes_view, receipt_name, ...)
-//   specs/queen   51 specs  (dispatch lifecycle, golden_chain, hive, actors, priority, ...)
+// CENSUS (2026-10-24T10:45Z, t27 master 3543eccd8, git ls-tree on specs/<dir>, *.t27 only;
+// the first census, at f308c9388, read 61 / 51 / 40):
+//   specs/t27os   66 specs  (kernel, keys, labs, glass_window, lanes_view, receipt_name, ...)
+//   specs/queen   47 specs  (dispatch lifecycle, golden_chain, hive, actors, priority, ...)
 //   specs/claw    40 specs  (the TRI CLAW gates)
 //   specs/tri/trigit/verbs.t27  the trigit verbs
-//   swarm channel on t27 origin: refs/swarm/claims/* (12), refs/swarm/alive/* (2),
+//   swarm channel on t27 origin: refs/swarm/claims/* (16), refs/swarm/alive/* (2),
 //   refs/notes/verdicts (1); the hive feed is ~/.t27os/hive/feed.txt on each node.
 //   app releases on this repo: v0.1.0-alpha (source, 2026-10-23); later builds are local only.
 //
@@ -24,31 +25,37 @@
 //    4 trigit verbs              -- t27:specs/tri/trigit/verbs.t27   -- LANDED
 //    5 swarm channel (refs)      -- t27:specs/queen/golden_chain.t27 -- LANDED
 //    6 lab executor + receipts   -- t27os:.github/workflows/lab.yml  -- LANDED
-//    7 receipt t27b leg          -- t27:specs/t27os/lab_legs.t27     -- BLOCKED t27#11890 (draft:
-//                                   lab.yml has no t27b step)
-//    8 receipt verdict           -- t27:specs/t27os/labs.t27         -- BLOCKED t27#11875 (t27b leg)
-//    9 lab surface survival      -- t27:specs/t27os/labs.t27         -- BLOCKED t27#11884 (t27b leg;
-//                                   lab.yml change routes through TRI CLAW)
-//   10 receipt name on schedule  -- t27:specs/t27os/receipt_name.t27 -- BLOCKED t27#11870 (t27b leg;
-//                                   t27os#11)
-//   11 lane sweep in the tick    -- t27:specs/crons/t27os-night-loop.t27 -- BLOCKED t27#11874 (t27os#8)
-//   12 sync gate                 -- t27os:specs/os/sync_gate.t27     -- BLOCKED t27os#15 (t27os#6)
-//   13 master seals fresh        -- t27:.trinity/seals               -- BLOCKED t27#11845 (reseal needs a
-//                                   master-built t27c on a lab that can seal; Railway login expired)
+//    7 receipt t27b leg          -- t27:specs/t27os/lab_legs.t27     -- MISSING (t27os#3: the law
+//                                   landed in t27#11890; lab.yml still has no t27b step, its copy
+//                                   waits on a workflow-scoped token)
+//    8 receipt verdict           -- t27:specs/t27os/labs.t27         -- BLOCKED t27#11875 (draft; the
+//                                   lab.yml gate landed in t27os#26, the law waits on a fresh
+//                                   t27os_labs seal from the t27#11903 batch)
+//    9 lab surface survival      -- t27:specs/t27os/labs.t27         -- BLOCKED t27#11884 (draft; the
+//                                   lab.yml side landed in t27os#26, same seal wait as row 8)
+//   10 receipt name on schedule  -- t27:specs/t27os/receipt_name.t27 -- LANDED (t27#11870; lab.yml
+//                                   names receipts by the resolved sha since t27os#26)
+//   11 lane sweep in the tick    -- t27:specs/crons/t27os-night-loop.t27 -- LANDED (t27#11874)
+//   12 sync gate                 -- t27os:specs/os/sync_gate.t27     -- LANDED (t27os#22)
+//   13 master seals fresh        -- t27:.trinity/seals               -- BLOCKED t27#11903 (t27#11845
+//                                   merged; the reseal needs a master-built t27c on the lab, and
+//                                   the lab.yml seal step waits on the same token as row 7)
 //   14 dispatcher on own actors  -- t27:specs/t27os/kernel.t27      -- MISSING (epic t27#11377; the
 //                                   live Queen still runs on Railway trios-agent-server)
-//   15 published app after alpha -- t27os releases                  -- MISSING (t27os#3)
+//   15 published app after alpha -- t27os releases                  -- MISSING (t27os#3; the only
+//                                   release is still v0.1.0-alpha)
 //
 // NOT CLAIMED: the counts are a census of one sha, not a live read; a row's state is what was
-// measured on 2026-10-24 and goes stale when a PR merges -- the sync gate (row 12) is the
-// mechanism meant to catch that, and it is not landed yet.
+// measured at VERIFIED_AT and goes stale when a PR merges. Nothing re-measures the rows
+// automatically yet: a tick refreshes them by hand (the sync gate, row 12, catches copied
+// invariants, not stale rows).
 // phi^2 + 1/phi^2 = 3 | TRINITY
 
 module t27os_map;
 
 pub const ID : str = "t27os-map";
 pub const VERIFIED_AT : str = "2026-10-24";
-pub const T27_MASTER : str = "f308c9388";
+pub const T27_MASTER : str = "3543eccd8";
 
 pub const LANDED : u8 = 0;
 pub const BLOCKED : u8 = 1;
@@ -61,17 +68,17 @@ pub const REPO_T27OS : u8 = 2;
 pub const PARTS : u32 = 16;
 
 // the census of t27 master, one number per directory
-pub const N_T27OS_SPECS : u32 = 61;
-pub const N_QUEEN_SPECS : u32 = 51;
+pub const N_T27OS_SPECS : u32 = 66;
+pub const N_QUEEN_SPECS : u32 = 47;
 pub const N_CLAW_SPECS : u32 = 40;
 
-pub const PART_STATE : [16]u8 = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2];
+pub const PART_STATE : [16]u8 = [0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 0, 0, 0, 1, 2, 2];
 // the repository the PR (BLOCKED) or the issue (MISSING) lives in
-pub const PART_REPO : [16]u8 = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 1, 2];
+pub const PART_REPO : [16]u8 = [0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 0, 0, 0, 1, 1, 2];
 // the open PR of a BLOCKED row, 0 elsewhere
-pub const PART_PR : [16]u32 = [0, 0, 0, 0, 0, 0, 0, 11890, 11875, 11884, 11870, 11874, 15, 11845, 0, 0];
+pub const PART_PR : [16]u32 = [0, 0, 0, 0, 0, 0, 0, 0, 11875, 11884, 0, 0, 0, 11903, 0, 0];
 // the issue naming a MISSING row, 0 elsewhere
-pub const PART_ISSUE : [16]u32 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11377, 3];
+pub const PART_ISSUE : [16]u32 = [0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 11377, 3];
 
 pub fn state_of(i: u32) -> u8 {
     if (i >= PARTS) { return MISSING; }
@@ -118,29 +125,39 @@ test every_row_carries_the_evidence_its_state_needs {
 }
 
 test the_states_partition_the_map {
-    assert count_state(LANDED) == 7;
-    assert count_state(BLOCKED) == 7;
-    assert count_state(MISSING) == 2;
+    // refresh of 3543eccd8: rows 10, 11, 12 landed; row 7 moved BLOCKED -> MISSING
+    assert count_state(LANDED) == 10;
+    assert count_state(BLOCKED) == 3;
+    assert count_state(MISSING) == 3;
     assert count_state(LANDED) + count_state(BLOCKED) + count_state(MISSING) == PARTS;
 }
 
 test a_landed_row_naming_a_pr_is_refused {
-    // negative control: row 0 is LANDED with no PR; row 7 is BLOCKED with one -- the check
+    // negative control: row 0 is LANDED with no PR; row 8 is BLOCKED with one -- the check
     // separates them, and an index past the map is never honest
     assert row_is_honest(0);
-    assert row_is_honest(7);
+    assert row_is_honest(8);
     assert !row_is_honest(PARTS);
     assert state_of(PARTS) == MISSING;
 }
 
-test the_sync_gate_row_points_at_this_repo_and_the_seal_row_at_t27 {
-    assert state_of(12) == BLOCKED;
-    assert PART_REPO[12] == REPO_T27OS;
-    assert PART_PR[12] == 15;
+test the_sync_gate_row_landed_and_the_seal_row_waits_on_the_reseal_batch {
+    assert state_of(12) == LANDED;
+    assert PART_REPO[12] == REPO_NONE;
+    assert PART_PR[12] == 0;
+    assert state_of(13) == BLOCKED;
     assert PART_REPO[13] == REPO_T27;
-    assert PART_PR[13] == 11845;
+    assert PART_PR[13] == 11903;
+}
+
+test a_merged_law_with_no_executor_step_is_missing_not_landed {
+    // row 7: lab_legs.t27 is on t27 master, but no receipt carries a t27b line yet
+    assert state_of(7) == MISSING;
+    assert PART_REPO[7] == REPO_T27OS;
+    assert PART_ISSUE[7] == 3;
+    assert PART_PR[7] == 0;
 }
 
 test the_census_is_one_number_a_machine_can_recheck {
-    assert census_total() == 152;
+    assert census_total() == 153;
 }
