@@ -1,0 +1,41 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+86928cb1c",
+  "closure": [
+    {
+      "spec": "specs/claw/recipes.t27",
+      "spec_hash": "sha256:429ab03319e9d59f6a4aad6945693a83374d6d805e32ad72836bf7aff23d6cb3"
+    },
+    {
+      "spec": "specs/t27os/disclosure.t27",
+      "spec_hash": "sha256:db2f6406b6d212a47a4084a1f766b157d8103b45a5d3e6e726dba245076946b4"
+    },
+    {
+      "spec": "specs/t27os/keysync.t27",
+      "spec_hash": "sha256:512b43451a403fb24b0ab38940673d2dbb94aab8fa9713560e9b0ef48c537bab"
+    }
+  ],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:1dff33abeef280ddf96705eab6bd1aba3b3975b71b9f60bed449840ccc3dc53d",
+  "gen_hash_rust": "sha256:bf6df17477b840c8ce4c15acfa519d16202367d75312a6371bdc9895f29f8feb",
+  "gen_hash_verilog": "sha256:e97a5ffbd58ffc668bd55d3737a24d17c6244f0e5f5800d09da4821302c98e44",
+  "gen_hash_zig": "sha256:0321bc8e7ad432c3725a8549231ff209eb2378627b7ad5fc9fc86b1d317cb3d7",
+  "module": "t27os-night-loop",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-10-24T21:34:34Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:01b78d9c83659ab3aa056a7cbf9a077b9313b6ee398b5fb69b68b9cd2ec74b52",
+  "spec_path": "specs/crons/t27os-night-loop.t27",
+  "tests": {
+    "failed": 0,
+    "failing": [],
+    "forced": false,
+    "passed": 42,
+    "total": 42,
+    "vacuous": 0
+  },
+  "toolchain": {
+    "test_runner": "sha256:8512b80da533b79289110fca4a65f3336abd7a059ca4b72ea595d5e33ff8ad10",
+    "zig": "0.16.0"
+  }
+}
