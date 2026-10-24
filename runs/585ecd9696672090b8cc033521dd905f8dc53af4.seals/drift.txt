@@ -1,0 +1,5 @@
+  specs whose seals no longer describe them   0
+
+  Every seal of every spec that exists matches what the compiler
+  produces from it right now. Dangling and phantom seals are a
+  different question and belong to the seal gate.
