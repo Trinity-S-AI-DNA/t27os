@@ -1,0 +1,2 @@
+specs/t27os/disclosure_scan.t27|leg=t27b|tests=13|pass=13|FAIL=0|vacuous=0|asserts=52
+specs/t27os/disclosure.t27|leg=t27b|tests=6|pass=6|FAIL=0|vacuous=0|asserts=21
