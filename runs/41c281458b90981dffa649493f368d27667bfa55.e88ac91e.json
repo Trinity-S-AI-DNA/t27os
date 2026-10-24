@@ -1,0 +1,15 @@
+{
+  "sha": "41c281458b90981dffa649493f368d27667bfa55",
+  "challenge_sha256": "e88ac91e483e9abd4f7ed6bd7d2113b23dd58d51dcc946bbf05c39db416c9185",
+  "t27c_build_stamp": "41c281458b90981dffa649493f368d27667bfa55",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-10-24T22:09:07Z",
+  "specs": [
+    {"spec": "specs/t27os/receipt_result.t27", "tests": "tests=7", "pass": "pass=7", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27os/lab_publish.t27", "tests": "tests=5", "pass": "pass=5", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27os/receipt_result.t27", "tests": 7, "pass": 7, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27os/lab_publish.t27", "tests": 5, "pass": 5, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 2, "reported": 2}
+}
