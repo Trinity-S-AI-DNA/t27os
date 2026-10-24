@@ -1,0 +1,5 @@
+.trinity/seals/analog_AnalogMosPsp103Data.json
+.trinity/seals/fpga_FpgaPsp103Inv.json
+.trinity/seals/t27f_T27fPetalMenu.json
+.trinity/seals/t27os_T27osAgentParts.json
+.trinity/seals/t27os_T27osDevices.json

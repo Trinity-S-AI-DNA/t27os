@@ -1,0 +1,53 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+6d705836f",
+  "closure": [
+    {
+      "spec": "specs/analog/linear.t27",
+      "spec_hash": "sha256:3ddef7be183aba583ed285334ee389b48a65b41335e98914514235db7c4e5d62"
+    },
+    {
+      "spec": "specs/analog/mos_psp103.t27",
+      "spec_hash": "sha256:e04b69e5c43188a3d46a4c0949cfc727f239721de73fb46e92c8a845bbbbc98e"
+    },
+    {
+      "spec": "specs/analog/mos_psp103_data.t27",
+      "spec_hash": "sha256:9baeabd61f6737e1a829c5c7faf3fa1ac73d4d2dcf452dd4ee7e7d2abf4436bc"
+    },
+    {
+      "spec": "specs/analog/mos_table.t27",
+      "spec_hash": "sha256:cbebd820d2284174fd88fd6e5c36fb4f0a7778c9977c9742fe215b177d623bd8"
+    },
+    {
+      "spec": "specs/fpga/rc_filter_ax7203.t27",
+      "spec_hash": "sha256:be3af1aa6195d51e46289121cfd42623c80cd42d863442f4f6f69109da06d32f"
+    },
+    {
+      "spec": "specs/fpga/sar_adc_ax7203.t27",
+      "spec_hash": "sha256:4db9099fe0019743e3300f8281fffcfe33ad653d7f953dee149749ee7d332888"
+    }
+  ],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:dba20e826731da232c7deaf2eee5faee04fc8ab63ffe4fdb4e542a6ee6796b3a",
+  "gen_hash_rust": "sha256:05beac57acaefed7e608d237b7836d2a301a6e3c306daf1ae949a00f6cf14da6",
+  "gen_hash_verilog": "sha256:57aaf52a139d15b34e0c9692fae9b8cb79376e28716c660b4cf56ba0cba356b0",
+  "gen_hash_zig": "sha256:0c2ab2079022238b73ec9bc2070adb66782eadbb2e31596c4c112362f540d54a",
+  "module": "FpgaPsp103Inv",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-10-24T15:16:03Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:26e229e6bd09f40aeb8711f3fd43c6ef2468bb1e1b106c68b4c89fb0b36336e3",
+  "spec_path": "specs/fpga/psp103_inv_ax7203.t27",
+  "tests": {
+    "failed": 0,
+    "failing": [],
+    "forced": false,
+    "passed": 16,
+    "total": 16,
+    "vacuous": 0
+  },
+  "toolchain": {
+    "test_runner": "sha256:8512b80da533b79289110fca4a65f3336abd7a059ca4b72ea595d5e33ff8ad10",
+    "zig": "0.16.0"
+  }
+}

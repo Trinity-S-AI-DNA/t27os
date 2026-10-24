@@ -1,0 +1,14 @@
+{
+  "sha": "6d705836fedebbf5bdfe1c8ec3418814d5f78954",
+  "challenge_sha256": "5ff8b0d12d62816ad8d7d5497c6b15c46a550c802d87d2bf050be651c2cfdb44",
+  "t27c_build_stamp": "6d705836fedebbf5bdfe1c8ec3418814d5f78954",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-10-24T15:16:08Z",
+  "specs": [
+    {"spec": "specs/analog/mos_psp103_data.t27", "tests": "tests=13", "pass": "pass=13", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/fpga/psp103_inv_ax7203.t27", "tests": "tests=16", "pass": "pass=16", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+}
