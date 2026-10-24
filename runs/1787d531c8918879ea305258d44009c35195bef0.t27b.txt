@@ -1,0 +1,2 @@
+specs/t27f/live_mode.t27|leg=t27b|tests=8|pass=8|FAIL=0|vacuous=0|asserts=1098
+specs/t27f/measure_live.t27|leg=t27b|tests=8|pass=8|FAIL=0|vacuous=0|asserts=16402
