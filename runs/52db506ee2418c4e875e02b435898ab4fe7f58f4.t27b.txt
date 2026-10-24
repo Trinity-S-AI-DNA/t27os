@@ -1,0 +1,1 @@
+specs/crons/t27os-night-loop.t27|leg=t27b|tests=31|pass=31|FAIL=0|vacuous=0|asserts=88
