@@ -1,0 +1,29 @@
+{
+  "sha": "331daa66f981b100b780ec86b71e37cb056c4037",
+  "challenge_sha256": "e8b0a2ebd4af5165c84dac2ea587f6d3c0fd74781da91835f3b0e705d9042715",
+  "t27c_build_stamp": "331daa66f981b100b780ec86b71e37cb056c4037",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-10-24T16:23:16Z",
+  "specs": [
+    {
+      "spec": "specs/os/lab.t27",
+      "tests": "tests=NA",
+      "pass": "pass=NA",
+      "FAIL": "FAIL=NA",
+      "vacuous": "vacuous=NA",
+      "blocked": "blocked=0"
+    }
+  ],
+  "die_witness": {
+    "spec": "add2",
+    "entry": "add2",
+    "x": 3,
+    "y": 4,
+    "die_word": "7",
+    "native": 7,
+    "bitstream_sha256": "88934ae5c429154f75754b91d45c0d5094ebc201a72110531020e88f0dc2630c",
+    "bit_exact": true
+  },
+  "die_witness_note": "die_witness is evidence about the second node: a crossing measured host-side on the owner's AX7203 bench, embedded after a shape check. The runner did not verify the die run."
+}
