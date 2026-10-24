@@ -35,6 +35,10 @@ on:
         description: 'true = reseal what drifted (tri seals drift --fix) and publish the changed seals beside the receipt'
         required: false
         default: 'false'
+      gen:
+        description: 'true = regenerate the tracked gen/rust and gen/c copies of the named specs and publish them beside the receipt'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -116,6 +120,26 @@ jobs:
           git ls-files -z -m -o --exclude-standard -- .trinity/seals | xargs -0 -r cp -t "$out"
           git ls-files -m -o --exclude-standard -- .trinity/seals > "$out/CHANGED.txt"
           wc -l < "$out/CHANGED.txt"
+
+      - name: gen leg -- regenerate the tracked gen/ copies of the named specs (L2 GENERATION, t27#11840)
+        if: inputs.gen == 'true'
+        shell: bash
+        run: |
+          sha=${{ steps.sha.outputs.resolved }}
+          out="$GITHUB_WORKSPACE/runs/$sha.gen"
+          mkdir -p "$out"
+          cd t27
+          for spec in ${{ inputs.specs }}; do
+            rel=${spec#specs/}; rel=${rel%.t27}
+            for pair in "rust:gen/rust/$rel.rs" "c:gen/c/$rel.c"; do
+              path=${pair#*:}
+              git ls-files --error-unmatch "$path" >/dev/null 2>&1 || continue
+              mkdir -p "$out/$(dirname "$path")"
+              ./target/release/t27c gen-${pair%%:*} "$spec" > "$out/$path" || { echo "$path|gen-${pair%%:*} exited non-zero" >> "$out/FAILED.txt"; continue; }
+              cmp -s "$out/$path" "$path" && echo "$path|same" >> "$out/LIST.txt" || echo "$path|changed" >> "$out/LIST.txt"
+            done
+          done
+          touch "$out/LIST.txt"; cat "$out/LIST.txt"
 
       - name: check the encoder plumbing (M6 -- export_video encodes on the lab; distro ffmpeg first, static build as fallback, never fatal -- t27os#10)
         shell: bash
