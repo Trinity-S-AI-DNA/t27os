@@ -3,7 +3,8 @@
 // specs/t27os/labs.t27 owns the run sequence (fetch -> build -> corpus -> ... -> publish) as an
 // actor; t27c corpus-receipt owns receipt signing and the challenge discipline; the payout law
 // owns the money. This file names the surface pieces that live HERE and points at every law;
-// it states no rule of its own.
+// the only rules it states itself are the SHAPES of those pieces (the receipt-name law and,
+// since t27os#3, the die-witness law below).
 //
 // SURFACE FACTS (measured 2026-10-23):
 //   executor   .github/workflows/lab.yml in THIS repo -- workflow_dispatch(sha, challenge,
@@ -16,12 +17,25 @@
 // NOT CLAIMED: no second NODE has reproduced a receipt yet (the requester's re-run is one of
 // the two verifications); no $TRI has moved (the payout law sets amounts and schedules); the
 // M3/M6 measurement runs have not been dispatched yet.
+// DIE WITNESS (t27os#3, law added 2026-10-24): a receipt MAY carry an optional 'die_witness'
+// object -- one witness spec's measured crossing of the AX7203 die: which spec, which entry,
+// the x/y operands sent on the wire, the 24-bit die_word that came back, the native value,
+// whether the two were bit-exact, and the sha256 of the bitstream that was loaded. The
+// executor CANNOT touch the board (a GitHub runner has no JTAG chain): the crossing is
+// measured HOST-side on the owner's AX7203 bench and handed to the run as its optional
+// witness_json input; the runner validates the SHAPE (the seven data fields present and
+// well-formed, bit_exact exactly true) and embeds what it was given. THE RULE, worded so it
+// cannot overclaim: a die_witness is EVIDENCE ABOUT the second node, not a claim the runner
+// verified it -- the runner checked the shape of a measurement made elsewhere, by someone
+// else; every field the runner itself measured stays in the receipt's own fields. The NOT
+// CLAIMED line above stays true until a second node runs the lab itself -- a witnessed
+// receipt does not close it.
 // phi^2 + 1/phi^2 = 3 | TRINITY
 
 module t27os_lab_surface;
 
 pub const ID : str = "t27os-lab-surface";
-pub const VERSION : u8 = 3;
+pub const VERSION : u8 = 4;
 
 // the laws this surface calls; every rule lives at its pointer
 pub const LAB_LAW : str = "t27:specs/t27os/labs.t27";
@@ -135,4 +149,111 @@ test the_executor_is_a_github_workflow {
     assert starts_with(WORKFLOW, ".github/workflows/");
     assert ends_with(WORKFLOW, ".yml");
     assert starts_with("lab.yml", ".github/workflows/") == false;
+}
+
+// --- the die witness shape (t27os#3) ---
+// Modelled as the executor sees it: eight findings. Bits 0..6 are the seven data fields
+// (spec, entry, x, y, die_word, native, bitstream_sha256), each PRESENT and well-formed;
+// bit 7 is not "the bit_exact key exists" but "its value is exactly true". The runner's
+// python walks the same law (missing field, bad die_word, truncated digest, bit_exact not
+// true: each rejects the run before any receipt is written, so no half-witness can land).
+
+pub const WITNESS_DATA_FIELDS : usize = 7;
+pub const WITNESS_ALL_FIELDS : usize = 8;
+pub const WITNESS_FULL_MASK : usize = 255;
+pub const DIE_WORD_MAX : usize = 6; // the P2 wire answers a 24-bit word: 1..6 lowercase hex
+pub const SHA256_HEX : usize = 64;  // a full digest; a truncation names no bitstream
+
+/// A die answer word: 1..6 lowercase hex digits -- the low 24 bits the wire returned.
+pub fn is_die_word(w : str) -> bool {
+    if (w.len == 0 or w.len > DIE_WORD_MAX) { return false; }
+    var i : usize = 0;
+    while (i < w.len) {
+        if (is_hex(w[i]) == false) { return false; }
+        i = i + 1;
+    }
+    return true;
+}
+
+/// A full sha256: exactly 64 lowercase hex digits. A truncated digest is rejected -- it
+/// names no bitstream, and a witness that cannot name its bitstream is not evidence.
+pub fn is_sha256_hex(s : str) -> bool {
+    if (s.len != SHA256_HEX) { return false; }
+    var i : usize = 0;
+    while (i < s.len) {
+        if (is_hex(s[i]) == false) { return false; }
+        i = i + 1;
+    }
+    return true;
+}
+
+/// The witness shape law: only the full eight-findings mask embeds. Anything less is
+/// rejected -- a missing field and a non-bit-exact crossing both fail identically.
+pub fn witness_shape(present : usize) -> bool {
+    return present == WITNESS_FULL_MASK;
+}
+
+/// The note the executor quotes beside the witness, verbatim from this file: the wording
+/// has ONE home (this spec); the runner extracts it, it never restates it.
+pub const WITNESS_NOTE : str = "die_witness is evidence about the second node: a crossing measured host-side on the owner's AX7203 bench, embedded after a shape check. The runner did not verify the die run.";
+
+invariant the_witness_shape_law {
+    // the law is one equality; totality (every mask of the 256 answers, exactly one
+    // accepted) is proven by EXECUTION in the test below -- a comptime loop busts the
+    // branch quota, the same split sync_gate.t27 makes for its pointer coupling.
+    assert WITNESS_DATA_FIELDS + 1 == WITNESS_ALL_FIELDS;
+    assert WITNESS_FULL_MASK == 255;
+    assert witness_shape(WITNESS_FULL_MASK);
+    // bit 7 clear -- bit_exact not true -- rejects even with all seven data fields found
+    assert witness_shape(WITNESS_FULL_MASK - 128) == false;
+}
+
+test the_witness_shape_is_total_and_accepts_exactly_one_mask {
+    // every possible findings mask answers; exactly the full mask is accepted
+    var m : usize = 0;
+    var accepted : usize = 0;
+    while (m < 256) {
+        if (witness_shape(m)) { accepted = accepted + 1; }
+        m = m + 1;
+    }
+    assert accepted == 1;
+    // negative controls: each single missing finding rejects the witness -- bit 0 no spec,
+    // 1 no entry, 2 no x, 3 no y, 4 no die_word, 5 no native, 6 no bitstream_sha256,
+    // 7 bit_exact not true
+    var bit : usize = 0;
+    var sub : usize = 1;
+    while (bit < WITNESS_ALL_FIELDS) {
+        assert witness_shape(WITNESS_FULL_MASK - sub) == false;
+        sub = sub * 2;
+        bit = bit + 1;
+    }
+    // the empty witness, and a ninth stray finding beyond the eight the law knows
+    assert witness_shape(0) == false;
+    assert witness_shape(256) == false;
+}
+
+test the_die_word_and_the_bitstream_digest_have_their_shapes {
+    // tonight's crossing words (t27os#3, measured 2026-10-24): 3+4 answered 7, -5+2
+    // answered fffffd (native -3, low 24 bits) -- both bit-exact
+    assert is_die_word("7");
+    assert is_die_word("fffffd");
+    // negative controls: empty, seven digits, uppercase, a non-hex byte
+    assert is_die_word("") == false;
+    assert is_die_word("ffffff7") == false;
+    assert is_die_word("FFFFFD") == false;
+    assert is_die_word("7x") == false;
+    // the digest: 64 lowercase hex accepts; a truncation (the published 174da6b8... form),
+    // 63 digits and 65 digits reject -- the first crossing's digest was published
+    // truncated, and a witness citing it must wait for the full form
+    assert is_sha256_hex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"); // shape only, not a real digest
+    assert is_sha256_hex("174da6b8") == false;
+    assert is_sha256_hex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") == false;
+    assert is_sha256_hex("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA") == false;
+}
+
+test the_note_keeps_both_honest_halves {
+    // the wording must keep what it is (evidence ABOUT the second node) and what the
+    // runner did not do (verify the die run); edit either half away and this fails
+    assert starts_with(WITNESS_NOTE, "die_witness is evidence about the second node");
+    assert ends_with(WITNESS_NOTE, "The runner did not verify the die run.");
 }
