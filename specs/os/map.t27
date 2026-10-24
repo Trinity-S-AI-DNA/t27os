@@ -25,9 +25,8 @@
 //    4 trigit verbs              -- t27:specs/tri/trigit/verbs.t27   -- LANDED
 //    5 swarm channel (refs)      -- t27:specs/queen/golden_chain.t27 -- LANDED
 //    6 lab executor + receipts   -- t27os:.github/workflows/lab.yml  -- LANDED
-//    7 receipt t27b leg          -- t27:specs/t27os/lab_legs.t27     -- MISSING (t27os#3: the law
-//                                   landed in t27#11890; lab.yml still has no t27b step, its copy
-//                                   waits on a workflow-scoped token)
+//    7 receipt t27b leg          -- t27:specs/t27os/lab_legs.t27     -- LANDED (t27os#27; the first
+//                                   two-leg receipt is runs/707b6f84d...e458ed52.t27b.txt)
 //    8 receipt verdict           -- t27:specs/t27os/labs.t27         -- BLOCKED t27#11875 (draft; the
 //                                   lab.yml gate landed in t27os#26, the law waits on a fresh
 //                                   t27os_labs seal from the t27#11903 batch)
@@ -39,7 +38,7 @@
 //   12 sync gate                 -- t27os:specs/os/sync_gate.t27     -- LANDED (t27os#22)
 //   13 master seals fresh        -- t27:.trinity/seals               -- BLOCKED t27#11903 (t27#11845
 //                                   merged; the reseal needs a master-built t27c on the lab, and
-//                                   the lab.yml seal step waits on the same token as row 7)
+//                                   the lab.yml seal step is not copied yet)
 //   14 dispatcher on own actors  -- t27:specs/t27os/kernel.t27      -- MISSING (epic t27#11377; the
 //                                   live Queen still runs on Railway trios-agent-server)
 //   15 published app after alpha -- t27os releases                  -- MISSING (t27os#3; the only
@@ -72,13 +71,13 @@ pub const N_T27OS_SPECS : u32 = 66;
 pub const N_QUEEN_SPECS : u32 = 47;
 pub const N_CLAW_SPECS : u32 = 40;
 
-pub const PART_STATE : [16]u8 = [0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 0, 0, 0, 1, 2, 2];
+pub const PART_STATE : [16]u8 = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 2, 2];
 // the repository the PR (BLOCKED) or the issue (MISSING) lives in
-pub const PART_REPO : [16]u8 = [0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 0, 0, 0, 1, 1, 2];
+pub const PART_REPO : [16]u8 = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 2];
 // the open PR of a BLOCKED row, 0 elsewhere
 pub const PART_PR : [16]u32 = [0, 0, 0, 0, 0, 0, 0, 0, 11875, 11884, 0, 0, 0, 11903, 0, 0];
 // the issue naming a MISSING row, 0 elsewhere
-pub const PART_ISSUE : [16]u32 = [0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 11377, 3];
+pub const PART_ISSUE : [16]u32 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11377, 3];
 
 pub fn state_of(i: u32) -> u8 {
     if (i >= PARTS) { return MISSING; }
@@ -125,10 +124,10 @@ test every_row_carries_the_evidence_its_state_needs {
 }
 
 test the_states_partition_the_map {
-    // refresh of 3543eccd8: rows 10, 11, 12 landed; row 7 moved BLOCKED -> MISSING
-    assert count_state(LANDED) == 10;
+    // refresh of 3543eccd8: rows 10, 11, 12 landed; row 7 landed with t27os#27
+    assert count_state(LANDED) == 11;
     assert count_state(BLOCKED) == 3;
-    assert count_state(MISSING) == 3;
+    assert count_state(MISSING) == 2;
     assert count_state(LANDED) + count_state(BLOCKED) + count_state(MISSING) == PARTS;
 }
 
@@ -150,12 +149,15 @@ test the_sync_gate_row_landed_and_the_seal_row_waits_on_the_reseal_batch {
     assert PART_PR[13] == 11903;
 }
 
-test a_merged_law_with_no_executor_step_is_missing_not_landed {
-    // row 7: lab_legs.t27 is on t27 master, but no receipt carries a t27b line yet
-    assert state_of(7) == MISSING;
-    assert PART_REPO[7] == REPO_T27OS;
-    assert PART_ISSUE[7] == 3;
-    assert PART_PR[7] == 0;
+test the_t27b_leg_landed_once_a_receipt_carried_its_line {
+    // row 7: the law (t27#11890) and the lab.yml t27b job (t27os#27) are both on master
+    assert state_of(7) == LANDED;
+    assert row_is_honest(7);
+    assert PART_REPO[7] == REPO_NONE;
+    assert PART_ISSUE[7] == 0;
+    // negative control: the last MISSING row still names its issue
+    assert state_of(15) == MISSING;
+    assert PART_ISSUE[15] == 3;
 }
 
 test the_census_is_one_number_a_machine_can_recheck {
