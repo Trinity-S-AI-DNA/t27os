@@ -1,0 +1,2 @@
+specs/t27os/receipt_result.t27|leg=t27b|tests=7|pass=7|FAIL=0|vacuous=0|asserts=21
+specs/t27os/lab_publish.t27|leg=t27b|tests=5|pass=5|FAIL=0|vacuous=0|asserts=23
