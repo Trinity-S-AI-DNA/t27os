@@ -1,0 +1,1 @@
+.trinity/seals/t27b_T27bWasm.json

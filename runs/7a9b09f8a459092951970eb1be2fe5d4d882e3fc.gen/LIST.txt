@@ -1,0 +1,2 @@
+gen/rust/tri/t27b/wasm.rs|changed
+gen/rust/tri/t27b/macho.rs|same
