@@ -1,0 +1,1 @@
+specs/t27os/receipt_result.t27|leg=t27b|tests=7|pass=7|FAIL=0|vacuous=0|asserts=21
