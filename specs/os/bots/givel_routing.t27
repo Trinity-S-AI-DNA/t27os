@@ -1,0 +1,62 @@
+// SPDX-License-Identifier: Apache-2.0
+// givel_routing.t27 -- WHERE a client request goes. The AI layer may talk, but
+// every request lands in exactly ONE route, and partner routes are explicit --
+// a lead is never dropped because "AI answered". ASCII only (L3).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module GivelRouting;
+
+pub const ROUTE_GIVEL_SALES : str = "givel-sales";        // GIVEL group, topic Leads
+pub const ROUTE_PARTNER_TURBOBABY : str = "partner-turbobaby"; // Filipp's company, bike/moto rental (planned connection)
+pub const ROUTE_PARTNER_TOUR : str = "partner-tours";     // excursions / tourism (partner TBD)
+pub const ROUTE_PARTNER_EXCHANGE : str = "partner-exchange"; // exchange / trade-in (partner TBD)
+
+/// Route keywords: the first table the request text is matched against.
+/// "аренда авто" is NOT here: cars are GIVEL's own partner fleet (Stas & Yan).
+pub const ROUTE_KEYS : [7][2]str = [
+    ["обмен", ROUTE_PARTNER_EXCHANGE],
+    ["trade-in", ROUTE_PARTNER_EXCHANGE],
+    ["экскурс", ROUTE_PARTNER_TOUR],
+    ["тур", ROUTE_PARTNER_TOUR],
+    ["туризм", ROUTE_PARTNER_TOUR],
+    ["байк", ROUTE_PARTNER_TURBOBABY],
+    ["мото", ROUTE_PARTNER_TURBOBABY],
+];
+
+/// The route for the host's first-hit index, or GIVEL sales when no key hit.
+pub fn route_for(hit_index: u32) -> str {
+    if (hit_index < 7) { return ROUTE_KEYS[hit_index][1]; }
+    return ROUTE_GIVEL_SALES;
+}
+
+/// Connection status of a partner route: routes marked planned still log the
+/// lead to the GIVEL topic (nothing is lost), with a partner marker.
+pub fn route_connected(route: str) -> bool {
+    if (route == ROUTE_GIVEL_SALES) { return true; }
+    return false; // partner integrations are PLANNED (turbobaby: Filipp; tours/exchange: TBD)
+}
+
+test the_partner_routes_are_explicit {
+    assert ROUTE_PARTNER_TURBOBABY == "partner-turbobaby";
+    assert ROUTE_PARTNER_TOUR == "partner-tours";
+    assert ROUTE_PARTNER_EXCHANGE == "partner-exchange";
+}
+
+test the_route_table_has_seven_entries_and_first_hit_wins {
+    assert ROUTE_KEYS[0][0] == "обмен";
+    assert ROUTE_KEYS[0][1] == ROUTE_PARTNER_EXCHANGE;
+    assert ROUTE_KEYS[2][0] == "экскурс";
+    assert ROUTE_KEYS[5][0] == "байк";
+    assert ROUTE_KEYS[5][1] == ROUTE_PARTNER_TURBOBABY;
+    assert ROUTE_KEYS[6][1] == ROUTE_PARTNER_TURBOBABY;
+    assert route_for(0) == ROUTE_PARTNER_EXCHANGE;
+    assert route_for(5) == ROUTE_PARTNER_TURBOBABY;
+    assert route_for(7) == ROUTE_GIVEL_SALES;   // no hit stays with sales
+}
+
+test only_givel_is_connected_today {
+    assert route_connected(ROUTE_GIVEL_SALES) == true;
+    assert route_connected(ROUTE_PARTNER_TURBOBABY) == false; // PLANNED: Filipp / turbobaby
+    assert route_connected(ROUTE_PARTNER_TOUR) == false;
+    assert route_connected("") == false;
+}
