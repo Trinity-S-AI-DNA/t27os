@@ -1,0 +1,159 @@
+# The T27OS queen-feed exporter (the card is t27 specs/crons/t27os-queen-feed.t27;
+# issue t27#12384). Foreign file (.yml) under owner-approved-foreign, granted by the
+# owner on 2026-10-25 for this lane. PULL, not push: T27OS is a batch executor, so
+# every 15 minutes this re-exports the Queen's recent actor events as ONE static file,
+# runs/queen-feed.json (format t27f-queen-feed-v1), published into THIS repo's runs/
+# directory by the same mechanism as the lab receipts. The seed is the honest replay:
+# specs/queen/actor_events.t27's 24 REPLAY_* rows, joined to their specs through
+# specs/t27f/work_graph_fixture.t27. Both specs are read by `t27c gen-js` -- the
+# compiler reads the spec, no hand parsing -- and the assembly script re-checks the
+# invariants before anything publishes. When the live bus comes online it replaces
+# this seed; the workflow does not change.
+name: queen-feed
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # one group per event type: a queued schedule run must never be cancelled by a
+  # dispatched one (the lab's 2026-10-25 lesson -- GitHub cancels older QUEUED runs
+  # in a group even with cancel-in-progress: false)
+  group: queen-feed-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: check out this repo (the feed's home)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: check out t27 at master (the specs the seed reads)
+        uses: actions/checkout@v4
+        with:
+          repository: Trinity-S-AI-DNA/t27
+          ref: master
+          path: t27
+          persist-credentials: false
+
+      - name: build t27c
+        run: |
+          cd t27
+          cargo build --release -p t27c
+          ./target/release/t27c --version | tee /tmp/t27c_version.txt
+
+      - name: gate -- the seed specs pass before their data publishes
+        run: |
+          cd t27
+          for spec in specs/queen/actor_events.t27 specs/t27f/work_graph_fixture.t27; do
+            ./target/release/t27c test-report "$spec" || { echo "::error::$spec test-report exited non-zero; the seed is not publishable"; exit 1; }
+          done
+
+      - name: read the seed through the compiler (gen-js)
+        run: |
+          cd t27
+          mkdir -p /tmp/feed
+          ./target/release/t27c gen-js specs/queen/actor_events.t27 > /tmp/feed/actor_events.js
+          ./target/release/t27c gen-js specs/t27f/work_graph_fixture.t27 > /tmp/feed/work_graph_fixture.js
+          git rev-parse HEAD > /tmp/feed/t27_sha.txt
+
+      - name: assemble runs/queen-feed.json and check its invariants
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/runs"
+          cat > /tmp/feed/assemble.mjs <<'MJS'
+          // The seed assembly (t27 specs/crons/t27os-queen-feed.t27): the t27c gen-js copies of
+          // specs/queen/actor_events.t27 and specs/t27f/work_graph_fixture.t27 are the only data
+          // source; nothing about the events is written by hand here. The two joins this script
+          // performs are translations the specs state, not new logic: kind u8 -> the page's
+          // GX_EV name (t27f_live.js: spawn 0, exit 1, down 2, restart 3, deliver 4, delivers 5),
+          // and spec id -> SPEC_NAMES[id % 8], the resolution the live page itself applies.
+          import { pathToFileURL } from 'node:url'
+          const imp = (p) => import(pathToFileURL(p).href)
+          const ae = await imp(process.argv[2])
+          const fx = await imp(process.argv[3])
+          const out = process.argv[4]
+
+          const KIND_NAMES = ['spawn', 'exit', 'down', 'restart', 'deliver', 'delivers']
+          const N = 24
+          const invariants = (ok, msg) => { if (!ok) { console.error('::error::seed rejected: ' + msg); process.exit(1) } }
+          invariants(ae.REPLAY_EVENTS === N, 'REPLAY_EVENTS is not ' + N)
+          invariants(fx.FIXTURE_EVENTS >= N, 'fixture shorter than the replay')
+          invariants(fx.SPEC_NAMES.length === 8, 'SPEC_NAMES is not 8')
+          // The first 24 fixture rows are the replay, byte for byte -- the fixture pins this
+          // itself (its test against REPLAY_KIND_REF); re-check it here so a drift stops the publish.
+          for (let i = 0; i < N; i++) invariants(fx.KIND[i] === ae.REPLAY_KIND[i], 'fixture KIND[' + i + '] drifted from the replay')
+
+          const events = []
+          for (let i = 0; i < N; i++) {
+            const kind = KIND_NAMES[fx.KIND[i]]
+            invariants(kind !== undefined, 'KIND[' + i + '] outside 0..5')
+            const task = fx.TASK[i] > 0 ? fx.TASK[i] : null
+            const spec = fx.SPEC[i] > 0 ? fx.SPEC_NAMES[fx.SPEC[i] % 8] : null
+            invariants(fx.SEQ[i] === i + 1, 'SEQ[' + i + '] is not ' + (i + 1))
+            invariants(task === null ? spec === null : spec !== null, 'task without its joined spec at ' + i)
+            events.push({
+              seq: fx.SEQ[i],
+              kind,
+              tick: i,
+              task,
+              spec,
+              ts: Number(ae.REPLAY_T0_MS) + Number(ae.REPLAY_AT_MS[i]),
+            })
+          }
+          const feed = {
+            format: 't27f-queen-feed-v1',
+            source: 'seed: specs/queen/actor_events.t27 REPLAY_* (24 events) joined through specs/t27f/work_graph_fixture.t27 SPEC_NAMES; read by t27c gen-js, assembled by t27os/.github/workflows/queen-feed.yml (t27#12384)',
+            seed: true,
+            cursor: N,
+            generated_utc: new Date().toISOString().replace(/\.\d+Z$/, 'Z'),
+            events,
+          }
+          const t27sha = (await import('node:fs')).readFileSync(process.argv[5], 'utf8').trim()
+          if (t27sha) feed.t27_sha = t27sha
+          ;(await import('node:fs')).writeFileSync(out, JSON.stringify(feed, null, 1) + '\n')
+          console.log('queen-feed.json: ' + events.length + ' seed events, cursor ' + feed.cursor)
+          MJS
+          node /tmp/feed/assemble.mjs /tmp/feed/actor_events.js /tmp/feed/work_graph_fixture.js "$GITHUB_WORKSPACE/runs/queen-feed.json.new" /tmp/feed/t27_sha.txt
+          jq -e '.format=="t27f-queen-feed-v1" and .seed==true and (.events|length)==24 and .cursor==24 and ([.events[].seq] == [range(1;25)])' "$GITHUB_WORKSPACE/runs/queen-feed.json.new" > /dev/null
+          mv "$GITHUB_WORKSPACE/runs/queen-feed.json.new" "$GITHUB_WORKSPACE/runs/queen-feed.json"
+          jq '{format, seed, cursor, t27_sha, events: (.events|length)}' "$GITHUB_WORKSPACE/runs/queen-feed.json"
+
+      - name: publish the feed
+        run: |
+          # the feed's home is master, whatever ref was dispatched (t27 specs/t27os/lab_publish.t27)
+          git config user.name "t27os queen-feed"
+          git config user.email "admin@t27.ai"
+          git add runs/queen-feed.json
+          git commit -q -m "queen-feed export (staging)"
+          staged=$(git rev-parse HEAD)
+          for attempt in 1 2 3; do
+            git fetch origin master
+            git checkout -q -f -B feed origin/master
+            git checkout "$staged" -- runs/queen-feed.json
+            git commit -q -m "queen-feed: the batch export of the Queen actor events (t27#12384, seed)"
+            git push origin HEAD:master && exit 0
+            sleep 5
+          done
+          exit 1
+
+      # The card's ON_FAILURE is "issue" (t27 specs/crons/t27os-queen-feed.t27): a failed
+      # export names t27#12384, after the run log, which carries the evidence.
+      - name: a failure names the card's issue (t27#12384)
+        if: failure()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "T27OS queen-feed run FAILED (t27 specs/crons/t27os-queen-feed.t27)."
+            echo "runs/queen-feed.json was NOT updated; the live page falls back to its recorded log."
+            echo "Run log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } > /tmp/fail_comment.md
+          gh api repos/Trinity-S-AI-DNA/t27/issues/12384/comments -F body=@/tmp/fail_comment.md || echo "comment failed; the run log above still names the card"
