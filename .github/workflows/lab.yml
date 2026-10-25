@@ -591,6 +591,7 @@ jobs:
             vac=0
             if [ "$asserts" = "0" ]; then vac=1; fi
             echo "${spec}|leg=t27b|tests=${3:-NA}|pass=${1:-NA}|FAIL=${2:-NA}|vacuous=${vac}|asserts=${asserts:-NA}" >> "$out"
+            if [ -z "${3:-}" ]; then echo "--- ${spec}: t27b gave no count; its last 20 lines:"; tail -n 20 /tmp/b.txt; fi
           done
           cat "$out"
       - name: publish the t27b leg beside the receipt
