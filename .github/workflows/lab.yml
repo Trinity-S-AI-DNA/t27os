@@ -71,9 +71,18 @@ jobs:
       - name: resolve the sha (accepts short; empty = master)
         id: sha
         run: |
-          REF=${{ inputs.sha }}
+          # a full input never reaches the lookup; no full sha, no run (t27 specs/t27os/receipt_name.t27)
+          REF="${{ inputs.sha }}"
           [ -z "$REF" ] && REF=master
-          FULL=$(curl -s https://api.github.com/repos/Trinity-S-AI-DNA/t27/commits/$REF | jq -r .sha)
+          if printf '%s' "$REF" | grep -qE '^[0-9a-f]{40}$'; then
+            FULL="$REF"
+          else
+            FULL=$(curl -s https://api.github.com/repos/Trinity-S-AI-DNA/t27/commits/$REF | jq -r .sha)
+          fi
+          if ! printf '%s' "$FULL" | grep -qE '^[0-9a-f]{40}$'; then
+            echo "refused: $REF resolved to $FULL, not a full sha"
+            exit 1
+          fi
           echo "resolved=$FULL" >> "$GITHUB_OUTPUT"
           echo "resolved: $FULL"
 
@@ -103,7 +112,14 @@ jobs:
           cd t27
           mkdir -p /tmp/out
           i=0
-          for spec in ${{ inputs.specs }}; do
+          # the law (t27 specs/t27os/receipt_name.t27): the input list when it names at least one path,
+          # else the default core set; a run whose list is still empty is refused, never a receipt
+          # that verified nothing
+          SPECS="${{ inputs.specs }}"
+          if printf '%s' "$SPECS" | grep -qE '\S'; then :; else
+            SPECS='specs/t27f/work_graph.t27 specs/queen/actors.t27 specs/t27f/export_video.t27 specs/t27f/frame_render.t27 specs/t27f/live_mode.t27 specs/t27f/hud.t27'
+          fi
+          for spec in $SPECS; do
             i=$((i+1))
             ./target/release/t27c test-report "$spec" > /tmp/out/report_$i.txt 2>&1 || echo "$spec|test-report exited non-zero" >> /tmp/out/failed.txt
             tests=$(grep -E '^  tests' /tmp/out/report_$i.txt | awk '{print $2}' || true)
@@ -601,12 +617,14 @@ jobs:
           git config user.name "t27os lab"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add runs/*.t27b.txt
+          git diff --cached --quiet && exit 0
           git commit -q -m "lab t27b leg (staging)"
           rcpt=$(git rev-parse HEAD)
           for i in 1 2 3; do
             git fetch origin master
             git checkout -q -f -B receipt origin/master
             git checkout "$rcpt" -- runs/${{ needs.run.outputs.resolved }}.t27b.txt
+            git diff --cached --quiet && exit 0
             git commit -q -m "lab: t27b leg for ${{ needs.run.outputs.resolved }}"
             git push origin HEAD:master && exit 0
             sleep 5
