@@ -1,0 +1,1 @@
+specs/t27os/install.t27|leg=t27b|tests=24|pass=24|FAIL=0|vacuous=0|asserts=1043
