@@ -96,3 +96,26 @@ test a_viewing_lead_is_direct_but_complete {
     assert direct_lead_ok(false, true) == false;
     assert direct_lead_ok(false, false) == false;
 }
+
+/// The quiz speaks USD, the catalog speaks THB: the fixed rate of the
+/// selection (re-measure against the baht before changing).
+pub const USD_THB : u32 = 37;
+
+pub fn quiz_budget_thb(usd: u32) -> u32 {
+    return usd * USD_THB;
+}
+
+/// A finished quiz produces a selection when at least one search signal
+/// came out of it (same rule as the AI hint, different source of signals).
+pub fn quiz_selection_ok(has_interest: bool, has_location: bool, has_budget: bool) -> bool {
+    return has_interest or has_location or has_budget;
+}
+
+test the_quiz_selection_rules {
+    assert USD_THB == 37;
+    assert quiz_budget_thb(200_000) == 7_400_000;
+    assert quiz_budget_thb(0) == 0;
+    assert quiz_selection_ok(true, false, false) == true;
+    assert quiz_selection_ok(false, true, true) == true;
+    assert quiz_selection_ok(false, false, false) == false;
+}
