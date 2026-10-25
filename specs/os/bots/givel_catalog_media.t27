@@ -1,0 +1,98 @@
+// SPDX-License-Identifier: Apache-2.0
+// givel_catalog_media.t27 -- the LAW of catalog media and viewing bookings for
+// the GIVEL bot: how search hits become photo cards (and fall back to text),
+// how a client books a viewing with one button press, and when the AI answer
+// is allowed to name catalog objects. Measured 2026-10-25: catalog photos are
+// Google Drive thumbnails, most public, some private -- so a photo failure is
+// EXPECTED and must never cost the client their answer. The host owns the
+// HTTP and string primitives; this spec fixes the CONSTANTS and DECISION
+// rules, each checked by the compilers.
+// Companion laws: givel_catalog_search.t27 (search accept/reject),
+// givel_lead_bot.t27 (quiz leads, ID standard), givel_ai_models.t27 (ladder).
+// ASCII only (L3).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module GivelCatalogMedia;
+
+/// At most 3 photo cards per answer (Telegram rate sense, one screen).
+pub const PHOTOS_MAX : u32 = 3;
+/// The AI may name at most this many catalog objects (same cap as the search).
+pub const HINT_LIMIT : u32 = 3;
+/// callback_data prefix of the one-press viewing booking: book:<GV-OBJ id>.
+pub const BOOKING_PREFIX : str = "book:";
+
+/// The booking prefix is data, not a literal scattered through the host.
+pub fn booking_prefix() -> str {
+    return BOOKING_PREFIX;
+}
+
+/// The soft AI hint fires on ANY single search signal. The strict card search
+/// runs first and takes the full signal set; the hint may still run where the
+/// cards did not, so the model names real objects, not inventions.
+pub fn hint_ok(has_district: bool, has_type: bool, has_budget: bool) -> bool {
+    return has_district or has_type or has_budget;
+}
+
+/// A hit renders as a photo card only when the object HAS a photo AND the
+/// platform accepted it.
+pub fn photo_card(has_photo: bool, sent_ok: bool) -> bool {
+    return has_photo and sent_ok;
+}
+
+/// Everything else falls back to the text card. The fallback is not optional:
+/// a private or unreachable photo never blocks the answer.
+pub fn falls_back(has_photo: bool, sent_ok: bool) -> bool {
+    if (has_photo and sent_ok) { return false; }
+    return true;
+}
+
+/// The photo stream is capped no matter how many hits carry photos.
+pub fn cards_cap(requested: u32) -> u32 {
+    if (requested > PHOTOS_MAX) { return PHOTOS_MAX; }
+    return requested;
+}
+
+/// A viewing booking is a DIRECT lead (no quiz): the object is already chosen,
+/// so the record is complete with the object id and the user alone.
+pub fn direct_lead_ok(has_object_id: bool, has_user: bool) -> bool {
+    return has_object_id and has_user;
+}
+
+test the_caps_are_three {
+    assert PHOTOS_MAX == 3;
+    assert HINT_LIMIT == 3;
+    assert cards_cap(3) == 3;
+    assert cards_cap(5) == 3;
+    assert cards_cap(0) == 0;
+    assert cards_cap(1) == 1;
+}
+
+test the_booking_prefix_is_fixed {
+    assert booking_prefix() == "book:";
+    assert booking_prefix() != "";
+}
+
+test hint_fires_on_any_single_signal {
+    assert hint_ok(true, false, false) == true;
+    assert hint_ok(false, true, false) == true;
+    assert hint_ok(false, false, true) == true;
+    assert hint_ok(true, true, true) == true;
+    assert hint_ok(false, false, false) == false;
+}
+
+test a_photo_failure_falls_back_to_text {
+    assert photo_card(true, true) == true;
+    assert photo_card(false, true) == false;   // no photo: text card
+    assert photo_card(true, false) == false;   // send failed: text card
+    assert falls_back(true, true) == false;
+    assert falls_back(true, false) == true;    // measured: private Drive photo
+    assert falls_back(false, false) == true;
+    assert falls_back(false, true) == true;
+}
+
+test a_viewing_lead_is_direct_but_complete {
+    assert direct_lead_ok(true, true) == true;
+    assert direct_lead_ok(true, false) == false;
+    assert direct_lead_ok(false, true) == false;
+    assert direct_lead_ok(false, false) == false;
+}
