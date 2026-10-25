@@ -1,0 +1,2 @@
+specs/tri/t27b/wasm.t27|leg=t27b|tests=98|pass=98|FAIL=0|vacuous=0|asserts=944
+specs/t27f/live_scalar_closure.t27|leg=t27b|tests=3|pass=3|FAIL=0|vacuous=0|asserts=481
