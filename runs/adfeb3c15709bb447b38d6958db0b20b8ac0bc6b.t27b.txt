@@ -1,0 +1,2 @@
+specs/fpga/hdmi_grab.t27|leg=t27b|tests=14|pass=14|FAIL=0|vacuous=0|asserts=unknown
+specs/t27os/hdmi_grab_main.t27|leg=t27b|tests=NA|pass=NA|FAIL=NA|vacuous=0|asserts=NA
