@@ -1,0 +1,45 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+5612c5d95",
+  "closure": [
+    {
+      "spec": "specs/claw/recipes.t27",
+      "spec_hash": "sha256:429ab03319e9d59f6a4aad6945693a83374d6d805e32ad72836bf7aff23d6cb3"
+    },
+    {
+      "spec": "specs/t27os/disclosure.t27",
+      "spec_hash": "sha256:db2f6406b6d212a47a4084a1f766b157d8103b45a5d3e6e726dba245076946b4"
+    },
+    {
+      "spec": "specs/t27os/keysync.t27",
+      "spec_hash": "sha256:512b43451a403fb24b0ab38940673d2dbb94aab8fa9713560e9b0ef48c537bab"
+    },
+    {
+      "spec": "specs/t27os/receipt_result.t27",
+      "spec_hash": "sha256:ad99d61afd51c2ff19f50d5e1f6bd2336545f599d138363b2b5028c50f824d64"
+    }
+  ],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:dec383de3cbee66999027fed8cd4f378bb55570edfcb0d97761d72a122f52230",
+  "gen_hash_rust": "sha256:d5859739fea3e55a13e9c533170b9cb392a14cb2332f393e0ff08c3cc1b50c7b",
+  "gen_hash_verilog": "sha256:64e7498a0bb8c92913f4ccc23bb4d33e12086035bdd0764b4a331c7d592ab21c",
+  "gen_hash_zig": "sha256:6fe7bd40a7b23d40a2df9f8ea61c7c1e052c32790902917060184cc5cf553cc4",
+  "module": "t27os-night-loop",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-10-25T12:18:53Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:05d3bfb7e9b846f63c08d5a4ec1ddf60ac19b86935d545065543dfe96ccd08bf",
+  "spec_path": "specs/crons/t27os-night-loop.t27",
+  "tests": {
+    "failed": 0,
+    "failing": [],
+    "forced": false,
+    "passed": 52,
+    "total": 52,
+    "vacuous": 0
+  },
+  "toolchain": {
+    "test_runner": "sha256:8512b80da533b79289110fca4a65f3336abd7a059ca4b72ea595d5e33ff8ad10",
+    "zig": "0.16.0"
+  }
+}

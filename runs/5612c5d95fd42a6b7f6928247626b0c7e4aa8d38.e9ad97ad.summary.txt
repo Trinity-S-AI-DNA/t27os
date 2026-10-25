@@ -1,0 +1,6 @@
+specs/crons/t27os-night-loop.t27|tests=52|pass=52|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 5612c5d95fd42a6b7f6928247626b0c7e4aa8d38; specs specs/crons/t27os-night-loop.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 2555 s wall-clock on one GitHub runner (lab run 40189566608)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=5612c5d95fd42a6b7f6928247626b0c7e4aa8d38 -f challenge=<fresh hex> -f specs="specs/crons/t27os-night-loop.t27"
