@@ -1,0 +1,111 @@
+// SPDX-License-Identifier: Apache-2.0
+// givel_bot_actors.t27 -- the SUPERVISION TREE of the GIVEL PHUKET bot system,
+// in the vocabulary of the actor law (gHashTag/t27 specs/queen/actors.t27,
+// module QueenActors: RESTART_*, STRAT_ONE_FOR_ONE, MaxR/MaxT escalation).
+// This file does not restate QueenActors' functions; it fixes THIS system's
+// tree: which children exist, their restart classes, the strategy, the
+// intensity budget, and how the runtime units (systemd on the VPS, launchd on
+// the Mac) must be configured to be a faithful runtime of this tree.
+// Runtime mapping (measured 2026-10-25):
+//   child 0 bot-poller     -> givel-leadbot.service          Restart=always RestartSec=5
+//   child 1 watchdog-probe -> givel-leadbot-watchdog.timer   OnUnitActiveSec=900s
+//   child 2 digest-writer  -> givel-digest.timer             OnUnitActiveSec=1800s
+// ASCII only (L3).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module GivelBotActors;
+
+pub const STRAT_ONE_FOR_ONE : u8 = 0;   // the tree's strategy; matches QueenActors
+
+pub const CHILD_BOT_POLLER : u32 = 0;       // long-polling host, permanent
+pub const CHILD_WATCHDOG : u32 = 1;         // 15-min selftest probe, permanent
+pub const CHILD_DIGEST : u32 = 2;           // 30-min thread digest, transient
+pub const CHILD_COUNT : u32 = 3;
+
+pub const RESTART_PERMANENT : u8 = 0;
+pub const RESTART_TRANSIENT : u8 = 1;
+
+pub const EXIT_OK : u8 = 0;
+pub const EXIT_ABNORMAL : u8 = 1;
+
+/// Restart class per child, in start order.
+pub const CHILD_RESTART_CLASS : [3]u8 = [RESTART_PERMANENT, RESTART_PERMANENT, RESTART_TRANSIENT];
+
+/// The poller's bounded mailbox: Telegram's getUpdates confirms at most 100
+/// updates per call; the offset the actor carries is the mailbox cursor.
+pub const POLLER_MAILBOX_CAP : u32 = 100;
+
+/// Restart backoff and the intensity budget. A 6th crash inside 900 s means
+/// the tree gives up and escalates to the owner (the control lane: the
+/// watchdog's alert DM), instead of spin-looping forever.
+pub const RESTART_BACKOFF_MS : u32 = 5000;
+pub const MAX_RESTARTS : u32 = 5;
+pub const MAX_RESTART_WINDOW_S : u32 = 900;
+
+pub const ESCALATE_NONE : u8 = 0;
+pub const ESCALATE_ALERT_OWNER : u8 = 1;
+
+/// Does an exit of this child require a restart? permanent: always;
+/// transient: only when the exit was abnormal. (QueenActors' rule, restated
+/// as this tree's table because the runtime units are configured from it.)
+pub fn child_needs_restart(child: u32, exit: u8) -> bool {
+    if (child >= CHILD_COUNT) { return false; }
+    var cls : u8 = CHILD_RESTART_CLASS[child];
+    if (cls == RESTART_PERMANENT) { return true; }
+    return exit == EXIT_ABNORMAL;
+}
+
+/// One-for-one: a failed child restarts alone; no sibling is touched.
+pub fn sibling_restarts(failed: u32, sibling: u32) -> bool {
+    return failed == sibling;
+}
+
+/// The intensity rule: inside the window, restarts up to MAX_RESTARTS are the
+/// supervisor's job; one more is an escalation to the owner.
+pub fn escalate(restarts_in_window: u32) -> u8 {
+    if (restarts_in_window > MAX_RESTARTS) { return ESCALATE_ALERT_OWNER; }
+    return ESCALATE_NONE;
+}
+
+test the_tree_has_three_children_in_start_order {
+    var n : u32 = CHILD_COUNT;
+    var bot : u32 = CHILD_BOT_POLLER;
+    var wd : u32 = CHILD_WATCHDOG;
+    var dg : u32 = CHILD_DIGEST;
+    assert n == 3;
+    assert bot == 0 and wd == 1 and dg == 2;
+    assert bot < wd and wd < dg;
+}
+
+test restart_classes_match_the_units {
+    assert CHILD_RESTART_CLASS[CHILD_BOT_POLLER] == RESTART_PERMANENT;
+    assert CHILD_RESTART_CLASS[CHILD_WATCHDOG] == RESTART_PERMANENT;
+    assert CHILD_RESTART_CLASS[CHILD_DIGEST] == RESTART_TRANSIENT;
+    assert child_needs_restart(CHILD_BOT_POLLER, EXIT_OK) == true;      // always back
+    assert child_needs_restart(CHILD_DIGEST, EXIT_OK) == false;         // a clean run is done
+    assert child_needs_restart(CHILD_DIGEST, EXIT_ABNORMAL) == true;    // a crash is restarted
+    assert child_needs_restart(CHILD_COUNT, EXIT_ABNORMAL) == false;    // no such child
+}
+
+test one_for_one_never_touches_siblings {
+    assert sibling_restarts(CHILD_DIGEST, CHILD_DIGEST) == true;
+    assert sibling_restarts(CHILD_DIGEST, CHILD_BOT_POLLER) == false;
+    assert sibling_restarts(CHILD_BOT_POLLER, CHILD_WATCHDOG) == false;
+}
+
+test the_intensity_budget_escalates_at_the_sixth_crash {
+    assert escalate(0) == ESCALATE_NONE;
+    assert escalate(MAX_RESTARTS) == ESCALATE_NONE;
+    assert escalate(MAX_RESTARTS + 1) == ESCALATE_ALERT_OWNER;
+}
+
+test the_runtime_parameters_carry_the_budget {
+    var backoff : u32 = RESTART_BACKOFF_MS;
+    var window : u32 = MAX_RESTART_WINDOW_S;
+    var cap : u32 = POLLER_MAILBOX_CAP;
+    var maxr : u32 = MAX_RESTARTS;
+    assert backoff == 5000;
+    assert window == 900;                        // the watchdog's own window
+    assert cap == 100;                           // Telegram getUpdates hard cap
+    assert maxr >= 1 and maxr * 2 < window;      // 5 crashes in 900 s budget
+}
