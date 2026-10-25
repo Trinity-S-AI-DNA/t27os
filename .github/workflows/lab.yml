@@ -46,6 +46,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   # one group per event: a queued die-witness dispatch must never be superseded
@@ -451,6 +452,19 @@ jobs:
             [ -n "$utc" ] && [ -n "$sha" ] && [ -n "$ver" ] || { echo "$sum: receipt lacks utc, sha or t27c_version; left bare"; continue; }
             m=$(awk -v u="$utc" '$2 <= u && u <= $3' /tmp/lab_runs.txt)
             c=$(printf '%s' "$m" | grep -c . || true)
+            if [ "$c" -gt 1 ]; then
+              ch=$(jq -r '.challenge_sha256 // empty' "$rcpt" || true)
+              : > /tmp/match.txt
+              if [ -n "$ch" ]; then
+                while read -r id t0 t1; do
+                  gh run view "$id" --repo ${{ github.repository }} --log > /tmp/run.log 2>/dev/null || continue
+                  if grep -q "resolved: $sha" /tmp/run.log && grep -q "$ch" /tmp/run.log; then echo "$id $t0 $t1" >> /tmp/match.txt; fi
+                done <<< "$m"
+              fi
+              m=$(cat /tmp/match.txt)
+              c=$(printf '%s' "$m" | grep -c . || true)
+              echo "$sum: utc $utc lies in several lab run windows; $c run logs hold sha $sha and its challenge"
+            fi
             [ "$c" = 1 ] || { echo "$sum: utc $utc lies in $c lab run windows, not one; left bare"; continue; }
             read -r id t0 t1 <<< "$m"
             secs=$(( $(date -u -d "$t1" +%s) - $(date -u -d "$t0" +%s) ))
