@@ -1,0 +1,2 @@
+.trinity/seals/fpga_fpga_wasm_opcodes.json
+.trinity/seals/t27f_a11y_mirror.json
