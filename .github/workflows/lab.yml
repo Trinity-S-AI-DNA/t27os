@@ -48,7 +48,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: lab-run
+  # one group per event: a queued die-witness dispatch must never be superseded
+  # by a newer schedule tick (observed 2026-10-25: run 40151417889 cancelled by
+  # the 01:42Z schedule run while QUEUED -- GitHub cancels older QUEUED runs in
+  # a group even with cancel-in-progress: false)
+  group: lab-run-${{ github.event }}
   cancel-in-progress: false
 
 jobs:
