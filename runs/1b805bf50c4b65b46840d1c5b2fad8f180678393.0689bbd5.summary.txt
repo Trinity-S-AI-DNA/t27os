@@ -1,0 +1,7 @@
+specs/tri/t27b/wasm.t27|tests=65|pass=65|FAIL=0|vacuous=0|blocked=0
+specs/t27f/live_scalar_closure.t27|tests=3|pass=3|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 1b805bf50c4b65b46840d1c5b2fad8f180678393; specs specs/tri/t27b/wasm.t27 specs/t27f/live_scalar_closure.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 360 s wall-clock on one GitHub runner (lab run 40147650104)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=1b805bf50c4b65b46840d1c5b2fad8f180678393 -f challenge=<fresh hex> -f specs="specs/tri/t27b/wasm.t27 specs/t27f/live_scalar_closure.t27"
