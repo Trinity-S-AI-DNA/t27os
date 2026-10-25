@@ -1,0 +1,2 @@
+specs/fpga/wasm_fb.t27|leg=t27b|tests=8|pass=8|FAIL=0|vacuous=0|asserts=64
+specs/t27os/frame_main.t27|leg=t27b|tests=NA|pass=NA|FAIL=NA|vacuous=0|asserts=NA
