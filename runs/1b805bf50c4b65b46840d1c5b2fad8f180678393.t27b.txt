@@ -1,0 +1,1 @@
+specs/fpga/wasm_board_ax7203.t27|leg=t27b|tests=18|pass=18|FAIL=0|vacuous=0|asserts=unknown
