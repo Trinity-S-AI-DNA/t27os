@@ -1,3 +1,8 @@
 specs/t27f/export_video.t27|tests=6|pass=6|FAIL=0|vacuous=0|blocked=0
 specs/t27f/work_graph.t27|tests=9|pass=9|FAIL=0|vacuous=0|blocked=0
 specs/t27os/kernel.t27|tests=10|pass=10|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 build 0 commit unknown  built from t27 c29483ca456ba3849c2fbdd3f5f774db15c94aa2; specs specs/t27f/export_video.t27 specs/t27f/work_graph.t27 specs/t27os/kernel.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 186 s wall-clock on one GitHub runner (lab run 39976701292, whole run, read after the fact from its run record; t27os#20 backfill)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=c29483ca456ba3849c2fbdd3f5f774db15c94aa2 -f challenge=<fresh hex> -f specs='specs/t27f/export_video.t27 specs/t27f/work_graph.t27 specs/t27os/kernel.t27'

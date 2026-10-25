@@ -2,3 +2,8 @@ compiler/cli/git.t27|tests=11|pass=11|FAIL=0|vacuous=0|blocked=0
 specs/fpga/petal_framebuffer.t27|tests=4|pass=4|FAIL=0|vacuous=0|blocked=0
 specs/t27os/labs.t27|tests=10|pass=10|FAIL=0|vacuous=0|blocked=0
 specs/tri/lab/receipt.t27|tests=9|pass=9|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 build 0 commit unknown  built from t27 cdf234594d154fdc12557b9dea3eb2151455ee6a; specs compiler/cli/git.t27 specs/fpga/petal_framebuffer.t27 specs/t27os/labs.t27 specs/tri/lab/receipt.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 152 s wall-clock on one GitHub runner (lab run 40087522629, whole run, read after the fact from its run record; t27os#20 backfill)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=cdf234594d154fdc12557b9dea3eb2151455ee6a -f challenge=<fresh hex> -f specs='compiler/cli/git.t27 specs/fpga/petal_framebuffer.t27 specs/t27os/labs.t27 specs/tri/lab/receipt.t27'

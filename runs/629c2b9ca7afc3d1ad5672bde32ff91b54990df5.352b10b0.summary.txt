@@ -1,3 +1,8 @@
 specs/t27os/glass_window.t27|tests=NA|pass=NA|FAIL=NA|vacuous=NA|blocked=1
 specs/t27os/kernel.t27|tests=10|pass=10|FAIL=0|vacuous=0|blocked=0
 specs/t27os/lanes_view.t27|tests=42|pass=42|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 build 0 commit unknown  built from t27 629c2b9ca7afc3d1ad5672bde32ff91b54990df5; specs specs/t27os/glass_window.t27 specs/t27os/kernel.t27 specs/t27os/lanes_view.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 172 s wall-clock on one GitHub runner (lab run 39989036670, whole run, read after the fact from its run record; t27os#20 backfill)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=629c2b9ca7afc3d1ad5672bde32ff91b54990df5 -f challenge=<fresh hex> -f specs='specs/t27os/glass_window.t27 specs/t27os/kernel.t27 specs/t27os/lanes_view.t27'

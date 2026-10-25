@@ -2,3 +2,8 @@ specs/t27f/work_graph.t27|tests=9|pass=9|FAIL=0|vacuous=0|blocked=0
 specs/tri/crypto/sha256.t27|tests=5|pass=5|FAIL=0|vacuous=0|blocked=0
 specs/t27os/night_take.t27|tests=6|pass=6|FAIL=0|vacuous=0|blocked=0
 specs/t27os/hive_feed_acceptance.t27|tests=4|pass=4|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 build 0 commit unknown  built from t27 f5ae0fd12585c00437376a9a5a888bdfad0c68bb; specs specs/t27f/work_graph.t27 specs/tri/crypto/sha256.t27 specs/t27os/night_take.t27 specs/t27os/hive_feed_acceptance.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 73 s wall-clock on one GitHub runner (lab run 39985574782, whole run, read after the fact from its run record; t27os#20 backfill)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=f5ae0fd12585c00437376a9a5a888bdfad0c68bb -f challenge=<fresh hex> -f specs='specs/t27f/work_graph.t27 specs/tri/crypto/sha256.t27 specs/t27os/night_take.t27 specs/t27os/hive_feed_acceptance.t27'

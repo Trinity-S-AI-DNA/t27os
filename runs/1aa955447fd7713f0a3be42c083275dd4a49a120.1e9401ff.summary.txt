@@ -1,1 +1,6 @@
 specs/queen/worktree_keep.t27|tests=16|pass=16|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 build 0 commit unknown  built from t27 1aa955447fd7713f0a3be42c083275dd4a49a120; specs specs/queen/worktree_keep.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 113 s wall-clock on one GitHub runner (lab run 39997956488, whole run, read after the fact from its run record; t27os#20 backfill)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=1aa955447fd7713f0a3be42c083275dd4a49a120 -f challenge=<fresh hex> -f specs='specs/queen/worktree_keep.t27'

@@ -1,1 +1,6 @@
 ../specs/os/sync_gate.t27|tests=8|pass=8|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 build 0 commit unknown  built from t27 447e8569691e8569c6b6c26bcc9b23f03ced5bdd; specs ../specs/os/sync_gate.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 216 s wall-clock on one GitHub runner (lab run 40095641830, whole run, read after the fact from its run record; t27os#20 backfill)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=447e8569691e8569c6b6c26bcc9b23f03ced5bdd -f challenge=<fresh hex> -f specs='../specs/os/sync_gate.t27'

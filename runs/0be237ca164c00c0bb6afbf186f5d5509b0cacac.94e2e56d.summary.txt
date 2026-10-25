@@ -4,3 +4,8 @@ specs/t27f/export_video.t27|tests=6|pass=6|FAIL=0|vacuous=0|blocked=0
 specs/t27f/frame_render.t27|tests=15|pass=15|FAIL=0|vacuous=0|blocked=0
 specs/t27f/live_mode.t27|tests=8|pass=8|FAIL=0|vacuous=0|blocked=0
 specs/t27f/hud.t27|tests=6|pass=6|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 build 0 commit unknown  built from t27 0be237ca164c00c0bb6afbf186f5d5509b0cacac; specs specs/t27f/work_graph.t27 specs/queen/actors.t27 specs/t27f/export_video.t27 specs/t27f/frame_render.t27 specs/t27f/live_mode.t27 specs/t27f/hud.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 1526 s wall-clock on one GitHub runner (lab run 40082849567, whole run, read after the fact from its run record; t27os#20 backfill)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=0be237ca164c00c0bb6afbf186f5d5509b0cacac -f challenge=<fresh hex> -f specs='specs/t27f/work_graph.t27 specs/queen/actors.t27 specs/t27f/export_video.t27 specs/t27f/frame_render.t27 specs/t27f/live_mode.t27 specs/t27f/hud.t27'

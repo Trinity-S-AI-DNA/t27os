@@ -1,2 +1,7 @@
 specs/t27os/hive_feed_acceptance.t27|tests=9|pass=9|FAIL=0|vacuous=0|blocked=0
 specs/t27os/devices.t27|tests=19|pass=19|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 build 0 commit unknown  built from t27 e73a1c41db0cb331e9f7601aee93f756e874965b; specs specs/t27os/hive_feed_acceptance.t27 specs/t27os/devices.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 186 s wall-clock on one GitHub runner (lab run 40057013581, whole run, read after the fact from its run record; t27os#20 backfill)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=e73a1c41db0cb331e9f7601aee93f756e874965b -f challenge=<fresh hex> -f specs='specs/t27os/hive_feed_acceptance.t27 specs/t27os/devices.t27'
