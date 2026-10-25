@@ -1,0 +1,15 @@
+{
+  "sha": "68899a628e8e157d1357d220acffc3d5a32696f3",
+  "challenge_sha256": "90ccdd7968ca577583ed3531c717cc63cf68441057b3ed187b95ff0f6edea72c",
+  "t27c_build_stamp": "68899a628e8e157d1357d220acffc3d5a32696f3",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-10-25T05:31:55Z",
+  "specs": [
+    {"spec": "specs/fpga/wasm_opcodes.t27", "tests": "tests=13", "pass": "pass=13", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27f/a11y_mirror.t27", "tests": "tests=6", "pass": "pass=6", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/fpga/wasm_opcodes.t27", "tests": 13, "pass": 13, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27f/a11y_mirror.t27", "tests": 6, "pass": 6, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 2, "reported": 2}
+}
