@@ -409,6 +409,27 @@ jobs:
           { printf '  ,"result": {"specs": [%s], "ok": %s, "asked": %d, "reported": %d}' "$rows" "$ok" "$asked" "$reported"; echo; echo '}'; } >> "$file"
           cat "$file"
 
+      - name: the disclosure footer (t27 specs/t27os/disclosure_scan.t27)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # five footer lines under the published summary, so its numbers are covered (t27os#20)
+          sha=${{ steps.sha.outputs.resolved }}
+          sum=$(git ls-files -o --exclude-standard -- "runs/$sha.*.summary.txt" | head -1)
+          [ -n "$sum" ] || { echo "::error::no summary to foot"; exit 1; }
+          t0=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" --jq .run_started_at)
+          [ -n "$t0" ] || { echo "::error::no run start time; cost cannot be measured"; exit 1; }
+          secs=$(( $(date -u +%s) - $(date -u -d "$t0" +%s) ))
+          {
+            echo "reader: $(head -1 /tmp/t27c_version.txt) built from t27 $sha; specs ${{ inputs.specs }}"
+            echo "judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)"
+            echo "n: n=1 run; no confidence interval"
+            echo "cost: $secs s wall-clock on one GitHub runner (lab run ${{ github.run_id }})"
+            echo "repro: gh workflow run lab.yml --repo ${{ github.repository }} -f sha=$sha -f challenge=<fresh hex> -f specs=\"${{ inputs.specs }}\""
+          } >> "$sum"
+          cat "$sum"
+
       - name: publish the receipt
         shell: bash
         run: |
