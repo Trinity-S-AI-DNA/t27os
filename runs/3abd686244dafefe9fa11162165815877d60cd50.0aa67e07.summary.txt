@@ -1,0 +1,7 @@
+specs/t27os/disclosure_scan.t27|tests=16|pass=16|FAIL=0|vacuous=0|blocked=0
+specs/t27os/disclosure.t27|tests=6|pass=6|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 3abd686244dafefe9fa11162165815877d60cd50; specs specs/t27os/disclosure_scan.t27 specs/t27os/disclosure.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 136 s wall-clock on one GitHub runner (lab run 40146330696)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=3abd686244dafefe9fa11162165815877d60cd50 -f challenge=<fresh hex> -f specs="specs/t27os/disclosure_scan.t27 specs/t27os/disclosure.t27"
