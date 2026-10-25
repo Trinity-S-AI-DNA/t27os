@@ -1,0 +1,245 @@
+// SPDX-License-Identifier: Apache-2.0
+// givel_lead_bot.t27 -- the LAW of the GIVEL PHUKET lead qualification bot.
+// The state machine, the legal answers and the completeness rule live here and are
+// compiler-checked. Presentation (message texts) and transport (Telegram HTTP) are the
+// host's job (bot_host.mjs); this file copies none of them. Decentralization rule: the
+// same spec + its generated artifact run on any host -- Mac (launchd), Railway lab,
+// any node that can reach api.telegram.org. Actor model: one bot is one supervised
+// actor under specs/queen/actors.t27 rules (restart on crash, bounded mailbox = the
+// long-poll offset). ASCII only (L3).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module GivelLeadBot;
+
+pub const STEP_INTEREST : u32 = 0;
+pub const STEP_BUDGET : u32 = 1;
+pub const STEP_LOCATION : u32 = 2;
+pub const STEP_TIMING : u32 = 3;
+pub const STEP_COUNT : u32 = 4;
+pub const STEP_CONTACT : u32 = 4;      // the free-text contact step, after the last choice
+pub const STEP_DONE : u32 = 5;
+
+pub const GROUP_CHAT_ID : i64 = -1003577990907;
+pub const LEADS_TOPIC_ID : u32 = 19;   // group forum topic "Leads and requests"
+pub const BOT_USERNAME : str = "givel_phuket_bot";
+
+// --- ID standard (Igor's rule, 2026-10-25): every object, listing, offer and
+// every received datum carries an identification number that answers WHAT,
+// FROM WHOM and FROM WHERE. Format: GV-<TYPE>-<YYMMDD>-<SURFACE>-<SEQ4>.
+// The law fixes the alphabet and ranges; the host assembles the string.
+pub const ID_STANDARD : str = "GV-TYPE-YYMMDD-SURFACE-SEQ4";
+pub const ID_TYPE_LEAD : str = "LEAD";
+pub const ID_TYPE_OBJ : str = "OBJ";
+pub const ID_TYPE_OFR : str = "OFR";
+pub const ID_TYPE_DOC : str = "DOC";
+pub const ID_SURF_VPS : str = "VPS";
+pub const ID_SURF_MAC : str = "MAC";
+pub const ID_SURF_SITE : str = "SITE";
+pub const ID_SURF_TGGRP : str = "GRP";
+pub const ID_SURF_INSTA : str = "INST";
+
+/// Is `t` a legal ID type code (WHAT)?
+pub fn id_type_ok(t: str) -> bool {
+    return t == ID_TYPE_LEAD or t == ID_TYPE_OBJ or t == ID_TYPE_OFR or t == ID_TYPE_DOC;
+}
+
+/// Is `s` a legal origin surface code (FROM WHERE)?
+pub fn id_surface_ok(s: str) -> bool {
+    return s == ID_SURF_VPS or s == ID_SURF_MAC or s == ID_SURF_SITE or s == ID_SURF_TGGRP or s == ID_SURF_INSTA;
+}
+
+/// Is `seq` a legal sequence number? 1..9999, zero-padded to 4 by the host.
+pub fn id_seq_ok(seq: u32) -> bool {
+    return seq >= 1 and seq <= 9999;
+}
+
+/// Option counts per step, indexed by step number.
+pub const OPTION_COUNTS : [4]u32 = [4, 6, 5, 4];
+
+pub fn option_count(step: u32) -> u32 {
+    if (step == STEP_INTEREST) { return OPTION_COUNTS[0]; }
+    if (step == STEP_BUDGET) { return OPTION_COUNTS[1]; }
+    if (step == STEP_LOCATION) { return OPTION_COUNTS[2]; }
+    if (step == STEP_TIMING) { return OPTION_COUNTS[3]; }
+    return 0;
+}
+
+/// The session key of a step; the host stores answers under these names.
+pub fn step_key(step: u32) -> str {
+    if (step == STEP_INTEREST) { return "interest"; }
+    if (step == STEP_BUDGET) { return "budget"; }
+    if (step == STEP_LOCATION) { return "location"; }
+    if (step == STEP_TIMING) { return "timing"; }
+    return "contact";
+}
+
+/// The value code of option `i` of `step`; empty when the option does not exist.
+pub fn option_value(step: u32, i: u32) -> str {
+    if (step == STEP_INTEREST) {
+        if (i == 0) { return "buy"; }
+        if (i == 1) { return "invest"; }
+        if (i == 2) { return "rent"; }
+        if (i == 3) { return "concierge"; }
+    }
+    if (step == STEP_BUDGET) {
+        if (i == 0) { return "under_200k"; }
+        if (i == 1) { return "200k_500k"; }
+        if (i == 2) { return "500k_1m"; }
+        if (i == 3) { return "over_1m"; }
+        if (i == 4) { return "rent_lt_1500"; }
+        if (i == 5) { return "rent_ge_1500"; }
+    }
+    if (step == STEP_LOCATION) {
+        if (i == 0) { return "kamala"; }
+        if (i == 1) { return "bangtao"; }
+        if (i == 2) { return "patong"; }
+        if (i == 3) { return "katakaron"; }
+        if (i == 4) { return "any"; }
+    }
+    if (step == STEP_TIMING) {
+        if (i == 0) { return "now"; }
+        if (i == 1) { return "1_3m"; }
+        if (i == 2) { return "3m_plus"; }
+        if (i == 3) { return "exploring"; }
+    }
+    return "";
+}
+
+/// Is `value` a legal answer on `step`? The host must refuse everything else.
+pub fn valid_answer(step: u32, value: str) -> bool {
+    var i : u32 = 0;
+    while (i < option_count(step)) {
+        if (option_value(step, i) == value) { return true; }
+        i = i + 1;
+    }
+    return false;
+}
+
+/// The step that follows `step`. STEP_COUNT is the contact step; STEP_DONE ends the quiz.
+pub fn next_step(step: u32) -> u32 {
+    if (step >= STEP_COUNT) { return STEP_DONE; }
+    return step + 1;
+}
+
+/// The contact step takes free text, not buttons.
+pub fn is_contact(step: u32) -> bool {
+    return step == STEP_CONTACT;
+}
+
+/// Is `step` inside the quiz at all?
+pub fn is_quiz_step(step: u32) -> bool {
+    return step < STEP_COUNT;
+}
+
+/// A lead is complete only when every field is present. The host passes "" for missing ones.
+pub fn lead_complete(interest: str, budget: str, location: str, timing: str, contact: str) -> bool {
+    return interest != "" and budget != "" and location != "" and timing != "" and contact != "";
+}
+
+test every_step_has_options {
+    assert option_count(STEP_INTEREST) == 4;
+    assert option_count(STEP_BUDGET) == 6;
+    assert option_count(STEP_LOCATION) == 5;
+    assert option_count(STEP_TIMING) == 4;
+    assert option_count(STEP_COUNT) == 0;      // the contact step has no buttons
+}
+
+test option_values_are_nonempty_within_bounds {
+    var s : u32 = 0;
+    while (s < STEP_COUNT) {
+        var i : u32 = 0;
+        while (i < option_count(s)) {
+            assert option_value(s, i) != "";
+            i = i + 1;
+        }
+        assert option_value(s, option_count(s)) == "";   // out of bounds is empty
+        s = s + 1;
+    }
+}
+
+test values_are_unique_per_step {
+    assert option_value(STEP_INTEREST, 0) != option_value(STEP_INTEREST, 1);
+    assert option_value(STEP_BUDGET, 3) != option_value(STEP_BUDGET, 4);
+    assert option_value(STEP_LOCATION, 0) != option_value(STEP_LOCATION, 4);
+    assert option_value(STEP_TIMING, 2) != option_value(STEP_TIMING, 3);
+}
+
+test valid_answer_accepts_only_listed_values {
+    assert valid_answer(STEP_INTEREST, "buy") == true;
+    assert valid_answer(STEP_INTEREST, "concierge") == true;
+    assert valid_answer(STEP_INTEREST, "anything") == false;
+    assert valid_answer(STEP_INTEREST, "") == false;
+    assert valid_answer(STEP_BUDGET, "rent_ge_1500") == true;
+    assert valid_answer(STEP_BUDGET, "buy") == false;         // a value of another step is illegal
+    assert valid_answer(STEP_LOCATION, "any") == true;
+    assert valid_answer(STEP_TIMING, "now") == true;
+}
+
+test next_step_walks_the_quiz_then_stops {
+    assert next_step(STEP_INTEREST) == STEP_BUDGET;
+    assert next_step(STEP_BUDGET) == STEP_LOCATION;
+    assert next_step(STEP_LOCATION) == STEP_TIMING;
+    assert next_step(STEP_TIMING) == STEP_CONTACT;
+    assert next_step(STEP_CONTACT) == STEP_DONE;
+    assert next_step(STEP_DONE) == STEP_DONE;                 // DONE is absorbing
+}
+
+test the_contact_step_is_after_the_last_choice {
+    assert is_contact(STEP_CONTACT) == true;
+    assert is_contact(STEP_TIMING) == false;
+    assert is_quiz_step(STEP_TIMING) == true;
+    assert is_quiz_step(STEP_CONTACT) == false;
+}
+
+test step_keys_are_distinct {
+    assert step_key(STEP_INTEREST) == "interest";
+    assert step_key(STEP_BUDGET) == "budget";
+    assert step_key(STEP_LOCATION) == "location";
+    assert step_key(STEP_TIMING) == "timing";
+    assert step_key(STEP_CONTACT) == "contact";
+}
+
+test a_lead_needs_every_field {
+    assert lead_complete("buy", "200k_500k", "kamala", "now", "+66 81 000 0000") == true;
+    assert lead_complete("", "200k_500k", "kamala", "now", "x") == false;
+    assert lead_complete("buy", "", "kamala", "now", "x") == false;
+    assert lead_complete("buy", "200k_500k", "", "now", "x") == false;
+    assert lead_complete("buy", "200k_500k", "kamala", "", "x") == false;
+    assert lead_complete("buy", "200k_500k", "kamala", "now", "") == false;
+}
+
+test the_constants_carry_the_group_binding {
+    assert GROUP_CHAT_ID == -1003577990907;
+    assert LEADS_TOPIC_ID == 19;
+    assert BOT_USERNAME == "givel_phuket_bot";
+}
+
+test id_types_cover_the_business_objects {
+    assert id_type_ok(ID_TYPE_LEAD) == true;
+    assert id_type_ok(ID_TYPE_OBJ) == true;
+    assert id_type_ok(ID_TYPE_OFR) == true;
+    assert id_type_ok(ID_TYPE_DOC) == true;
+    assert id_type_ok("lead") == false;       // uppercase only
+    assert id_type_ok("") == false;
+}
+
+test id_surfaces_answer_from_where {
+    assert id_surface_ok(ID_SURF_VPS) == true;
+    assert id_surface_ok(ID_SURF_MAC) == true;
+    assert id_surface_ok(ID_SURF_SITE) == true;
+    assert id_surface_ok(ID_SURF_TGGRP) == true;
+    assert id_surface_ok(ID_SURF_INSTA) == true;
+    assert id_surface_ok("telegram") == false;
+    assert id_surface_ok("") == false;
+}
+
+test id_seq_is_one_based_and_bounded {
+    assert id_seq_ok(1) == true;
+    assert id_seq_ok(9999) == true;
+    assert id_seq_ok(0) == false;             // no zero sequence
+    assert id_seq_ok(10000) == false;         // four digits only
+}
+
+test the_id_standard_names_the_format {
+    assert ID_STANDARD == "GV-TYPE-YYMMDD-SURFACE-SEQ4";
+}

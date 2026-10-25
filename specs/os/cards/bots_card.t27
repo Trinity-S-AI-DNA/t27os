@@ -1,0 +1,72 @@
+// SPDX-License-Identifier: Apache-2.0
+// bots_card.t27 -- DRAFT card for the T27 OS petal menu: the client-bots surface,
+// first entry the GIVEL PHUKET lead bot. Follows specs/os/cards/crons_card.t27
+// shape (a card is a POINTER, not a copy). STATUS: TS_PLANNED -- the law home is
+// local until the PR lands; every VERIFIED field below was measured 2026-10-25.
+// This draft lives beside the law it names (givel-leadbot/) until step 1 of the
+// merge order in README.md runs. Epic: gHashTag/t27#10782 (L7 of the OS grid).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module t27os_card_bots;
+
+pub const ID : str = "t27os-card-bots";
+pub const CARD_INDEX : u32 = 3;         // card 0 graph, 1 crons, 2 live; this is next
+
+pub const PETAL : u32 = 14;             // MATERIYA ring, petals 9-17; letter of petal 14
+pub const REALM : u32 = 1;              // petal / 9 == 1 (MATERIYA), per petal_menu.t27 law
+pub const REALM_NAME : str = "MATERIYA";
+
+pub const TS_PLANNED : u8 = 0;
+pub const STATUS : u8 = TS_PLANNED;     // the bot RUNS live, but the card states TS_PLANNED until this PR lands; flip in the next rev
+
+pub const BOT_USERNAME : str = "givel_phuket_bot";
+pub const GROUP_CHAT_ID : i64 = -1003577990907;
+pub const LEADS_TOPIC_ID : u32 = 19;
+
+pub const LAW_PATH_LOCAL : str = "givel-leadbot/givel_lead_bot.t27";
+pub const LAW_TESTS_PASS : u32 = 9;
+pub const LAW_TESTS_TOTAL : u32 = 9;
+pub const LAW_RUNTIME_ASSERTS : u32 = 62;
+pub const LAW_VACUOUS : u32 = 0;
+pub const VERIFIED_AT : str = "2026-10-25";
+
+/// Realm placement is the petal-menu law's own rule applied to this card's petal.
+invariant the_card_sits_in_materiya {
+    assert PETAL >= 9 and PETAL <= 17;
+    assert PETAL / 9 == REALM;
+    assert REALM_NAME == "MATERIYA";
+    assert CARD_INDEX >= 3;             // behind the three cards home.t27 already holds
+}
+
+/// The law facts this card restates were MEASURED, not assumed: 9/9 tests green,
+/// 62 runtime asserts, zero vacuous (t27c test-report, 2026-10-25). A change to
+/// the law re-runs the compiler and rewrites these numbers in the same commit.
+invariant the_law_is_green_and_not_vacuous {
+    assert LAW_TESTS_PASS == LAW_TESTS_TOTAL;
+    assert LAW_TESTS_PASS == 9;
+    assert LAW_RUNTIME_ASSERTS == 62;
+    assert LAW_VACUOUS == 0;
+}
+
+/// The binding the law fixes and the live deployment agree on. These three values
+/// are asserted by the host at every boot against the generated artifact.
+invariant the_deployment_binding_matches_the_law {
+    assert BOT_USERNAME == "givel_phuket_bot";
+    assert GROUP_CHAT_ID == -1003577990907;
+    assert LEADS_TOPIC_ID == 19;
+}
+
+/// A PLANNED card names its local law path honestly; only a RUNS card may pin a
+/// master sha of the OS tree. Flip STATUS to a runs-state only after the PR lands.
+invariant the_status_is_honest_about_its_home {
+    assert STATUS == TS_PLANNED;
+    assert LAW_PATH_LOCAL == "specs/os/bots/givel_lead_bot.t27";
+    assert VERIFIED_AT == "2026-10-25";
+}
+
+test the_card_carries_its_identity {
+    assert ID == "t27os-card-bots";
+    assert CARD_INDEX == 3;
+    assert PETAL == 14;
+    assert REALM == 1;
+}
