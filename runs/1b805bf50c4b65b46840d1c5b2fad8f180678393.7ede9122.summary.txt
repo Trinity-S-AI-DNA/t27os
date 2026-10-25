@@ -1,0 +1,6 @@
+specs/fpga/wasm_board_ax7203.t27|tests=18|pass=18|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 1b805bf50c4b65b46840d1c5b2fad8f180678393; specs specs/fpga/wasm_board_ax7203.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 149 s wall-clock on one GitHub runner (lab run 40147643142)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=1b805bf50c4b65b46840d1c5b2fad8f180678393 -f challenge=<fresh hex> -f specs="specs/fpga/wasm_board_ax7203.t27"
