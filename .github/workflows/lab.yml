@@ -430,6 +430,37 @@ jobs:
           } >> "$sum"
           cat "$sum"
 
+      - name: the disclosure backfill -- foot the summaries published before the footer step (t27 specs/t27os/disclosure_scan.t27)
+        continue-on-error: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # a bare summary is footed from its own receipt and the one lab run whose window holds its utc (t27os#20)
+          gh api --paginate "repos/${{ github.repository }}/actions/workflows/lab.yml/runs?per_page=100" --jq '.workflow_runs[] | (.id|tostring) + " " + .run_started_at + " " + .updated_at' > /tmp/lab_runs.txt
+          for sum in runs/*.summary.txt; do
+            grep -q '^repro: ' "$sum" && continue
+            rcpt="${sum%.summary.txt}.json"
+            utc=$(jq -r '.utc // empty' "$rcpt" || true)
+            sha=$(jq -r '.sha // empty' "$rcpt" || true)
+            ver=$(jq -r '.t27c_version // empty' "$rcpt" || true)
+            [ -n "$utc" ] && [ -n "$sha" ] && [ -n "$ver" ] || { echo "$sum: receipt lacks utc, sha or t27c_version; left bare"; continue; }
+            m=$(awk -v u="$utc" '$2 <= u && u <= $3' /tmp/lab_runs.txt)
+            c=$(printf '%s' "$m" | grep -c . || true)
+            [ "$c" = 1 ] || { echo "$sum: utc $utc lies in $c lab run windows, not one; left bare"; continue; }
+            read -r id t0 t1 <<< "$m"
+            secs=$(( $(date -u -d "$t1" +%s) - $(date -u -d "$t0" +%s) ))
+            specs=$(cut -d '|' -f 1 "$sum" | grep '[.]t27$' | paste -sd ' ' - || true)
+            {
+              echo "reader: $ver built from t27 $sha; specs $specs"
+              echo "judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)"
+              echo "n: n=1 run; no confidence interval"
+              echo "cost: $secs s wall-clock on one GitHub runner (lab run $id, whole run, read after the fact from its run record; t27os#20 backfill)"
+              echo "repro: gh workflow run lab.yml --repo ${{ github.repository }} -f sha=$sha -f challenge=<fresh hex> -f specs='$specs'"
+            } >> "$sum"
+            echo "footed $sum from lab run $id ($secs s)"
+          done
+
       - name: the disclosure census -- which published numbers lack their footer (t27 specs/t27os/disclosure_scan.t27)
         continue-on-error: true
         shell: bash
