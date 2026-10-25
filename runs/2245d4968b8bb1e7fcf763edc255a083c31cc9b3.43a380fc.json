@@ -1,0 +1,19 @@
+{
+  "sha": "2245d4968b8bb1e7fcf763edc255a083c31cc9b3",
+  "challenge_sha256": "43a380fc2e42301f583e893e5b10765ef10fdbeced8dacc096762bb85fe5f208",
+  "t27c_build_stamp": "2245d4968b8bb1e7fcf763edc255a083c31cc9b3",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-10-25T02:25:54Z",
+  "specs": [
+    {"spec": "specs/t27f/petal_menu.t27", "tests": "tests=12", "pass": "pass=12", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27os/agent_parts.t27", "tests": "tests=23", "pass": "pass=23", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27os/devices.t27", "tests": "tests=30", "pass": "pass=30", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27os/live_data.t27", "tests": "tests=1", "pass": "pass=1", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27f/petal_menu.t27", "tests": 12, "pass": 12, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27os/agent_parts.t27", "tests": 23, "pass": 23, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27os/devices.t27", "tests": 30, "pass": 30, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27os/live_data.t27", "tests": 1, "pass": 1, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 4, "reported": 4}
+}

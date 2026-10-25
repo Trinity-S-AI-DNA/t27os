@@ -1,0 +1,9 @@
+specs/t27f/petal_menu.t27|tests=12|pass=12|FAIL=0|vacuous=0|blocked=0
+specs/t27os/agent_parts.t27|tests=23|pass=23|FAIL=0|vacuous=0|blocked=0
+specs/t27os/devices.t27|tests=30|pass=30|FAIL=0|vacuous=0|blocked=0
+specs/t27os/live_data.t27|tests=1|pass=1|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 2245d4968b8bb1e7fcf763edc255a083c31cc9b3; specs specs/t27f/petal_menu.t27 specs/t27os/agent_parts.t27 specs/t27os/devices.t27 specs/t27os/live_data.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 100 s wall-clock on one GitHub runner (lab run 40154307886)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=2245d4968b8bb1e7fcf763edc255a083c31cc9b3 -f challenge=<fresh hex> -f specs="specs/t27f/petal_menu.t27 specs/t27os/agent_parts.t27 specs/t27os/devices.t27 specs/t27os/live_data.t27"
