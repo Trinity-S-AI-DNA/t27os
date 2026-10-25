@@ -430,6 +430,29 @@ jobs:
           } >> "$sum"
           cat "$sum"
 
+      - name: the disclosure census -- which published numbers lack their footer (t27 specs/t27os/disclosure_scan.t27)
+        continue-on-error: true
+        shell: bash
+        run: |
+          # one test per published document; a failing test names a document with an unfooted number (t27os#20)
+          gen=specs/t27os/disclosure_census_gen.t27
+          q() { sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' "$1" | awk '{printf "%s\\n", $0}'; }
+          {
+            echo "module T27osDisclosureCensusGen;"
+            echo "use t27os::disclosure_scan::doc_verdict;"
+            echo "use t27os::disclosure::COV_ALL;"
+            i=0
+            for f in README.md runs/*.summary.txt; do
+              i=$((i+1))
+              id=$(basename "$f" | tr -c 'A-Za-z0-9\n' '_')
+              echo "pub const D$i : str = \"$(q "$f")\";"
+              echo "test doc_${i}_$id { assert doc_verdict(D$i, D$i.len) == COV_ALL; }"
+            done
+          } > "t27/$gen"
+          (cd t27 && ./target/release/t27c test-report "$gen") > /tmp/census.txt 2>&1 || true
+          cat /tmp/census.txt
+          { echo "## disclosure census ($i documents)"; echo; echo '```'; cat /tmp/census.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
       - name: publish the receipt
         shell: bash
         run: |
