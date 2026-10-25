@@ -133,6 +133,33 @@ test thinking_is_disabled_by_the_law {
     assert THINKING_DISABLED == true;
 }
 
+/// The EMERGENCY tier: when every z.ai key and model refuses, the host tries
+/// OpenRouter (OpenAI-compatible /chat/completions, same message shape) with
+/// these models, in this order. Verified present in the live /models catalog
+/// 2026-10-25. The key lives in config (cfg.ai.fallback.key) -- a tier without
+/// a working key is absent, not failing.
+pub const FALLBACK_ENDPOINT : str = "https://openrouter.ai/api/v1";
+pub const FALLBACK_MODEL_COUNT : u32 = 2;
+pub const FALLBACK_MODELS : [2]str = ["z-ai/glm-4.7-flash", "z-ai/glm-4.5-air"];
+
+pub fn fallback_endpoint() -> str {
+    return FALLBACK_ENDPOINT;
+}
+
+pub fn fallback_model(i: u32) -> str {
+    if (i >= FALLBACK_MODEL_COUNT) { return ""; }
+    return FALLBACK_MODELS[i];
+}
+
+test the_emergency_tier_is_fixed {
+    assert fallback_endpoint() == "https://openrouter.ai/api/v1";
+    assert fallback_endpoint() != "";
+    assert fallback_model(0) == "z-ai/glm-4.7-flash";
+    assert fallback_model(1) == "z-ai/glm-4.5-air";
+    assert fallback_model(2) == "";
+    assert FALLBACK_MODEL_COUNT == 2;
+}
+
 test free_tiers_are_exactly_the_flash_pair {
     assert is_free("glm-4.7-flash") == true;
     assert is_free("glm-4.5-flash") == true;
