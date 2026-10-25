@@ -1,2 +1,1 @@
-specs/t27os/disclosure_scan.t27|leg=t27b|tests=22|pass=22|FAIL=0|vacuous=0|asserts=89
-specs/t27os/disclosure.t27|leg=t27b|tests=6|pass=6|FAIL=0|vacuous=0|asserts=21
+specs/fpga/wasm_board_ax7203.t27|leg=t27b|tests=18|pass=18|FAIL=0|vacuous=0|asserts=unknown
