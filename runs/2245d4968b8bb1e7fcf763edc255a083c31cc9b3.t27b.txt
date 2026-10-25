@@ -1,0 +1,4 @@
+specs/t27f/petal_menu.t27|leg=t27b|tests=12|pass=12|FAIL=0|vacuous=0|asserts=606
+specs/t27os/agent_parts.t27|leg=t27b|tests=23|pass=23|FAIL=0|vacuous=0|asserts=4635
+specs/t27os/devices.t27|leg=t27b|tests=30|pass=30|FAIL=0|vacuous=0|asserts=372
+specs/t27os/live_data.t27|leg=t27b|tests=1|pass=1|FAIL=0|vacuous=0|asserts=35
