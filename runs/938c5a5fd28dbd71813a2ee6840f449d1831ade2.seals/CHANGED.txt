@@ -1,0 +1,3 @@
+.trinity/seals/fpga_fpga_hdmi_grab.json
+.trinity/seals/crons_t27os-night-loop.json
+.trinity/seals/fpga_FpgaHdmiGrab.json
