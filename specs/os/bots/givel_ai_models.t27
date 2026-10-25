@@ -1,0 +1,207 @@
+// SPDX-License-Identifier: Apache-2.0
+// givel_ai_models.t27 -- the LAW of the AI answer path for the GIVEL bot:
+// which GLM models may answer, in which order, which tiers are FREE, what an
+// API error code means for a key, and how keys rotate. Measured on the live
+// coding endpoint 2026-10-25: a zero-balance key gets 1113 on paid models but
+// SERVES the free tiers (glm-4.7-flash, glm-4.5-flash); 1302 throttles a free
+// tier per key, 1305 means the service itself is busy. The host owns the HTTP
+// primitives; this spec fixes the CONSTANTS and the DECISION rules the host
+// must obey, each checked by the compilers.
+// Companion laws: givel_lead_bot.t27 (quiz, ID standard), givel_routing.t27
+// (partner routes), givel_catalog_search.t27 (catalog search). ASCII only (L3).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module GivelAiModels;
+
+pub const MODEL_COUNT : u32 = 6;
+
+/// The answer ladder, best first (owner order 2026-10-25). The last entry is
+/// the legacy FREE tier: it answers even when every paid tier refuses.
+pub const MODELS : [6]str = [
+    "glm-5.3-flash", "glm-5.3-flashx", "glm-4.7-flash",
+    "glm-5.2", "glm-4.5-air", "glm-4.5-flash",
+];
+
+/// The FREE tiers: callable by ANY valid key, balance or not. A zero-balance
+/// key serves ONLY these; every other model answers 1113 no-balance to it.
+pub const FREE_MODEL_COUNT : u32 = 2;
+pub const FREE_MODELS : [2]str = ["glm-4.7-flash", "glm-4.5-flash"];
+
+/// API outcome classes observed on the coding endpoint.
+pub const CODE_OK : u32 = 200;
+pub const CODE_NO_BALANCE : u32 = 1113;        // key valid, no resource package
+pub const CODE_FREE_RATE_LIMIT : u32 = 1302;   // free tier, THIS key is throttled
+pub const CODE_SERVICE_OVERLOAD : u32 = 1305;  // free tier, the SERVICE is busy
+pub const CODE_CONCURRENCY : u32 = 1311;       // too many parallel streams
+
+/// Answer pacing and stream-mirror constants of the host.
+pub const AI_COOLDOWN_MS : u32 = 15000;   // between AI answers to one user
+pub const AI_MAX_TOKENS : u32 = 400;      // per answer
+pub const AI_TIMEOUT_MS : u32 = 45000;    // hard fetch deadline
+pub const DRAFT_MIN_CHARS : u32 = 80;     // a draft batch is worth showing
+pub const DRAFT_THROTTLE_MS : u32 = 700;  // between draft edits
+
+/// Is this model on the free tier?
+pub fn is_free(model: str) -> bool {
+    var i : u32 = 0;
+    while (i < FREE_MODEL_COUNT) {
+        if (FREE_MODELS[i] == model) { return true; }
+        i = i + 1;
+    }
+    return false;
+}
+
+/// Which models may a key serve? A funded key serves everything; a
+/// zero-balance key serves exactly the free tiers.
+pub fn key_serves(has_balance: bool, model: str) -> bool {
+    if (has_balance) { return true; }
+    return is_free(model);
+}
+
+/// The key tried at offset k of a rotation that starts at key_index
+/// (host: keys[(keyIdx + k) % keys.length]).
+pub fn key_at(start: u32, offset: u32, keys: u32) -> u32 {
+    return (start + offset) % keys;
+}
+
+/// After a success at offset k the rotation resumes at the NEXT key
+/// (host: st.key_index = (keyIdx + k + 1) % keys.length).
+pub fn next_key(start: u32, offset: u32, keys: u32) -> u32 {
+    return (start + offset + 1) % keys;
+}
+
+/// A cached working_model is hoisted to the front only if the law knows it.
+pub fn cache_ok(model: str) -> bool {
+    var i : u32 = 0;
+    while (i < MODEL_COUNT) {
+        if (MODELS[i] == model) { return true; }
+        i = i + 1;
+    }
+    return false;
+}
+
+/// A user may have the next AI answer when the cooldown has elapsed.
+/// elapsed_ms = now - last (the host computes it in its own arithmetic).
+pub fn cooldown_ok(elapsed_ms: u32) -> bool {
+    return elapsed_ms >= AI_COOLDOWN_MS;
+}
+
+/// An empty answer is not an answer: a reasoning-drained stream (all tokens
+/// into reasoning_content, zero content) must rotate like a failure.
+pub fn answer_accepted(content_chars: u32) -> bool {
+    return content_chars > 0;
+}
+
+/// Any non-OK outcome rotates: the host moves to the next key, and after the
+/// last key of a model to the next model. No outcome is retried in place.
+pub fn should_rotate(code: u32) -> bool {
+    return code != CODE_OK;
+}
+
+/// Is this outcome the zero-balance refusal (the key stays useful for free tiers)?
+pub fn is_no_balance(code: u32) -> bool {
+    return code == CODE_NO_BALANCE;
+}
+
+/// Is this outcome a free-tier throttle (1302 this key, 1305 the service)?
+/// The key stays in the pool; the cooldown of the tier does the waiting.
+pub fn is_free_throttle(code: u32) -> bool {
+    return code == CODE_FREE_RATE_LIMIT or code == CODE_SERVICE_OVERLOAD;
+}
+
+/// A streamed batch becomes a draft edit when it is long enough AND the
+/// throttle since the last edit has passed.
+pub fn draft_due(batch_chars: u32, since_ms: u32) -> bool {
+    return batch_chars >= DRAFT_MIN_CHARS and since_ms >= DRAFT_THROTTLE_MS;
+}
+
+/// The per-answer generation budget and the hard deadline of one fetch.
+pub fn answer_budget() -> u32 { return AI_MAX_TOKENS; }
+pub fn answer_deadline() -> u32 { return AI_TIMEOUT_MS; }
+
+test free_tiers_are_exactly_the_flash_pair {
+    assert is_free("glm-4.7-flash") == true;
+    assert is_free("glm-4.5-flash") == true;
+    assert is_free("glm-5.3-flash") == false;
+    assert is_free("glm-5.3-flashx") == false;
+    assert is_free("glm-5.2") == false;
+    assert is_free("glm-4.5-air") == false;
+}
+
+test a_zero_balance_key_serves_only_free_tiers {
+    assert key_serves(false, "glm-4.7-flash") == true;   // measured: open, throttled 1302/1305
+    assert key_serves(false, "glm-4.5-flash") == true;   // measured: 200 OK with 0 balance
+    assert key_serves(false, "glm-5.3-flash") == false;  // measured: 1113
+    assert key_serves(false, "glm-5.2") == false;        // measured: 1113
+    assert key_serves(true, "glm-5.3-flash") == true;    // funded: everything
+    assert key_serves(true, "glm-4.5-flash") == true;
+}
+
+test the_ladder_is_six_models_best_first {
+    assert MODEL_COUNT == 6;
+    assert MODELS[0] == "glm-5.3-flash";
+    assert MODELS[1] == "glm-5.3-flashx";
+    assert MODELS[2] == "glm-4.7-flash";
+    assert MODELS[3] == "glm-5.2";
+    assert MODELS[4] == "glm-4.5-air";
+    assert MODELS[5] == "glm-4.5-flash";
+}
+
+test key_rotation_is_round_robin {
+    assert key_at(0, 0, 2) == 0;
+    assert key_at(0, 1, 2) == 1;
+    assert key_at(1, 0, 2) == 1;
+    assert key_at(1, 1, 2) == 0;   // wraps
+    assert key_at(0, 5, 1) == 0;   // a single key always serves
+    assert next_key(0, 1, 2) == 0; // after offset 1 from key 0 -> resume at 0
+    assert next_key(1, 0, 2) == 0; // after a hit on key 1 -> resume at 0
+    assert next_key(0, 0, 1) == 0; // single key: stays
+}
+
+test error_codes_are_fixed_by_the_law {
+    assert CODE_OK == 200;
+    assert CODE_NO_BALANCE == 1113;
+    assert CODE_FREE_RATE_LIMIT == 1302;
+    assert CODE_SERVICE_OVERLOAD == 1305;
+    assert CODE_CONCURRENCY == 1311;
+    assert should_rotate(CODE_OK) == false;
+    assert should_rotate(CODE_NO_BALANCE) == true;
+    assert should_rotate(1302) == true;
+    assert should_rotate(1305) == true;
+    assert should_rotate(1311) == true;
+    assert is_no_balance(1113) == true;
+    assert is_no_balance(200) == false;
+    assert is_no_balance(1305) == false;
+    assert is_free_throttle(1302) == true;
+    assert is_free_throttle(1305) == true;
+    assert is_free_throttle(1113) == false;
+    assert is_free_throttle(200) == false;
+}
+
+test a_cached_model_must_be_known {
+    assert cache_ok("glm-4.7-flash") == true;
+    assert cache_ok("glm-4.5-flash") == true;
+    assert cache_ok("glm-9.9-fantasy") == false;
+    assert cache_ok("") == false;
+}
+
+test the_cooldown_is_fifteen_seconds {
+    assert AI_COOLDOWN_MS == 15000;
+    assert cooldown_ok(15000) == true;
+    assert cooldown_ok(14999) == false;
+    assert cooldown_ok(0) == false;
+}
+
+test an_empty_answer_is_not_an_answer {
+    assert answer_accepted(0) == false;
+    assert answer_accepted(1) == true;
+}
+
+test stream_mirror_constants {
+    assert answer_budget() == 400;
+    assert answer_deadline() == 45000;
+    assert draft_due(DRAFT_MIN_CHARS, DRAFT_THROTTLE_MS) == true;
+    assert draft_due(DRAFT_MIN_CHARS - 1, DRAFT_THROTTLE_MS) == false;
+    assert draft_due(DRAFT_MIN_CHARS, DRAFT_THROTTLE_MS - 1) == false;
+    assert draft_due(0, 0) == false;
+}
