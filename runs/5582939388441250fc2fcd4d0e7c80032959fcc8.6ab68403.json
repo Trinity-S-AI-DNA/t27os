@@ -1,0 +1,19 @@
+{
+  "sha": "5582939388441250fc2fcd4d0e7c80032959fcc8",
+  "challenge_sha256": "6ab684032fb98a26c5c6b8b510d7c5c6929d3075e8563add2a56cc41ce26eea3",
+  "t27c_build_stamp": "5582939388441250fc2fcd4d0e7c80032959fcc8",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-10-25T07:12:31Z",
+  "specs": [
+    {"spec": "specs/t27f/petal_specs_viz.t27", "tests": "tests=84", "pass": "pass=84", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27f/petal_viz_plan.t27", "tests": "tests=15", "pass": "pass=15", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27os/agent_parts.t27", "tests": "tests=23", "pass": "pass=23", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27os/glass_window.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27f/petal_specs_viz.t27", "tests": 84, "pass": 84, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27f/petal_viz_plan.t27", "tests": 15, "pass": 15, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27os/agent_parts.t27", "tests": 23, "pass": 23, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": false, "asked": 4, "reported": 3}
+}
