@@ -1,0 +1,1 @@
+specs/t27os/plist_main.t27|leg=t27b|tests=1|pass=1|FAIL=0|vacuous=0|asserts=9
