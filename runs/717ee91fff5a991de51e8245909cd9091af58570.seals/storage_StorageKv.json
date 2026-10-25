@@ -1,0 +1,23 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+717ee91ff",
+  "closure": [],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:90d92edcc25893ead0e1b6e141d5a59b5f79846517a6e8a3f03cdd44ef518bd1",
+  "gen_hash_rust": "sha256:d93c8652c75bd8d4f0b73efafcda919492744960ff8564b3dbbe1ef6638f986a",
+  "gen_hash_verilog": "sha256:d6a6e8b0350ea5a592aa3d93670369e00c865e8f3cd0bd734508f853c077186a",
+  "gen_hash_zig": "sha256:f31afd9e6274633ecc2076e12a20f6c94c7ca2a0168ea51192a8f4a7505e0998",
+  "module": "StorageKv",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-10-25T13:14:48Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:705972c076aef07d11c4d3b1289ec170c18ada267b2a144c48eed2485efcfd4c",
+  "spec_path": "specs/storage/kv.t27",
+  "tests": {
+    "blocked": "does not compile: spec.zig:44:34: error: expected ')', found ':'"
+  },
+  "toolchain": {
+    "test_runner": "sha256:8512b80da533b79289110fca4a65f3336abd7a059ca4b72ea595d5e33ff8ad10",
+    "zig": "0.16.0"
+  }
+}
