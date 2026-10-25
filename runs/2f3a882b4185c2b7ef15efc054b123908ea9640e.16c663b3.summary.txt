@@ -1,0 +1,6 @@
+specs/t27os/lab_legs.t27|tests=11|pass=11|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 2f3a882b4185c2b7ef15efc054b123908ea9640e; specs specs/t27os/lab_legs.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 781 s wall-clock on one GitHub runner (lab run 40168216989)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=2f3a882b4185c2b7ef15efc054b123908ea9640e -f challenge=<fresh hex> -f specs="specs/t27os/lab_legs.t27"
