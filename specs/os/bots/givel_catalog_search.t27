@@ -1,0 +1,66 @@
+// SPDX-License-Identifier: Apache-2.0
+// givel_catalog_search.t27 -- the LAW of catalog search for the GIVEL bot:
+// how a client's free text maps to catalog objects. The host owns the parsing
+// primitives (substring, number shapes); this spec fixes the CONSTANTS and the
+// ACCEPT/REJECT rules the host must obey, each checked by the compilers.
+// Companion laws: givel_lead_bot.t27 (quiz, ID standard), givel_routing.t27
+// (partner routes), givel_knowledge.t27 (facts). ASCII only (L3).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module GivelCatalogSearch;
+
+pub const SEARCH_LIMIT : u32 = 3;          // the bot shows at most 3 objects
+pub const MAX_OVER_BUDGET_PCT : u32 = 15;  // an object may exceed the budget by this much
+pub const MIN_BUDGET_THB : u32 = 10;       // below this a number is not a budget (e.g. "3 bedrooms")
+
+/// Canonical districts of the catalog (normalized by prep_catalog.mjs).
+pub const DISTRICTS : [12]str = [
+    "Bang Tao", "Rawai", "Thalang", "Cherng Talay", "Kamala", "Chalong",
+    "Nai Yang", "Laguna", "Layan", "Surin", "Karon", "Patong",
+];
+
+/// A price fits a budget when it does not exceed it by more than the tolerance.
+pub fn price_fits(price_min: u32, budget: u32) -> bool {
+    if (budget == 0) { return true; }
+    return price_min <= budget + budget * MAX_OVER_BUDGET_PCT / 100;
+}
+
+/// A search needs at least one filter: district, type or budget.
+pub fn filters_present(has_district: bool, has_type: bool, has_budget: bool) -> bool {
+    return has_district or has_type or has_budget;
+}
+
+/// Result count is capped and never empty-filtered: with no filters the search
+/// is not a search (the host falls back to the services menu).
+pub fn result_limit() -> u32 {
+    return SEARCH_LIMIT;
+}
+
+test the_limit_is_three {
+    assert result_limit() == SEARCH_LIMIT;
+    assert SEARCH_LIMIT == 3;
+}
+
+test the_price_tolerance_is_fifteen_percent {
+    assert price_fits(1_000_000, 1_000_000) == true;   // price == budget
+    assert price_fits(1_150_000, 1_000_000) == true;   // +15% edge, still fits
+    assert price_fits(1_200_000, 1_000_000) == false;  // +20% over, refused
+    assert price_fits(500_000, 0) == true;             // no budget: everything fits
+}
+
+test a_search_without_filters_is_not_a_search {
+    assert filters_present(true, false, false) == true;
+    assert filters_present(false, true, false) == true;
+    assert filters_present(false, false, true) == true;
+    assert filters_present(false, false, false) == false;
+}
+
+test the_twelve_canonical_districts_are_named {
+    assert DISTRICTS[0] == "Bang Tao";
+    assert DISTRICTS[1] == "Rawai";
+    assert DISTRICTS[11] == "Patong";
+}
+
+test tiny_numbers_are_not_budgets {
+    assert MIN_BUDGET_THB == 10;
+}
