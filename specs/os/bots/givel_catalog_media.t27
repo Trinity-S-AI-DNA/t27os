@@ -119,3 +119,45 @@ test the_quiz_selection_rules {
     assert quiz_selection_ok(false, true, true) == true;
     assert quiz_selection_ok(false, false, false) == false;
 }
+
+/// The weekly digest speaks with three verdicts only: SCALE (bookings exist --
+/// buy traffic), REOFFER (enough shows, zero bookings -- change the offer),
+/// WAIT (not enough shows to judge).
+pub const DIGEST_MIN_SHOWS : u32 = 20;
+
+pub fn digest_verdict(shows: u32, bookings: u32) -> str {
+    if (bookings > 0) { return "SCALE"; }
+    if (shows >= DIGEST_MIN_SHOWS) { return "REOFFER"; }
+    return "WAIT";
+}
+
+test the_digest_has_three_verdicts {
+    assert DIGEST_MIN_SHOWS == 20;
+    assert digest_verdict(25, 0) == "REOFFER";
+    assert digest_verdict(5, 0) == "WAIT";
+    assert digest_verdict(5, 2) == "SCALE";
+    assert digest_verdict(50, 1) == "SCALE";
+}
+
+/// The conversion loop: an object that CLOSED a viewing before ranks above
+/// objects that never did; ties fall through to the price sort of the search
+/// law. Bookings come from leads.jsonl rows of type "viewing".
+pub const MIN_BOOKINGS_TO_BOOST : u32 = 1;
+
+pub fn boosts(bookings: u32) -> bool {
+    return bookings >= MIN_BOOKINGS_TO_BOOST;
+}
+
+pub fn booked_ranks_higher(bookings_a: u32, bookings_b: u32) -> bool {
+    if (bookings_a > bookings_b) { return true; }
+    return false;
+}
+
+test booked_objects_rank_first {
+    assert MIN_BOOKINGS_TO_BOOST == 1;
+    assert boosts(1) == true;
+    assert boosts(0) == false;
+    assert booked_ranks_higher(2, 0) == true;
+    assert booked_ranks_higher(0, 1) == false;
+    assert booked_ranks_higher(1, 1) == false;  // tie: price sort decides
+}
