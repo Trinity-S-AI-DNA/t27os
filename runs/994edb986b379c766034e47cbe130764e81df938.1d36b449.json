@@ -1,0 +1,13 @@
+{
+  "sha": "994edb986b379c766034e47cbe130764e81df938",
+  "challenge_sha256": "1d36b44972477eb7b68f7c9672b7a3a8409a2f51cb2cb596b60d8a15adccdb58",
+  "t27c_build_stamp": "994edb986b379c766034e47cbe130764e81df938",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-10-25T11:21:04Z",
+  "specs": [
+    {"spec": "specs/t27os/plist_main.t27", "tests": "tests=1", "pass": "pass=1", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27os/plist_main.t27", "tests": 1, "pass": 1, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
