@@ -403,3 +403,19 @@ test the_morning_note_fires_once {
     assert morning_due(true, true) == false;
     assert morning_due(false, false) == false;
 }
+
+/// The weekly digest is PINNED in the CRM group: the staff reads metrics
+/// without opening anything. A new digest replaces the old pin -- there is
+/// always exactly one pinned digest.
+pub const DIGEST_PINNED : bool = true;
+
+pub fn digest_pin_rule(has_new_digest: bool) -> bool {
+    if (DIGEST_PINNED and has_new_digest) { return true; }
+    return false;
+}
+
+test the_digest_is_pinned {
+    assert DIGEST_PINNED == true;
+    assert digest_pin_rule(true) == true;
+    assert digest_pin_rule(false) == false;
+}
