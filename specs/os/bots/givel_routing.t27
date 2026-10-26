@@ -63,15 +63,19 @@ test only_givel_is_connected_today {
 
 /// Deep-link start params: t.me/givel_phuket_bot?start=tb lands the client
 /// straight on a partner route (the host reads start_param from "/start <p>");
-/// an unknown or empty param stays with GIVEL sales.
-pub const START_KEYS : [2][2]str = [
+/// an unknown or empty param stays with GIVEL sales. Offline campaigns ride
+/// the same rail: a QR key routes to GIVEL sales AND labels the lead with
+/// its source, so a printed card is measured like a partner.
+pub const START_KEYS : [4][2]str = [
     ["tb", ROUTE_PARTNER_TURBOBABY],
     ["tours", ROUTE_PARTNER_TOUR],
+    ["qr_reception", ROUTE_GIVEL_SALES],
+    ["qr_card", ROUTE_GIVEL_SALES],
 ];
 
 pub fn start_route(param: str) -> str {
     var i : u32 = 0;
-    while (i < 2) {
+    while (i < 4) {
         if (START_KEYS[i][0] == param) { return START_KEYS[i][1]; }
         i = i + 1;
     }
@@ -81,8 +85,12 @@ pub fn start_route(param: str) -> str {
 test deep_link_start_params_route {
     assert START_KEYS[0][0] == "tb";
     assert START_KEYS[1][0] == "tours";
+    assert START_KEYS[2][0] == "qr_reception";
+    assert START_KEYS[3][0] == "qr_card";
     assert start_route("tb") == ROUTE_PARTNER_TURBOBABY;
     assert start_route("tours") == ROUTE_PARTNER_TOUR;
+    assert start_route("qr_reception") == ROUTE_GIVEL_SALES;
+    assert start_route("qr_card") == ROUTE_GIVEL_SALES;
     assert start_route("anything") == ROUTE_GIVEL_SALES;
     assert start_route("") == ROUTE_GIVEL_SALES;
 }

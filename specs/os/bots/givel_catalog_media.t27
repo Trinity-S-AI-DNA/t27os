@@ -256,6 +256,24 @@ test coverage_is_integer_percent {
     assert photo_coverage_pct(7, 0) == 0;
 }
 
+/// The calendar buckets viewings by DAY-distance: today, this week, later.
+/// A booking without a time is not on the calendar -- it is a lead, not an
+/// appointment; and a start already an hour past belongs to "past".
+pub fn calendar_bucket(ms_until_start: i64) -> str {
+    if (ms_until_start < 0) { return "past"; }
+    if (ms_until_start < 86400000) { return "today"; }
+    if (ms_until_start < 7 * 86400000) { return "week"; }
+    return "later";
+}
+
+test the_calendar_buckets {
+    assert calendar_bucket(-3600000) == "past";       // started an hour ago
+    assert calendar_bucket(0) == "today";             // starting now
+    assert calendar_bucket(3600000) == "today";       // 1h ahead
+    assert calendar_bucket(2 * 86400000) == "week";   // in two days
+    assert calendar_bucket(30 * 86400000) == "later"; // in a month
+}
+
 /// The A/B verdict: photo cards vs text cards, decided on a >=50-show sample.
 /// Conversions are integer basis points (bookings * 10000 / users) so no float
 /// sneaks into the law. The winner is announced in the weekly digest and the
