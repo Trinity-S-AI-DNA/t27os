@@ -109,3 +109,14 @@ test the_export_is_bounded {
     assert export_period_ok(0) == false;
     assert export_period_ok(91) == false;
 }
+
+/// The client card shows what the client SAW: bookings and selections ride
+/// the object's catalog photo. No photo -- no tile, the list stays honest.
+pub fn card_photo_ok(photo: str) -> bool {
+    return photo != "";
+}
+
+test the_card_photo_is_the_catalog_truth {
+    assert card_photo_ok("https://media.givelphuket.com/x.webp") == true;
+    assert card_photo_ok("") == false;
+}

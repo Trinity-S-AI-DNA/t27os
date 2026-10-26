@@ -185,3 +185,20 @@ test the_table_shows_only_evidence {
     assert option_row_ok(1) == true;
     assert option_row_ok(0) == false;
 }
+
+/// The earned rank switches on at TEN shows: below that the data is too
+/// thin to outrank the law's hand order. An option under the threshold
+/// ranks 0 -- the hand order decides until the evidence does.
+pub const RANK_MIN_SHOWS : u32 = 10;
+
+pub fn option_bp(converted: u32, shown: u32) -> u32 {
+    if (shown < RANK_MIN_SHOWS) { return 0; }
+    return converted * 10000 / shown;
+}
+
+test the_earned_rank_switches_on_at_ten_shows {
+    assert RANK_MIN_SHOWS == 10;
+    assert option_bp(3, 10) == 3000;   // proven: ranks
+    assert option_bp(3, 9) == 0;       // thin: hand order stands
+    assert option_bp(0, 50) == 0;      // proven bad: sinks
+}
