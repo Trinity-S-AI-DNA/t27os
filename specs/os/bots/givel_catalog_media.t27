@@ -313,6 +313,33 @@ test the_reminder_speaks_the_clients_tongue {
     assert reminder_lang(false) == "en";
 }
 
+/// A booking the staff CONFIRMS owes the client an instant confirmation:
+/// the client hears it from the bot the moment the status changes, not at
+/// the reminder. The notice fires on the TRANSITION into confirmed -- never
+/// a second time for the same state.
+pub fn confirm_notice(prev_status: str, new_status: str) -> bool {
+    return prev_status != "confirmed" and new_status == "confirmed";
+}
+
+test the_client_hears_the_confirmation_once {
+    assert confirm_notice("booked", "confirmed") == true;
+    assert confirm_notice("confirmed", "confirmed") == false;  // no repeat
+    assert confirm_notice("done", "confirmed") == true;
+}
+
+/// The digest splits the funnel BY LANGUAGE: the EN funnel either produces
+/// or it does not -- a global average hides which. A split with no clients
+/// at all is not a split.
+pub fn lang_split_ok(ru: u32, en: u32) -> bool {
+    return ru > 0 or en > 0;
+}
+
+test the_split_needs_clients {
+    assert lang_split_ok(1, 0) == true;
+    assert lang_split_ok(0, 1) == true;
+    assert lang_split_ok(0, 0) == false;
+}
+
 /// The A/B verdict: photo cards vs text cards, decided on a >=50-show sample.
 /// Conversions are integer basis points (bookings * 10000 / users) so no float
 /// sneaks into the law. The winner is announced in the weekly digest and the

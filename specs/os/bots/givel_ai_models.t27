@@ -266,3 +266,16 @@ test the_digest_states_the_ai_health {
     assert ai_digest_ok(true, false) == false;
     assert ai_digest_ok(false, true) == false;
 }
+
+/// The emergency tier is measured ONCE A DAY -- a fallback that was not
+/// probed today is RED, whatever it did yesterday. Health is a fresh fact,
+/// not a memory.
+pub fn fallback_fresh(hours_since_probe: u32) -> bool {
+    return hours_since_probe <= 24;
+}
+
+test the_fallback_probe_is_daily {
+    assert fallback_fresh(0) == true;
+    assert fallback_fresh(24) == true;
+    assert fallback_fresh(25) == false;
+}
