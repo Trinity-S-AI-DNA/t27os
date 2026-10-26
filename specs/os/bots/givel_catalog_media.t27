@@ -374,3 +374,32 @@ test slots_are_future_and_bounded {
     assert slot_ok(-1, 0) == false;
     assert slot_ok(15 * 86400000, 0) == false;
 }
+
+/// The SHOWCASE Pareto: an object enters the table only after it was SHOWN
+/// to a client, and a booking credits the shows that preceded it. The
+/// table is built from the logs -- no new collection.
+pub fn object_table_row_ok(shown: u32) -> bool {
+    return shown > 0;
+}
+
+test the_showcase_table_is_evidence {
+    assert object_table_row_ok(1) == true;
+    assert object_table_row_ok(0) == false;
+}
+
+/// The last touch before the visit: one SHORT note on the MORNING of the
+/// viewing day, in the client's language. Once -- the 2h reminder already
+/// exists and stays.
+pub const MORNING_NOTE : bool = true;
+
+pub fn morning_due(is_morning_ict: bool, note_sent: bool) -> bool {
+    if (note_sent) { return false; }
+    return MORNING_NOTE and is_morning_ict;
+}
+
+test the_morning_note_fires_once {
+    assert MORNING_NOTE == true;
+    assert morning_due(true, false) == true;
+    assert morning_due(true, true) == false;
+    assert morning_due(false, false) == false;
+}
