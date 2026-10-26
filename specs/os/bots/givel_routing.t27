@@ -60,3 +60,29 @@ test only_givel_is_connected_today {
     assert route_connected(ROUTE_PARTNER_TOUR) == false;
     assert route_connected("") == false;
 }
+
+/// Deep-link start params: t.me/givel_phuket_bot?start=tb lands the client
+/// straight on a partner route (the host reads start_param from "/start <p>");
+/// an unknown or empty param stays with GIVEL sales.
+pub const START_KEYS : [2][2]str = [
+    ["tb", ROUTE_PARTNER_TURBOBABY],
+    ["tours", ROUTE_PARTNER_TOUR],
+];
+
+pub fn start_route(param: str) -> str {
+    var i : u32 = 0;
+    while (i < 2) {
+        if (START_KEYS[i][0] == param) { return START_KEYS[i][1]; }
+        i = i + 1;
+    }
+    return ROUTE_GIVEL_SALES;
+}
+
+test deep_link_start_params_route {
+    assert START_KEYS[0][0] == "tb";
+    assert START_KEYS[1][0] == "tours";
+    assert start_route("tb") == ROUTE_PARTNER_TURBOBABY;
+    assert start_route("tours") == ROUTE_PARTNER_TOUR;
+    assert start_route("anything") == ROUTE_GIVEL_SALES;
+    assert start_route("") == ROUTE_GIVEL_SALES;
+}
