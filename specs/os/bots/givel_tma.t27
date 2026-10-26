@@ -26,12 +26,20 @@ pub fn chat_direction_ok(dir: str) -> bool {
     return dir == "in" or dir == "out";
 }
 
-/// v1 is read-only: the TMA never writes to the bot state, the catalog, or
-/// the leads log. Writes stay with the host's Telegram handlers.
-pub const TMA_READONLY : bool = true;
+/// v2 allows exactly TWO writes, both by the admin, both through the bot:
+/// "reply" -- an admin message into a client dialog, and "booking" -- the
+/// status/time of a viewing booking. The allowlist names the only
+/// exceptions; every other write is a violation, not a feature. A reply is
+/// bounded: no ten-thousand-character blasts from the web view.
+pub const TMA_WRITE_MAX : u32 = 1000;
 
-pub fn tma_can_write() -> bool {
-    return TMA_READONLY == false;
+pub fn tma_write_ok(kind: str) -> bool {
+    return kind == "reply" or kind == "booking";
+}
+
+pub fn tma_reply_ok(text_len: u32) -> bool {
+    if (text_len == 0) { return false; }
+    return text_len <= TMA_WRITE_MAX;
 }
 
 test only_the_owner_is_the_tma_admin {
@@ -51,7 +59,17 @@ test chat_directions_are_in_and_out {
     assert chat_direction_ok("side") == false;
 }
 
-test v1_is_readonly {
-    assert TMA_READONLY == true;
-    assert tma_can_write() == false;
+test the_only_writes_are_reply_and_booking {
+    assert TMA_WRITE_MAX == 1000;
+    assert tma_write_ok("reply") == true;
+    assert tma_write_ok("booking") == true;
+    assert tma_write_ok("delete") == false;
+    assert tma_write_ok("edit") == false;
+}
+
+test the_reply_is_bounded {
+    assert tma_reply_ok(1) == true;
+    assert tma_reply_ok(1000) == true;
+    assert tma_reply_ok(0) == false;
+    assert tma_reply_ok(1001) == false;
 }
