@@ -92,3 +92,20 @@ test the_reply_is_bounded {
     assert tma_reply_ok(0) == false;
     assert tma_reply_ok(1001) == false;
 }
+
+/// The export hands the admin ONE file of what the logs already store,
+/// bounded by a period of at most 90 days. A read, not a collection -- and
+/// the owner gate applies exactly as to every other call.
+pub const EXPORT_MAX_DAYS : u32 = 90;
+
+pub fn export_period_ok(days: u32) -> bool {
+    return days > 0 and days <= EXPORT_MAX_DAYS;
+}
+
+test the_export_is_bounded {
+    assert EXPORT_MAX_DAYS == 90;
+    assert export_period_ok(1) == true;
+    assert export_period_ok(90) == true;
+    assert export_period_ok(0) == false;
+    assert export_period_ok(91) == false;
+}
