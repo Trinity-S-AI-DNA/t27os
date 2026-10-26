@@ -1,0 +1,78 @@
+// SPDX-License-Identifier: Apache-2.0
+// givel_dev_cards.t27 -- PROACTIVE DEVELOPMENT CARDS for the GIVEL funnel:
+// the bot writes first, offering a client their top options to move faster.
+// Proactivity is bounded by law: a real open state to act on, a cooldown
+// between touches, the client's opt-out is absolute, and nothing arrives at
+// night. The card names at most THREE options -- the highest-impact ones
+// first (Pareto). ASCII only (L3).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module GivelDevCards;
+
+/// Hours between proactive touches: a card at most every TWO days.
+pub const CARD_COOLDOWN_H : u32 = 48;
+
+/// Pareto: the card names at most THREE options -- the highest-impact ones
+/// first. The fourth-best option is noise.
+pub const CARD_MAX_OPTIONS : u32 = 3;
+
+/// The quiet window (ICT hours): cards arrive between 09:00 and 21:00 local.
+pub const CARD_QUIET_FROM : u32 = 9;
+pub const CARD_QUIET_TO : u32 = 21;
+
+/// A card is due when the client has not opted out and the cooldown passed.
+/// The opt-out is absolute: a client who said stop is never written first.
+pub fn card_due(hours_since_touch: u32, opted_out: bool) -> bool {
+    if (opted_out) { return false; }
+    return hours_since_touch >= CARD_COOLDOWN_H;
+}
+
+/// Nothing arrives at night: the send hour (ICT) must sit in the window.
+pub fn card_hour_ok(hour_ict: u32) -> bool {
+    if (hour_ict < CARD_QUIET_FROM) { return false; }
+    return hour_ict < CARD_QUIET_TO;
+}
+
+/// Pareto cap: however many options the state offers, the card names the
+/// top three.
+pub fn pareto_cap(option_count: u32) -> u32 {
+    if (option_count > CARD_MAX_OPTIONS) { return CARD_MAX_OPTIONS; }
+    return option_count;
+}
+
+/// Only OPEN states get cards: a fresh lead, a selection without a booking,
+/// an upcoming viewing, a repeat client. Done and cancelled are closed
+/// histories -- no card follows them.
+pub fn card_state_ok(status: str) -> bool {
+    return status == "new_lead" or status == "has_selection" or status == "booked" or status == "repeat";
+}
+
+test the_card_is_due_on_cooldown_and_consent {
+    assert CARD_COOLDOWN_H == 48;
+    assert card_due(48, false) == true;
+    assert card_due(47, false) == false;
+    assert card_due(500, true) == false;
+}
+
+test nothing_arrives_at_night {
+    assert CARD_QUIET_FROM == 9;
+    assert CARD_QUIET_TO == 21;
+    assert card_hour_ok(12) == true;
+    assert card_hour_ok(3) == false;
+    assert card_hour_ok(22) == false;
+}
+
+test pareto_caps_at_three {
+    assert CARD_MAX_OPTIONS == 3;
+    assert pareto_cap(5) == 3;
+    assert pareto_cap(2) == 2;
+    assert pareto_cap(0) == 0;
+}
+
+test only_open_states_get_cards {
+    assert card_state_ok("new_lead") == true;
+    assert card_state_ok("has_selection") == true;
+    assert card_state_ok("booked") == true;
+    assert card_state_ok("repeat") == true;
+    assert card_state_ok("done") == false;
+}
