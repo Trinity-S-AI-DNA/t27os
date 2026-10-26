@@ -163,17 +163,29 @@ test the_resume_rule {
     assert resume_ok(0, 1) == false;  // nothing to resume
 }
 
-/// HOT events ping the owner PERSONALLY on top of the CRM group: a viewing
-/// booking is money-now and must not drown in the group feed. Quiz leads
-/// reach the staff through the group -- no double ping.
+/// The owner hears value PERSONALLY, on top of the CRM group feed: a viewing
+/// booking (money-now) and a warm quiz lead (a contact left -- the manager
+/// can reach them this minute). Cold events stay in the group feed only.
 pub fn owner_ping(kind: str) -> bool {
-    return kind == "booking";
+    return kind == "booking" or kind == "hot_lead";
 }
 
-test only_hot_events_ping_the_owner {
+/// A quiz lead that LEFT A CONTACT is warm: reachable right now.
+pub fn hot_lead_ok(contact: str) -> bool {
+    return contact != "";
+}
+
+test hot_events_ping_the_owner {
     assert owner_ping("booking") == true;
-    assert owner_ping("quiz_lead") == false;
+    assert owner_ping("hot_lead") == true;
+    assert owner_ping("quiz_lead") == false;  // cold lead: group feed only
     assert owner_ping("selection") == false;
+}
+
+test a_contact_makes_the_lead_hot {
+    assert hot_lead_ok("+66 84 000 0000") == true;
+    assert hot_lead_ok("@anna") == true;
+    assert hot_lead_ok("") == false;
 }
 
 test the_two_languages_and_the_default {
