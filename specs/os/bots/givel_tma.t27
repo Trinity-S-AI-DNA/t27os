@@ -67,6 +67,22 @@ test the_only_writes_are_reply_and_booking {
     assert tma_write_ok("edit") == false;
 }
 
+/// The client card gathers everything the bot already knows about ONE
+/// client: quiz answers, the chat thread, the bookings, the traffic source.
+/// The parts allowlist is closed -- a free-form "notes" field would be new
+/// data collection, and the card is a merge of existing logs, never more.
+pub fn card_part_ok(kind: str) -> bool {
+    return kind == "quiz" or kind == "chat" or kind == "bookings" or kind == "source";
+}
+
+test the_card_parts_are_four {
+    assert card_part_ok("quiz") == true;
+    assert card_part_ok("chat") == true;
+    assert card_part_ok("bookings") == true;
+    assert card_part_ok("source") == true;
+    assert card_part_ok("notes") == false;  // v1 stores no free-form notes
+}
+
 test the_reply_is_bounded {
     assert tma_reply_ok(1) == true;
     assert tma_reply_ok(1000) == true;
