@@ -274,6 +274,32 @@ test the_calendar_buckets {
     assert calendar_bucket(30 * 86400000) == "later"; // in a month
 }
 
+/// The digest states the funnel PER SOURCE: a channel is proven by its own
+/// show -> lead -> booking chain, not by a global average. A source with no
+/// events at all is not in the table.
+pub fn source_funnel_ok(shown: u32, leads: u32, bookings: u32) -> bool {
+    return shown > 0 or leads > 0 or bookings > 0;
+}
+
+test a_source_needs_at_least_one_event {
+    assert source_funnel_ok(1, 0, 0) == true;
+    assert source_funnel_ok(0, 2, 0) == true;
+    assert source_funnel_ok(0, 0, 1) == true;
+    assert source_funnel_ok(0, 0, 0) == false;
+}
+
+/// Staff activity is counted from the chat mirror: a CRM reply carries its
+/// author (who), so the weekly digest makes replies personal and
+/// comparable. A reply without an author is not countable.
+pub fn staff_reply_ok(who: str) -> bool {
+    return who != "";
+}
+
+test a_reply_needs_an_author {
+    assert staff_reply_ok("@rubanlina") == true;
+    assert staff_reply_ok("") == false;
+}
+
 /// The A/B verdict: photo cards vs text cards, decided on a >=50-show sample.
 /// Conversions are integer basis points (bookings * 10000 / users) so no float
 /// sneaks into the law. The winner is announced in the weekly digest and the
