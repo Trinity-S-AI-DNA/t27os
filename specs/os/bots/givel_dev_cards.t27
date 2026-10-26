@@ -123,3 +123,54 @@ test the_queue_holds_a_card_for_one_day {
     assert queue_ok(24) == true;
     assert queue_ok(25) == false;
 }
+
+/// The opt-out rides ON the card: one press, no typing. The law's opt-out
+/// is only as real as its cheapest path.
+pub const OPTOUT_ON_CARD : bool = true;
+
+/// The cooldown is PERSONAL to the state: a hot lead hears every two days,
+/// a repeat client once a week -- and a booked client gets NO dev card at
+/// all, because the viewing reminder already owns that thread.
+pub const COOLDOWN_HOT_LEAD_H : u32 = 48;
+pub const COOLDOWN_REPEAT_H : u32 = 168;
+
+pub fn cooldown_for(state: str, fallback_h: u32) -> u32 {
+    if (state == "repeat") { return COOLDOWN_REPEAT_H; }
+    return fallback_h;
+}
+
+pub fn dev_card_allowed(state: str) -> bool {
+    return state != "booked";
+}
+
+test the_cooldown_is_personal {
+    assert COOLDOWN_HOT_LEAD_H == 48;
+    assert COOLDOWN_REPEAT_H == 168;
+    assert cooldown_for("repeat", 48) == 168;
+    assert cooldown_for("new_lead", 48) == 48;
+}
+
+test booked_hears_the_reminder_not_the_cards {
+    assert dev_card_allowed("booked") == false;
+    assert dev_card_allowed("new_lead") == true;
+    assert dev_card_allowed("repeat") == true;
+}
+
+/// The button exists on every composed card -- the host asserts the wiring
+/// in its own tests; the law pins the rule the wiring serves.
+pub fn optout_button_rule(card_keyboard_rows: u32, has_optout_row: bool) -> bool {
+    if (card_keyboard_rows == 0) { return false; }
+    if (OPTOUT_ON_CARD) { return has_optout_row; }
+    return true;
+}
+
+test every_card_keyboard_carries_the_optout {
+    assert optout_button_rule(0, false) == false;   // an empty card is not a card
+    assert optout_button_rule(2, true) == true;
+    assert optout_button_rule(2, false) == false;   // the law's button is not optional
+}
+
+/// A rank learns from clicks before it learns from bookings: a press of the
+/// card's button within a day of the card credits the card's options. The
+/// click is common; the booking is rare -- and both are evidence.
+pub const CLICK_CREDIT_WINDOW_H : u32 = 24;
