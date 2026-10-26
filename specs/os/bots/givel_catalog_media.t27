@@ -179,6 +179,22 @@ test the_followup_fires_once_after_a_day {
     assert followup_due(72, true) == false;  // one reminder, never two
 }
 
+/// The managers' SLA: a viewing booking must be answered within ONE hour.
+/// The watchdog measures booking -> first manager message in the Leads thread
+/// and counts the breaches; responsibility becomes a metric.
+pub const SLA_MAX_H : u32 = 1;
+
+pub fn sla_ok(response_min: u32) -> bool {
+    return response_min <= SLA_MAX_H * 60;
+}
+
+test the_sla_is_one_hour {
+    assert SLA_MAX_H == 1;
+    assert sla_ok(60) == true;
+    assert sla_ok(61) == false;
+    assert sla_ok(0) == true;
+}
+
 /// The A/B verdict: photo cards vs text cards, decided on a >=50-show sample.
 /// Conversions are integer basis points (bookings * 10000 / users) so no float
 /// sneaks into the law. The winner is announced in the weekly digest and the
