@@ -450,3 +450,38 @@ test the_unconfirmed_slot_pings_once_after_two_hours {
     assert slot_ping_due(5, true, false) == false;   // confirmed: no ping
     assert slot_ping_due(5, false, true) == false;   // once, never twice
 }
+
+/// The staff closes the slot FROM THE GROUP: confirm or cancel on the ping
+/// lands in the same booking_state the TMA reads -- one store, two doors.
+pub fn slot_group_action_ok(action: str) -> bool {
+    return action == "confirm" or action == "cancel";
+}
+
+test the_group_closes_the_slot {
+    assert slot_group_action_ok("confirm") == true;
+    assert slot_group_action_ok("cancel") == true;
+    assert slot_group_action_ok("snooze") == false;
+}
+
+/// Slots always name their timezone: a confused visit is worse than a
+/// longer label.
+pub fn slot_label_ok(has_tz: bool) -> bool {
+    return has_tz;
+}
+
+test the_slot_names_its_timezone {
+    assert slot_label_ok(true) == true;
+    assert slot_label_ok(false) == false;
+}
+
+/// The showcase table names objects from the catalog -- an id without a
+/// catalog entry renders the raw id, never an invented name.
+pub fn showcase_name_ok(name: str, id: str) -> str {
+    if (name != "") { return name; }
+    return id;
+}
+
+test the_showcase_names_from_the_catalog {
+    assert showcase_name_ok("Aileen Villas", "GV-1") == "Aileen Villas";
+    assert showcase_name_ok("", "GV-1") == "GV-1";
+}
