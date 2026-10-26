@@ -162,6 +162,53 @@ test booked_objects_rank_first {
     assert booked_ranks_higher(1, 1) == false;  // tie: price sort decides
 }
 
+/// No repeats while fresh options remain: a returning client sees objects
+/// they have NOT been shown before; when fresh options run out, the pool
+/// falls back to repeats. Exclusion is data-driven (metrics.jsonl).
+pub fn exclude_seen(shown_before: bool, fresh_left: u32) -> bool {
+    if (shown_before and fresh_left > 0) { return true; }
+    return false;
+}
+
+test seen_objects_are_excluded_while_fresh_remain {
+    assert exclude_seen(true, 3) == true;   // shown before, fresh exist: skip
+    assert exclude_seen(true, 0) == false;  // fresh exhausted: repeats allowed
+    assert exclude_seen(false, 3) == false; // never shown: primary candidate
+}
+
+/// The follow-up rule: a client who started the quiz and went silent for 24
+/// hours gets ONE gentle reminder with a single object card. One reminder,
+/// never two -- politeness is part of the law.
+pub const FOLLOWUP_AFTER_H : u32 = 24;
+
+pub fn followup_due(hours_since_start: u32, already_followed: bool) -> bool {
+    if (already_followed) { return false; }
+    return hours_since_start >= FOLLOWUP_AFTER_H;
+}
+
+test the_followup_fires_once_after_a_day {
+    assert FOLLOWUP_AFTER_H == 24;
+    assert followup_due(24, false) == true;
+    assert followup_due(23, false) == false;
+    assert followup_due(72, true) == false;  // one reminder, never two
+}
+
+/// The managers' SLA: a viewing booking must be answered within ONE hour.
+/// The watchdog measures booking -> first manager message in the Leads thread
+/// and counts the breaches; responsibility becomes a metric.
+pub const SLA_MAX_H : u32 = 1;
+
+pub fn sla_ok(response_min: u32) -> bool {
+    return response_min <= SLA_MAX_H * 60;
+}
+
+test the_sla_is_one_hour {
+    assert SLA_MAX_H == 1;
+    assert sla_ok(60) == true;
+    assert sla_ok(61) == false;
+    assert sla_ok(0) == true;
+}
+
 /// The A/B verdict: photo cards vs text cards, decided on a >=50-show sample.
 /// Conversions are integer basis points (bookings * 10000 / users) so no float
 /// sneaks into the law. The winner is announced in the weekly digest and the

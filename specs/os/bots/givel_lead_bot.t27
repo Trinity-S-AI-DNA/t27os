@@ -131,6 +131,51 @@ pub fn is_quiz_step(step: u32) -> bool {
     return step < STEP_COUNT;
 }
 
+/// Two funnel languages: the client's own, auto-detected by the host's
+/// has-cyrillic primitive; RU stays the default for silent entries (QR, ads).
+pub const LANG_RU : str = "ru";
+pub const LANG_EN : str = "en";
+
+pub fn lang_for(has_cyrillic: bool) -> str {
+    if (has_cyrillic) { return LANG_RU; }
+    return LANG_EN;
+}
+
+/// A client with at least one prior lead is a REPEAT client: the funnel
+/// greets them personally and the managers see the history marker.
+pub fn is_repeat_client(prev_leads: u32) -> bool {
+    return prev_leads > 0;
+}
+
+/// An abandoned quiz resumes from where it stopped -- but only while the
+/// answers are fresh. A week-old half-quiz is stale: start over.
+pub const RESUME_MAX_DAYS : u32 = 7;
+
+pub fn resume_ok(prev_step: u32, days_old: u32) -> bool {
+    if (prev_step == 0) { return false; }
+    return days_old <= RESUME_MAX_DAYS;
+}
+
+test the_resume_rule {
+    assert RESUME_MAX_DAYS == 7;
+    assert resume_ok(2, 3) == true;   // mid-quiz, 3 days old: resume
+    assert resume_ok(2, 8) == false;  // stale: start over
+    assert resume_ok(0, 1) == false;  // nothing to resume
+}
+
+test the_two_languages_and_the_default {
+    assert lang_for(true) == LANG_RU;
+    assert lang_for(false) == LANG_EN;
+    assert LANG_RU == "ru";
+    assert LANG_EN == "en";
+}
+
+test a_repeat_client_has_prior_leads {
+    assert is_repeat_client(0) == false;
+    assert is_repeat_client(1) == true;
+    assert is_repeat_client(7) == true;
+}
+
 /// A lead is complete only when every field is present. The host passes "" for missing ones.
 pub fn lead_complete(interest: str, budget: str, location: str, timing: str, contact: str) -> bool {
     return interest != "" and budget != "" and location != "" and timing != "" and contact != "";
