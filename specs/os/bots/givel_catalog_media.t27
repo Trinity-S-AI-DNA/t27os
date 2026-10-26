@@ -300,6 +300,19 @@ test a_reply_needs_an_author {
     assert staff_reply_ok("") == false;
 }
 
+/// The reminder speaks the CLIENT's language: the client's own words decide
+/// (cyrillic -> ru, else en -- the same rule that runs the funnel). The
+/// manager sets the time; the law sets the tongue.
+pub fn reminder_lang(has_cyrillic: bool) -> str {
+    if (has_cyrillic) { return "ru"; }
+    return "en";
+}
+
+test the_reminder_speaks_the_clients_tongue {
+    assert reminder_lang(true) == "ru";
+    assert reminder_lang(false) == "en";
+}
+
 /// The A/B verdict: photo cards vs text cards, decided on a >=50-show sample.
 /// Conversions are integer basis points (bookings * 10000 / users) so no float
 /// sneaks into the law. The winner is announced in the weekly digest and the
