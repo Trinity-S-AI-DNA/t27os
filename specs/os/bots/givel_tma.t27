@@ -138,3 +138,36 @@ test stale_initdata_stops_opening_the_crm {
     assert initdata_fresh(1000, 1000 + 86401) == false;
     assert initdata_fresh(2000, 1000) == false;
 }
+
+/// The calendar bucket of a viewing: 0 past, 1 today, 2 week, 3 later --
+/// from the ms delta the host computes (a clock fact, not a decision).
+pub fn cal_bucket(ms_delta: i64) -> u32 {
+    if (ms_delta < 0) { return 0; }
+    if (ms_delta < 86400000) { return 1; }
+    if (ms_delta < 604800000) { return 2; }
+    return 3;
+}
+
+test cal_buckets_split_the_schedule {
+    assert cal_bucket(-5) == 0;
+    assert cal_bucket(3600000) == 1;
+    assert cal_bucket(90000000) == 2;
+    assert cal_bucket(691200000) == 3;
+}
+
+/// The client hears a confirmation only when the row ENTERS confirmed --
+/// from any other state, exactly once. The codes are the STATUS_* codes of
+/// the catalog_media law (1 = confirmed).
+pub const TMA_STATUS_CONFIRMED : u32 = 1;
+
+pub fn confirm_notice_code(prev: u32, next: u32) -> bool {
+    if (next != TMA_STATUS_CONFIRMED) { return false; }
+    return prev != TMA_STATUS_CONFIRMED;
+}
+
+test the_client_hears_only_the_first_confirmation {
+    assert confirm_notice_code(0, 1) == true;
+    assert confirm_notice_code(1, 1) == false;
+    assert confirm_notice_code(2, 1) == true;
+    assert confirm_notice_code(3, 0) == false;
+}
