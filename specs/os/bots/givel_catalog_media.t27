@@ -161,3 +161,22 @@ test booked_objects_rank_first {
     assert booked_ranks_higher(0, 1) == false;
     assert booked_ranks_higher(1, 1) == false;  // tie: price sort decides
 }
+
+/// The A/B verdict: photo cards vs text cards, decided on a >=50-show sample.
+/// Conversions are integer basis points (bookings * 10000 / users) so no float
+/// sneaks into the law. The winner is announced in the weekly digest and the
+/// LOSING format is disabled by the host automatically -- no debate, no drift.
+pub const AB_MIN_SAMPLE : u32 = 50;
+
+pub fn ab_winner(photo_bp: u32, text_bp: u32) -> str {
+    if (photo_bp > text_bp) { return "PHOTO"; }
+    if (text_bp > photo_bp) { return "TEXT"; }
+    return "WAIT";
+}
+
+test the_ab_verdict_needs_fifty_shows {
+    assert AB_MIN_SAMPLE == 50;
+    assert ab_winner(500, 300) == "PHOTO";
+    assert ab_winner(300, 500) == "TEXT";
+    assert ab_winner(400, 400) == "WAIT";
+}
