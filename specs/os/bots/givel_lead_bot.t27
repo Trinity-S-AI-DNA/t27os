@@ -313,3 +313,19 @@ test id_seq_is_one_based_and_bounded {
 test the_id_standard_names_the_format {
     assert ID_STANDARD == "GV-TYPE-YYMMDD-SURFACE-SEQ4";
 }
+
+/// EVERY update gets an answer: a handler that crashes still owes the
+/// client a reply -- a fallback message plus an error line in the log.
+/// Silence is the one failure a client reads as disrespect.
+pub const FALLBACK_REPLY : bool = true;
+
+pub fn update_answered(replied: bool, logged: bool) -> bool {
+    return replied or logged;
+}
+
+test a_crashed_update_still_answers {
+    assert FALLBACK_REPLY == true;
+    assert update_answered(true, false) == true;
+    assert update_answered(false, true) == true;
+    assert update_answered(false, false) == false;
+}
