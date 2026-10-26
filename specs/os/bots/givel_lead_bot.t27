@@ -163,6 +163,19 @@ test the_resume_rule {
     assert resume_ok(0, 1) == false;  // nothing to resume
 }
 
+/// HOT events ping the owner PERSONALLY on top of the CRM group: a viewing
+/// booking is money-now and must not drown in the group feed. Quiz leads
+/// reach the staff through the group -- no double ping.
+pub fn owner_ping(kind: str) -> bool {
+    return kind == "booking";
+}
+
+test only_hot_events_ping_the_owner {
+    assert owner_ping("booking") == true;
+    assert owner_ping("quiz_lead") == false;
+    assert owner_ping("selection") == false;
+}
+
 test the_two_languages_and_the_default {
     assert lang_for(true) == LANG_RU;
     assert lang_for(false) == LANG_EN;
