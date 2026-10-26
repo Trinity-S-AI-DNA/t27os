@@ -202,3 +202,51 @@ test the_earned_rank_switches_on_at_ten_shows {
     assert option_bp(3, 9) == 0;       // thin: hand order stands
     assert option_bp(0, 50) == 0;      // proven bad: sinks
 }
+
+/// General form of card_due for any cooldown the state's law assigns: the
+/// opt-out is absolute, the touch-age must reach the cooldown.
+pub fn card_due_for(hours_since_touch: u32, opted_out: bool, cooldown_h: u32) -> bool {
+    if (opted_out) { return false; }
+    return hours_since_touch >= cooldown_h;
+}
+
+test card_due_for_generalises_the_window {
+    assert card_due_for(47, false, 48) == false;
+    assert card_due_for(48, false, 48) == true;
+    assert card_due_for(200, true, 48) == false;
+    assert card_due_for(200, false, 168) == true;
+}
+
+/// The cooldown hours by lead kind: 0 = hot lead, 1 = repeat lead.
+pub fn cooldown_hours(kind: u32) -> u32 {
+    if (kind == 1) { return COOLDOWN_REPEAT_H; }
+    return COOLDOWN_HOT_LEAD_H;
+}
+
+test cooldown_hours_by_kind {
+    assert cooldown_hours(0) == COOLDOWN_HOT_LEAD_H;
+    assert cooldown_hours(1) == COOLDOWN_REPEAT_H;
+    assert cooldown_hours(9) == COOLDOWN_HOT_LEAD_H;
+}
+
+/// A booked client's thread belongs to the reminder; no dev card.
+pub fn dev_card_ok(is_booked: bool) -> bool {
+    return is_booked == false;
+}
+
+test booked_clients_get_no_dev_cards {
+    assert dev_card_ok(true) == false;
+    assert dev_card_ok(false) == true;
+}
+
+/// The state codes the card pipeline speaks (matching the STATUS_* codes
+/// of the catalog_media law): 0 booked, 1 confirmed, 2 cancelled, 3 done.
+pub fn state_known(status_code: u32) -> bool {
+    return status_code <= 3;
+}
+
+test only_known_states_enter_the_pipeline {
+    assert state_known(0) == true;
+    assert state_known(3) == true;
+    assert state_known(4) == false;
+}
