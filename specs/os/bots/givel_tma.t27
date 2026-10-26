@@ -1,0 +1,57 @@
+// SPDX-License-Identifier: Apache-2.0
+// givel_tma.t27 -- the LAW of the admin Telegram Mini App for the GIVEL bot:
+// a read-only CRM tab for exactly ONE admin (the bot owner). Admin gate: only
+// the configured owner id passes. The CRM shows what the bot already stores
+// (leads, selections, bookings, chat log): no new data collection, no write
+// operations in v1. The chat tab mirrors the client chat the bot already sees.
+// ASCII only (L3).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module GivelTma;
+
+/// Admin gate: only the configured owner id is the TMA admin. Everyone else
+/// gets nothing -- not a reduced view, nothing.
+pub fn tma_admin_ok(user_id: u32, owner_id: u32) -> bool {
+    return user_id == owner_id;
+}
+
+/// The CRM list is the leads log: every row the bot already wrote.
+pub fn crm_row_ok(row: str) -> bool {
+    return row != "";
+}
+
+/// The chat tab mirrors the client chat the bot already sees; both directions
+/// are stored (in = client, out = bot), so the admin reads the full thread.
+pub fn chat_direction_ok(dir: str) -> bool {
+    return dir == "in" or dir == "out";
+}
+
+/// v1 is read-only: the TMA never writes to the bot state, the catalog, or
+/// the leads log. Writes stay with the host's Telegram handlers.
+pub const TMA_READONLY : bool = true;
+
+pub fn tma_can_write() -> bool {
+    return TMA_READONLY == false;
+}
+
+test only_the_owner_is_the_tma_admin {
+    assert tma_admin_ok(144022504, 144022504) == true;
+    assert tma_admin_ok(42, 144022504) == false;
+    assert tma_admin_ok(144022505, 144022504) == false;
+}
+
+test the_crm_reads_the_leads_log {
+    assert crm_row_ok("{}") == true;
+    assert crm_row_ok("") == false;
+}
+
+test chat_directions_are_in_and_out {
+    assert chat_direction_ok("in") == true;
+    assert chat_direction_ok("out") == true;
+    assert chat_direction_ok("side") == false;
+}
+
+test v1_is_readonly {
+    assert TMA_READONLY == true;
+    assert tma_can_write() == false;
+}
