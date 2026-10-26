@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 // givel_tma.t27 -- the LAW of the admin Telegram Mini App for the GIVEL bot:
-// a read-only CRM tab for exactly ONE admin (the bot owner). Admin gate: only
-// the configured owner id passes. The CRM shows what the bot already stores
-// (leads, selections, bookings, chat log): no new data collection, no write
-// operations in v1. The chat tab mirrors the client chat the bot already sees.
+// the admin CRM for the CRM STAFF: the bot owner plus every current member
+// of the CRM group (tma_admin_ok checks membership LIVE). The CRM shows what
+// the bot already stores (leads, selections, bookings, chat log); v2 writes
+// are allowlisted (reply, booking). The chat tab mirrors the client chat.
 // ASCII only (L3).
 ; phi^2 + 1/phi^2 = 3 | TRINITY
 
 module GivelTma;
 
-/// Admin gate: only the configured owner id is the TMA admin. Everyone else
-/// gets nothing -- not a reduced view, nothing.
-pub fn tma_admin_ok(user_id: u32, owner_id: u32) -> bool {
-    return user_id == owner_id;
+/// The gate covers the CRM STAFF: the owner always passes, and so does any
+/// current member of the CRM group -- managers work in the same view.
+/// Membership is checked LIVE against Telegram on every session, never
+/// copied: leaving the group closes the access on the next check.
+pub fn tma_admin_ok(user_id: u32, owner_id: u32, in_group: bool) -> bool {
+    return user_id == owner_id or in_group;
 }
 
 /// The CRM list is the leads log: every row the bot already wrote.
@@ -42,10 +44,11 @@ pub fn tma_reply_ok(text_len: u32) -> bool {
     return text_len <= TMA_WRITE_MAX;
 }
 
-test only_the_owner_is_the_tma_admin {
-    assert tma_admin_ok(144022504, 144022504) == true;
-    assert tma_admin_ok(42, 144022504) == false;
-    assert tma_admin_ok(144022505, 144022504) == false;
+test the_owner_or_a_group_member_passes {
+    assert tma_admin_ok(144022504, 144022504, false) == true;   // owner: no membership needed
+    assert tma_admin_ok(42, 144022504, true) == true;           // CRM group member
+    assert tma_admin_ok(42, 144022504, false) == false;         // outsider
+    assert tma_admin_ok(144022505, 144022504, false) == false;
 }
 
 test the_crm_reads_the_leads_log {
