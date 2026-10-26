@@ -120,3 +120,21 @@ test the_card_photo_is_the_catalog_truth {
     assert card_photo_ok("https://media.givelphuket.com/x.webp") == true;
     assert card_photo_ok("") == false;
 }
+
+/// The initData the TMA presents may not be older than a day: a captured
+/// string stops opening the CRM after INITDATA_MAX_AGE_S seconds. The
+/// freshness DECISION is the law's (and crosses into the native binary as
+/// a code); the HMAC itself stays host plumbing, like every port here.
+pub const INITDATA_MAX_AGE_S : u32 = 86400;
+
+pub fn initdata_fresh(auth_s: u32, now_s: u32) -> bool {
+    if (now_s < auth_s) { return false; }
+    return (now_s - auth_s) <= INITDATA_MAX_AGE_S;
+}
+
+test stale_initdata_stops_opening_the_crm {
+    assert initdata_fresh(1000, 1000) == true;
+    assert initdata_fresh(1000, 1000 + 86399) == true;
+    assert initdata_fresh(1000, 1000 + 86401) == false;
+    assert initdata_fresh(2000, 1000) == false;
+}
