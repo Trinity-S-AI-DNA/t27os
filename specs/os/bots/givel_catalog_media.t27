@@ -162,6 +162,23 @@ test booked_objects_rank_first {
     assert booked_ranks_higher(1, 1) == false;  // tie: price sort decides
 }
 
+/// The follow-up rule: a client who started the quiz and went silent for 24
+/// hours gets ONE gentle reminder with a single object card. One reminder,
+/// never two -- politeness is part of the law.
+pub const FOLLOWUP_AFTER_H : u32 = 24;
+
+pub fn followup_due(hours_since_start: u32, already_followed: bool) -> bool {
+    if (already_followed) { return false; }
+    return hours_since_start >= FOLLOWUP_AFTER_H;
+}
+
+test the_followup_fires_once_after_a_day {
+    assert FOLLOWUP_AFTER_H == 24;
+    assert followup_due(24, false) == true;
+    assert followup_due(23, false) == false;
+    assert followup_due(72, true) == false;  // one reminder, never two
+}
+
 /// The A/B verdict: photo cards vs text cards, decided on a >=50-show sample.
 /// Conversions are integer basis points (bookings * 10000 / users) so no float
 /// sneaks into the law. The winner is announced in the weekly digest and the
