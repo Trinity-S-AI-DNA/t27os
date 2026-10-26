@@ -1,0 +1,633 @@
+// SPDX-License-Identifier: Apache-2.0
+// t27os: the portable HMAC-SHA256 law for the GIVEL initData gate (t27os#41).
+// Sibling of givel_sha256.t27 / givel_hmac.t27 (the verbatim stdlib oracles,
+// which stay the reference): this file RESTATES the same construction in the
+// subset gen-c lowers today, so the native binary can carry it without
+// waiting for gHashTag/t27#12705. The subset is deliberate and probe-verified
+// on 2026-10-27: the t27c interpreter, t27b native and gen-c C agree on every
+// shape used here (module const arrays read by element, bare local arrays
+// filled element-wise, scalar helpers, while loops, explicit lengths).
+// Excluded on purpose, each tied to a known defect or divergence:
+//   - NO array-typed returns (#12705 defect B): a digest word leaves as u32.
+//   - NO local initialised from an array or literal (#12705 defect A):
+//     locals are bare declarations filled element-wise.
+//   - NO slices and no .len: arrays travel with explicit length params.
+//   - NO param mutation (probed: gen-c C passes arrays by pointer while t27b
+//     passes them by value -- callees here only READ their arrays).
+//   - NO structs, no string literals, no repeat initialisers, no arrays
+//     shorter than their parameter type (params are exact-typed).
+// Consequence: one hash = one self-contained core over locals; a digest word
+// is one scalar call. HMAC recomputes the inner hash (9 sha passes per
+// mac_word, 32 per tma_mac_ok) -- microseconds in C, and the production gate
+// runs once per login.
+// Scope: key <= 64 bytes (the bot-token shape; RFC 4231 TC6/TC7 long keys
+// stay with givel_hmac.t27), message <= 2048 bytes (initData; the host falls
+// back visibly beyond the cap, the word functions answer 0).
+// Oracles: the vectors below are the SAME published digests the verbatim
+// laws carry (FIPS 180-2 appendix B, the 'a' padding boundaries 55/56/63/
+// 64/119/120 from hashlib, RFC 4231 TC1-TC4), so the two files cross-check
+// through the oracles, not through each other.
+
+module GivelTmaMac;
+    use base::types;
+
+    // ═══════════════════════════════════════════════════════════
+    // 1. Constants (FIPS 180-4)
+    // ═══════════════════════════════════════════════════════════
+
+    pub const H0 : [8]u32 = [
+        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+        0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+    ];
+
+    pub const K : [64]u32 = [
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+        0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+        0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+        0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+        0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+        0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+        0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+        0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+        0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+        0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+        0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+        0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+        0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+        0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+        0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+    ];
+
+    pub const M32 : usize = 4294967296;
+
+    pub const KEY_CAP : u32 = 64;
+    pub const MSG_CAP : u32 = 2048;
+
+    // the 56-byte FIPS two-block message, "abcdbcde...nopnopq"
+    pub const MSG56 : [56]u8 = [
+        0x61, 0x62, 0x63, 0x64, 0x62, 0x63, 0x64, 0x65, 0x63, 0x64,
+        0x65, 0x66, 0x64, 0x65, 0x66, 0x67, 0x65, 0x66, 0x67, 0x68,
+        0x66, 0x67, 0x68, 0x69, 0x67, 0x68, 0x69, 0x6a, 0x68, 0x69,
+        0x6a, 0x6b, 0x69, 0x6a, 0x6b, 0x6c, 0x6a, 0x6b, 0x6c, 0x6d,
+        0x6b, 0x6c, 0x6d, 0x6e, 0x6c, 0x6d, 0x6e, 0x6f, 0x6d, 0x6e,
+        0x6f, 0x70, 0x6e, 0x6f, 0x70, 0x71,
+    ];
+
+    // the RFC 4231 TC2 digest as 64 lower-case hex letters
+    pub const HEX_TC2 : [64]u8 = [
+        0x35, 0x62, 0x64, 0x63, 0x63, 0x31, 0x34, 0x36,
+        0x62, 0x66, 0x36, 0x30, 0x37, 0x35, 0x34, 0x65,
+        0x36, 0x61, 0x30, 0x34, 0x32, 0x34, 0x32, 0x36,
+        0x30, 0x38, 0x39, 0x35, 0x37, 0x35, 0x63, 0x37,
+        0x35, 0x61, 0x30, 0x30, 0x33, 0x66, 0x30, 0x38,
+        0x39, 0x64, 0x32, 0x37, 0x33, 0x39, 0x38, 0x33,
+        0x39, 0x64, 0x65, 0x63, 0x35, 0x38, 0x62, 0x39,
+        0x36, 0x34, 0x65, 0x63, 0x33, 0x38, 0x34, 0x33,
+    ];
+
+    // ═══════════════════════════════════════════════════════════
+    // 2. Scalar helpers (FIPS 180-4 4.1.2, same bodies as the
+    //    verbatim law; scalars only, so they lower everywhere)
+    // ═══════════════════════════════════════════════════════════
+
+    fn rotr(x: usize, n: usize) -> usize {
+        return ((x >> n) | ((x << (32 - n)) % M32)) % M32;
+    }
+
+    fn big_sigma0(x: usize) -> usize {
+        return rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22);
+    }
+
+    fn big_sigma1(x: usize) -> usize {
+        return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25);
+    }
+
+    fn small_sigma0(x: usize) -> usize {
+        return rotr(x, 7) ^ rotr(x, 18) ^ (x >> 3);
+    }
+
+    fn small_sigma1(x: usize) -> usize {
+        return rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10);
+    }
+
+    fn ch(x: usize, y: usize, z: usize) -> usize {
+        return (x & y) ^ ((x ^ 4294967295) & z);
+    }
+
+    fn maj(x: usize, y: usize, z: usize) -> usize {
+        return (x & y) ^ (x & z) ^ (y & z);
+    }
+
+    fn nibble(c: u8) -> usize {
+        if (c >= 97) {
+            return (c as usize) - 87;
+        }
+        return (c as usize) - 48;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 3. Core: SHA-256 over keyblock(64) || pay(0..MSG_CAP) with
+    //    FIPS padding, everything in locals; returns digest word w
+    //    (0..7). One inline compress keeps the single-body property
+    //    the portable subset needs.
+    // ═══════════════════════════════════════════════════════════
+
+    fn sha_core(with_key: u32, keyblock: [64]u8, pay: [2048]u8, plen: u32, w: u32) -> u32 {
+        var state : [8]u32;
+        var si : usize = 0;
+        while (si < 8) {
+            state[si] = H0[si];
+            si = si + 1;
+        }
+        // materialise the padded stream: [keyblock] || pay || 0x80 .. len
+        // (the 64-byte key block is present only for the HMAC rounds)
+        var stream : [2184]u8;
+        var base : usize = 0;
+        if (with_key == 1) {
+            base = 64;
+        }
+        var total : usize = base + (plen as usize);
+        var rem : usize = total % 64;
+        var pad : usize = 64 - rem;
+        if (rem >= 56) {
+            pad = 128 - rem;
+        }
+        var slen : usize = total + pad;
+        var j : usize = 0;
+        if (with_key == 1) {
+            while (j < 64) {
+                stream[j] = keyblock[j];
+                j = j + 1;
+            }
+        }
+        j = 0;
+        while (j < (plen as usize)) {
+            stream[base + j] = pay[j];
+            j = j + 1;
+        }
+        stream[total] = 128;
+        j = total + 1;
+        while (j < (slen - 8)) {
+            stream[j] = 0;
+            j = j + 1;
+        }
+        var bits : usize = total * 8;
+        var k : usize = 0;
+        while (k < 8) {
+            stream[slen - 8 + k] = ((bits >> (56 - 8 * k)) % 256) as u8;
+            k = k + 1;
+        }
+        // one 64-byte block at a time, one inline compress
+        var block : [64]u8;
+        var w64 : [64]usize;
+        var v : [8]usize;
+        var b : usize = 0;
+        while (b < slen) {
+            j = 0;
+            while (j < 64) {
+                block[j] = stream[b + j];
+                j = j + 1;
+            }
+            j = 0;
+            while (j < 16) {
+                w64[j] = ((block[j * 4] as usize) * 16777216)
+                    + ((block[j * 4 + 1] as usize) * 65536)
+                    + ((block[j * 4 + 2] as usize) * 256)
+                    + (block[j * 4 + 3] as usize);
+                j = j + 1;
+            }
+            j = 16;
+            while (j < 64) {
+                w64[j] = (small_sigma1(w64[j - 2]) + w64[j - 7]
+                    + small_sigma0(w64[j - 15]) + w64[j - 16]) % M32;
+                j = j + 1;
+            }
+            j = 0;
+            while (j < 8) {
+                v[j] = state[j] as usize;
+                j = j + 1;
+            }
+            var t : usize = 0;
+            while (t < 64) {
+                const t1 = (v[7] + big_sigma1(v[4]) + ch(v[4], v[5], v[6])
+                    + (K[t] as usize) + w64[t]) % M32;
+                const t2 = (big_sigma0(v[0]) + maj(v[0], v[1], v[2])) % M32;
+                v[7] = v[6];
+                v[6] = v[5];
+                v[5] = v[4];
+                v[4] = (v[3] + t1) % M32;
+                v[3] = v[2];
+                v[2] = v[1];
+                v[1] = v[0];
+                v[0] = (t1 + t2) % M32;
+                t = t + 1;
+            }
+            j = 0;
+            while (j < 8) {
+                state[j] = (((state[j] as usize) + v[j]) % M32) as u32;
+                j = j + 1;
+            }
+            b = b + 64;
+        }
+        return state[w];
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 4. Public words: plain SHA-256 and HMAC-SHA256 (RFC 2104),
+    //    one u32 digest word per call
+    // ═══════════════════════════════════════════════════════════
+
+    pub fn sha_word(msg: [2048]u8, mlen: u32, w: u32) -> u32 {
+        if (mlen > MSG_CAP) {
+            return 0;
+        }
+        var zero_key : [64]u8;
+        var j : u32 = 0;
+        while (j < 64) {
+            zero_key[j] = 0;
+            j = j + 1;
+        }
+        return sha_core(0, zero_key, msg, mlen, w);
+    }
+
+    pub fn mac_word(key: [64]u8, klen: u32, msg: [2048]u8, mlen: u32, w: u32) -> u32 {
+        if (klen > KEY_CAP) {
+            return 0;
+        }
+        if (mlen > MSG_CAP) {
+            return 0;
+        }
+        // inner: sha((key ^ ipad) || msg), bytes 0..31 into opay
+        var ipad : [64]u8;
+        var j : u32 = 0;
+        while (j < 64) {
+            var kb : u8 = 0;
+            if (j < klen) {
+                kb = key[j];
+            }
+            ipad[j] = (kb ^ 0x36);
+            j = j + 1;
+        }
+        var opay : [2048]u8;
+        j = 0;
+        while (j < 32) {
+            var x : u32 = sha_core(1, ipad, msg, mlen, j / 4);
+            var sh : u32 = 24 - 8 * (j % 4);
+            opay[j] = ((x >> sh) % 256) as u8;
+            j = j + 1;
+        }
+        // outer: sha((key ^ opad) || inner)
+        var opad : [64]u8;
+        j = 0;
+        while (j < 64) {
+            var kb2 : u8 = 0;
+            if (j < klen) {
+                kb2 = key[j];
+            }
+            opad[j] = (kb2 ^ 0x5c);
+            j = j + 1;
+        }
+        return sha_core(1, opad, opay, 32, w);
+    }
+
+    // the initData gate: 1 when hex (64 lower-case letters) is the HMAC of
+    // msg under key, 0 otherwise. 32 mac_word calls, one compare loop.
+    pub fn tma_mac_ok(key: [64]u8, klen: u32, msg: [2048]u8, mlen: u32, hex: [64]u8) -> u32 {
+        var i : u32 = 0;
+        while (i < 32) {
+            var word : u32 = mac_word(key, klen, msg, mlen, i / 4);
+            var sh : u32 = 24 - 8 * (i % 4);
+            var byte : usize = ((word >> sh) % 256) as usize;
+            var want : usize = nibble(hex[2 * i]) * 16 + nibble(hex[2 * i + 1]);
+            if (byte != want) {
+                return 0;
+            }
+            i = i + 1;
+        }
+        return 1;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 5. Vectors
+    // ═══════════════════════════════════════════════════════════
+
+    // FIPS 180-2 appendix B digests, eight words each
+    pub const EXP_EMPTY : [8]u32 = [
+        0xe3b0c442, 0x98fc1c14, 0x9afbf4c8, 0x996fb924,
+        0x27ae41e4, 0x649b934c, 0xa495991b, 0x7852b855,
+    ];
+
+    pub const EXP_ABC : [8]u32 = [
+        0xba7816bf, 0x8f01cfea, 0x414140de, 0x5dae2223,
+        0xb00361a3, 0x96177a9c, 0xb410ff61, 0xf20015ad,
+    ];
+
+    pub const EXP_56 : [8]u32 = [
+        0x248d6a61, 0xd20638b8, 0xe5c02693, 0x0c3e6039,
+        0xa33ce459, 0x64ff2167, 0xf6ecedd4, 0x19db06c1,
+    ];
+
+    // the 'a' padding boundaries (hashlib): 55 56 63 64 119 120
+    pub const EXP_A55 : [8]u32 = [
+        0x9f4390f8, 0xd30c2dd9, 0x2ec9f095, 0xb65e2b9a,
+        0xe9b0a925, 0xa5258e24, 0x1c9f1e91, 0x0f734318,
+    ];
+
+    pub const EXP_A56 : [8]u32 = [
+        0xb35439a4, 0xac6f0948, 0xb6d6f9e3, 0xc6af0f5f,
+        0x590ce20f, 0x1bde7090, 0xef797068, 0x6ec6738a,
+    ];
+
+    pub const EXP_A63 : [8]u32 = [
+        0x7d3e74a0, 0x5d7db15b, 0xce4ad9ec, 0x0658ea98,
+        0xe3f06eee, 0xcf16b4c6, 0xfff2da45, 0x7ddc2f34,
+    ];
+
+    pub const EXP_A64 : [8]u32 = [
+        0xffe054fe, 0x7ae0cb6d, 0xc65c3af9, 0xb61d5209,
+        0xf439851d, 0xb43d0ba5, 0x997337df, 0x154668eb,
+    ];
+
+    pub const EXP_A119 : [8]u32 = [
+        0x31eba51c, 0x313a5c08, 0x226adf18, 0xd4a359cf,
+        0xdfd8d2e8, 0x16b13f4a, 0xf952f7ea, 0x6584dcfb,
+    ];
+
+    pub const EXP_A120 : [8]u32 = [
+        0x2f3d3354, 0x32c70b58, 0x0af0e8e1, 0xb3674a7c,
+        0x020d683a, 0xa5f73aaa, 0xedfdc55a, 0xf904c21c,
+    ];
+
+    // RFC 4231 TC1-TC4 digests
+    pub const EXP_TC1 : [8]u32 = [
+        0xb0344c61, 0xd8db3853, 0x5ca8afce, 0xaf0bf12b,
+        0x881dc200, 0xc9833da7, 0x26e9376c, 0x2e32cff7,
+    ];
+
+    pub const EXP_TC2 : [8]u32 = [
+        0x5bdcc146, 0xbf60754e, 0x6a042426, 0x089575c7,
+        0x5a003f08, 0x9d273983, 0x9dec58b9, 0x64ec3843,
+    ];
+
+    pub const EXP_TC3 : [8]u32 = [
+        0x773ea91e, 0x36800e46, 0x854db8eb, 0xd09181a7,
+        0x2959098b, 0x3ef8c122, 0xd9635514, 0xced565fe,
+    ];
+
+    pub const EXP_TC4 : [8]u32 = [
+        0x82558a38, 0x9a443c0e, 0xa4cc8198, 0x99f2083a,
+        0x85f0faa3, 0xe578f807, 0x7a2e3ff4, 0x6729665b,
+    ];
+
+    // count how many of the eight words match: 8 means the digest is exact
+    fn sha_words_ok(msg: [2048]u8, mlen: u32, exp: [8]u32) -> u32 {
+        var ok : u32 = 0;
+        var w : u32 = 0;
+        while (w < 8) {
+            if (sha_word(msg, mlen, w) == exp[w]) {
+                ok = ok + 1;
+            }
+            w = w + 1;
+        }
+        return ok;
+    }
+
+    fn mac_words_ok(key: [64]u8, klen: u32, msg: [2048]u8, mlen: u32, exp: [8]u32) -> u32 {
+        var ok : u32 = 0;
+        var w : u32 = 0;
+        while (w < 8) {
+            if (mac_word(key, klen, msg, mlen, w) == exp[w]) {
+                ok = ok + 1;
+            }
+            w = w + 1;
+        }
+        return ok;
+    }
+
+    // vector message builders: full-cap locals, filled element-wise (the
+    // tail beyond mlen is never read)
+    fn msg_empty() -> u32 {
+        var m : [2048]u8;
+        return sha_words_ok(m, 0, EXP_EMPTY);
+    }
+
+    fn msg_abc() -> u32 {
+        var m : [2048]u8;
+        m[0] = 0x61;
+        m[1] = 0x62;
+        m[2] = 0x63;
+        return sha_words_ok(m, 3, EXP_ABC);
+    }
+
+    fn msg_56() -> u32 {
+        var m : [2048]u8;
+        var i : u32 = 0;
+        while (i < 56) {
+            m[i] = MSG56[i];
+            i = i + 1;
+        }
+        return sha_words_ok(m, 56, EXP_56);
+    }
+
+    fn msg_a(n: u32, exp: [8]u32) -> u32 {
+        var m : [2048]u8;
+        var i : u32 = 0;
+        while (i < n) {
+            m[i] = 0x61;
+            i = i + 1;
+        }
+        return sha_words_ok(m, n, exp);
+    }
+
+    // RFC 4231 TC1: key 0x0b x20, "Hi There"
+    fn tc1() -> u32 {
+        var k : [64]u8;
+        var i : u32 = 0;
+        while (i < 20) {
+            k[i] = 0x0b;
+            i = i + 1;
+        }
+        var m : [2048]u8;
+        m[0] = 0x48;
+        m[1] = 0x69;
+        m[2] = 0x20;
+        m[3] = 0x54;
+        m[4] = 0x68;
+        m[5] = 0x65;
+        m[6] = 0x72;
+        m[7] = 0x65;
+        return mac_words_ok(k, 20, m, 8, EXP_TC1);
+    }
+
+    // RFC 4231 TC2: key "Jefe", "what do ya want for nothing?"
+    fn tc2() -> u32 {
+        var k : [64]u8;
+        k[0] = 0x4a;
+        k[1] = 0x65;
+        k[2] = 0x66;
+        k[3] = 0x65;
+        var m : [2048]u8;
+        m[0] = 0x77;
+        m[1] = 0x68;
+        m[2] = 0x61;
+        m[3] = 0x74;
+        m[4] = 0x20;
+        m[5] = 0x64;
+        m[6] = 0x6f;
+        m[7] = 0x20;
+        m[8] = 0x79;
+        m[9] = 0x61;
+        m[10] = 0x20;
+        m[11] = 0x77;
+        m[12] = 0x61;
+        m[13] = 0x6e;
+        m[14] = 0x74;
+        m[15] = 0x20;
+        m[16] = 0x66;
+        m[17] = 0x6f;
+        m[18] = 0x72;
+        m[19] = 0x20;
+        m[20] = 0x6e;
+        m[21] = 0x6f;
+        m[22] = 0x74;
+        m[23] = 0x68;
+        m[24] = 0x69;
+        m[25] = 0x6e;
+        m[26] = 0x67;
+        m[27] = 0x3f;
+        return mac_words_ok(k, 4, m, 28, EXP_TC2);
+    }
+
+    // the gate shape itself: accept the exact TC2 hex, refuse a wrong
+    // message and a corrupted hex letter
+    fn gate() -> u32 {
+        var k : [64]u8;
+        k[0] = 0x4a;
+        k[1] = 0x65;
+        k[2] = 0x66;
+        k[3] = 0x65;
+        var m : [2048]u8;
+        var i : u32 = 0;
+        while (i < 28) {
+            m[i] = 0x41;
+            i = i + 1;
+        }
+        var hex : [64]u8;
+        i = 0;
+        while (i < 64) {
+            hex[i] = HEX_TC2[i];
+            i = i + 1;
+        }
+        // gate over the WRONG message with the RIGHT hex must refuse: the
+        // acceptance check needs the true pair, so build the true TC2
+        // message and check both directions
+        var m2 : [2048]u8;
+        m2[0] = 0x77;
+        m2[1] = 0x68;
+        m2[2] = 0x61;
+        m2[3] = 0x74;
+        m2[4] = 0x20;
+        m2[5] = 0x64;
+        m2[6] = 0x6f;
+        m2[7] = 0x20;
+        m2[8] = 0x79;
+        m2[9] = 0x61;
+        m2[10] = 0x20;
+        m2[11] = 0x77;
+        m2[12] = 0x61;
+        m2[13] = 0x6e;
+        m2[14] = 0x74;
+        m2[15] = 0x20;
+        m2[16] = 0x66;
+        m2[17] = 0x6f;
+        m2[18] = 0x72;
+        m2[19] = 0x20;
+        m2[20] = 0x6e;
+        m2[21] = 0x6f;
+        m2[22] = 0x74;
+        m2[23] = 0x68;
+        m2[24] = 0x69;
+        m2[25] = 0x6e;
+        m2[26] = 0x67;
+        m2[27] = 0x3f;
+        var ok : u32 = 0;
+        if (tma_mac_ok(k, 4, m2, 28, hex) == 1) {
+            ok = ok + 1;
+        }
+        if (tma_mac_ok(k, 4, m, 28, hex) == 0) {
+            ok = ok + 1;
+        }
+        hex[0] = 0x36;
+        if (tma_mac_ok(k, 4, m2, 28, hex) == 0) {
+            ok = ok + 1;
+        }
+        return ok;
+    }
+
+    fn fips_all() -> u32 {
+        return msg_empty() + msg_abc() + msg_56();
+    }
+
+    fn boundary_all() -> u32 {
+        return msg_a(55, EXP_A55) + msg_a(56, EXP_A56) + msg_a(63, EXP_A63)
+            + msg_a(64, EXP_A64) + msg_a(119, EXP_A119) + msg_a(120, EXP_A120);
+    }
+
+    fn rfc_all() -> u32 {
+        // positional encoding to localise a failing vector:
+        // tc1 + 100*tc2 + 10000*tc3 + 1000000*tc4
+        var ok : u32 = tc1() + tc2() * 100;
+        var m : [2048]u8;
+        var i : u32 = 0;
+        while (i < 50) {
+            m[i] = 0xdd;
+            i = i + 1;
+        }
+        var k3 : [64]u8;
+        i = 0;
+        while (i < 20) {
+            k3[i] = 0xaa;
+            i = i + 1;
+        }
+        ok = ok + mac_words_ok(k3, 20, m, 50, EXP_TC3) * 10000;
+        // TC4 uses 0xcd data, a separate buffer from TC3's 0xdd
+        var m4 : [2048]u8;
+        i = 0;
+        while (i < 50) {
+            m4[i] = 0xcd;
+            i = i + 1;
+        }
+        var k4 : [64]u8;
+        i = 0;
+        while (i < 25) {
+            k4[i] = (i + 1) as u8;
+            i = i + 1;
+        }
+        ok = ok + mac_words_ok(k4, 25, m4, 50, EXP_TC4) * 1000000;
+        return ok;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // TDD: Tests
+    // ═══════════════════════════════════════════════════════════
+
+    test fips_180_2_word_vectors
+        given result = fips_all()
+        when expected = 24
+        then result == expected
+
+    test padding_boundary_word_vectors
+        given result = boundary_all()
+        when expected = 48
+        then result == expected
+
+    test rfc_4231_word_vectors
+        given result = rfc_all()
+        when expected = 8080808
+        then result == expected
+
+    test gate_accepts_exact_and_refuses_wrong
+        given result = gate()
+        when expected = 3
+        then result == expected
