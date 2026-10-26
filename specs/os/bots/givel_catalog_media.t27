@@ -209,6 +209,53 @@ test the_sla_is_one_hour {
     assert sla_ok(0) == true;
 }
 
+/// A viewing booking lives a four-state life; the status is data, not
+/// memory, so the TMA, the digest and the managers read the same truth.
+pub fn booking_status_ok(s: str) -> bool {
+    return s == "booked" or s == "confirmed" or s == "done" or s == "cancelled";
+}
+
+test booking_statuses_are_four {
+    assert booking_status_ok("booked") == true;
+    assert booking_status_ok("confirmed") == true;
+    assert booking_status_ok("done") == true;
+    assert booking_status_ok("cancelled") == true;
+    assert booking_status_ok("maybe") == false;
+}
+
+/// The client hears about the viewing BEFORE it starts: one reminder,
+/// REMIND_BEFORE_H hours ahead, never twice, and never after the window
+/// closes (an hour past the start the reminder is noise, not help).
+pub const REMIND_BEFORE_H : u32 = 2;
+
+pub fn remind_due(ms_until_start: i64, already_reminded: bool) -> bool {
+    if (already_reminded) { return false; }
+    return ms_until_start <= REMIND_BEFORE_H * 3600000 and ms_until_start > -3600000;
+}
+
+test the_reminder_fires_once_two_hours_before {
+    assert REMIND_BEFORE_H == 2;
+    assert remind_due(3600000, false) == true;    // 1h before: due
+    assert remind_due(7200000, false) == true;    // exactly 2h: due
+    assert remind_due(10800000, false) == false;  // 3h before: too early
+    assert remind_due(3600000, true) == false;    // once, never twice
+}
+
+/// Photo coverage is measured, integer percent: the digest states how much
+/// of the catalog the client can actually SEE. A missing photo is a visible
+/// gap, not silence.
+pub fn photo_coverage_pct(with_photo: u32, total: u32) -> u32 {
+    if (total == 0) { return 0; }
+    return with_photo * 100 / total;
+}
+
+test coverage_is_integer_percent {
+    assert photo_coverage_pct(158, 473) == 33;
+    assert photo_coverage_pct(0, 5) == 0;
+    assert photo_coverage_pct(5, 5) == 100;
+    assert photo_coverage_pct(7, 0) == 0;
+}
+
 /// The A/B verdict: photo cards vs text cards, decided on a >=50-show sample.
 /// Conversions are integer basis points (bookings * 10000 / users) so no float
 /// sneaks into the law. The winner is announced in the weekly digest and the
