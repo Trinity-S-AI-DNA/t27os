@@ -358,3 +358,19 @@ test the_ab_verdict_needs_fifty_shows {
     assert ab_winner(300, 500) == "TEXT";
     assert ab_winner(400, 400) == "WAIT";
 }
+
+/// The client picks the viewing TIME from the bot's slots -- the manager
+/// only confirms. A slot is valid when it is in the future and within 14
+/// days.
+pub const SLOT_DAYS_AHEAD : u32 = 14;
+
+pub fn slot_ok(start_ms: i64, now_ms: i64) -> bool {
+    return start_ms > now_ms and start_ms <= now_ms + SLOT_DAYS_AHEAD * 86400000;
+}
+
+test slots_are_future_and_bounded {
+    assert SLOT_DAYS_AHEAD == 14;
+    assert slot_ok(3600000, 0) == true;
+    assert slot_ok(-1, 0) == false;
+    assert slot_ok(15 * 86400000, 0) == false;
+}
