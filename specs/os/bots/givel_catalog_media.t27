@@ -485,3 +485,42 @@ test the_showcase_names_from_the_catalog {
     assert showcase_name_ok("Aileen Villas", "GV-1") == "Aileen Villas";
     assert showcase_name_ok("", "GV-1") == "GV-1";
 }
+
+/// The staff's close FROM THE GROUP reaches the client at once: the same
+/// store, two doors, and both doors notify. A write that changes nothing
+/// notifies no one.
+pub fn group_close_notifies(prev: str, next: str) -> bool {
+    if (prev == next) { return false; }
+    return next == "confirmed" or next == "cancelled";
+}
+
+test the_group_close_tells_the_client {
+    assert group_close_notifies("booked", "confirmed") == true;
+    assert group_close_notifies("booked", "cancelled") == true;
+    assert group_close_notifies("confirmed", "confirmed") == false;
+    assert group_close_notifies("cancelled", "cancelled") == false;
+}
+
+/// The funnel counts what people DID: a click on an object exists only
+/// with the object's id and a real timestamp.
+pub fn object_click_ok(object_id: str, ms: u64) -> bool {
+    return object_id != "" and ms > 0;
+}
+
+test the_object_click_carries_id_and_time {
+    assert object_click_ok("GV-OBJ-260805-SITE-0222", 1790000000000) == true;
+    assert object_click_ok("", 1790000000000) == false;
+    assert object_click_ok("GV-OBJ-260805-SITE-0222", 0) == false;
+}
+
+/// The manager's rank table (in the TMA) lists only options that were
+/// actually SERVED -- an unshown option is still the law's hand, not a row.
+pub fn rank_row_visible(shows: u32) -> bool {
+    return shows > 0;
+}
+
+test the_rank_table_lists_what_was_served {
+    assert rank_row_visible(0) == false;
+    assert rank_row_visible(1) == true;
+    assert rank_row_visible(10) == true;
+}
