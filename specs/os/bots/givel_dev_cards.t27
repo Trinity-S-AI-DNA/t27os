@@ -174,3 +174,14 @@ test every_card_keyboard_carries_the_optout {
 /// card's button within a day of the card credits the card's options. The
 /// click is common; the booking is rare -- and both are evidence.
 pub const CLICK_CREDIT_WINDOW_H : u32 = 24;
+
+/// The Pareto table shows an option only when it was SHOWN: a row with no
+/// shows is an opinion, not evidence.
+pub fn option_row_ok(shown: u32) -> bool {
+    return shown > 0;
+}
+
+test the_table_shows_only_evidence {
+    assert option_row_ok(1) == true;
+    assert option_row_ok(0) == false;
+}
