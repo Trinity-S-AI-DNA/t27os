@@ -524,3 +524,63 @@ test the_rank_table_lists_what_was_served {
     assert rank_row_visible(1) == true;
     assert rank_row_visible(10) == true;
 }
+
+/// The notice KIND the group's close produces -- the whole decision, no
+/// words: 0 = no notice (the row was not open, or the action is not a
+/// close), 1 = photo confirm, 2 = text confirm, 3 = photo cancel,
+/// 4 = text cancel. The words live in data (templates); the decision
+/// lives here, verified by t27b. The binary interface speaks INTEGER
+/// CODES only: a generated C body compares strings by pointer, so
+/// statuses and actions cross the boundary as the codes below.
+pub const NOTICE_NONE : u32 = 0;
+pub const NOTICE_PHOTO_CONFIRM : u32 = 1;
+pub const NOTICE_TEXT_CONFIRM : u32 = 2;
+pub const NOTICE_PHOTO_CANCEL : u32 = 3;
+pub const NOTICE_TEXT_CANCEL : u32 = 4;
+
+pub const STATUS_BOOKED : u32 = 0;
+pub const STATUS_CONFIRMED : u32 = 1;
+pub const STATUS_CANCELLED : u32 = 2;
+pub const STATUS_DONE : u32 = 3;
+
+pub const ACTION_CONFIRM : u32 = 1;
+pub const ACTION_CANCEL : u32 = 2;
+
+pub fn notice_kind(prev: u32, action: u32, has_photo: bool) -> u32 {
+    if (action != ACTION_CONFIRM and action != ACTION_CANCEL) { return NOTICE_NONE; }
+    if (prev != STATUS_BOOKED) { return NOTICE_NONE; }
+    if (action == ACTION_CONFIRM) {
+        if (has_photo) { return NOTICE_PHOTO_CONFIRM; }
+        return NOTICE_TEXT_CONFIRM;
+    }
+    if (has_photo) { return NOTICE_PHOTO_CANCEL; }
+    return NOTICE_TEXT_CANCEL;
+}
+
+test the_notice_kind_covers_every_case {
+    assert notice_kind(STATUS_BOOKED, ACTION_CONFIRM, true) == NOTICE_PHOTO_CONFIRM;
+    assert notice_kind(STATUS_BOOKED, ACTION_CONFIRM, false) == NOTICE_TEXT_CONFIRM;
+    assert notice_kind(STATUS_BOOKED, ACTION_CANCEL, true) == NOTICE_PHOTO_CANCEL;
+    assert notice_kind(STATUS_BOOKED, ACTION_CANCEL, false) == NOTICE_TEXT_CANCEL;
+    assert notice_kind(STATUS_CONFIRMED, ACTION_CONFIRM, true) == NOTICE_NONE;
+    assert notice_kind(STATUS_CANCELLED, ACTION_CANCEL, false) == NOTICE_NONE;
+    assert notice_kind(STATUS_DONE, ACTION_CONFIRM, false) == NOTICE_NONE;
+    assert notice_kind(STATUS_BOOKED, 7, true) == NOTICE_NONE;
+}
+
+/// The funnel sort: bookings first, then clicks, then shows. The row that
+/// converts ranks above the row that only shows.
+pub fn funnel_ranks_first(a_book: u32, a_click: u32, a_shown: u32, b_book: u32, b_click: u32, b_shown: u32) -> bool {
+    if (a_book != b_book) { return a_book > b_book; }
+    if (a_click != b_click) { return a_click > b_click; }
+    return a_shown < b_shown;
+}
+
+test the_funnel_sorts_by_conversion {
+    assert funnel_ranks_first(1, 0, 2, 0, 5, 9) == true;
+    assert funnel_ranks_first(0, 5, 9, 1, 0, 2) == false;
+    assert funnel_ranks_first(1, 3, 2, 1, 2, 8) == true;
+    assert funnel_ranks_first(1, 2, 9, 1, 3, 2) == false;
+    assert funnel_ranks_first(2, 1, 1, 2, 1, 5) == true;
+    assert funnel_ranks_first(2, 1, 5, 2, 1, 1) == false;
+}
