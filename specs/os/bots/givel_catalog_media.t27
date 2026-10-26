@@ -162,6 +162,20 @@ test booked_objects_rank_first {
     assert booked_ranks_higher(1, 1) == false;  // tie: price sort decides
 }
 
+/// No repeats while fresh options remain: a returning client sees objects
+/// they have NOT been shown before; when fresh options run out, the pool
+/// falls back to repeats. Exclusion is data-driven (metrics.jsonl).
+pub fn exclude_seen(shown_before: bool, fresh_left: u32) -> bool {
+    if (shown_before and fresh_left > 0) { return true; }
+    return false;
+}
+
+test seen_objects_are_excluded_while_fresh_remain {
+    assert exclude_seen(true, 3) == true;   // shown before, fresh exist: skip
+    assert exclude_seen(true, 0) == false;  // fresh exhausted: repeats allowed
+    assert exclude_seen(false, 3) == false; // never shown: primary candidate
+}
+
 /// The follow-up rule: a client who started the quiz and went silent for 24
 /// hours gets ONE gentle reminder with a single object card. One reminder,
 /// never two -- politeness is part of the law.
