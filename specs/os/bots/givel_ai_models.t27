@@ -253,3 +253,16 @@ test stream_mirror_constants {
     assert draft_due(DRAFT_MIN_CHARS, DRAFT_THROTTLE_MS - 1) == false;
     assert draft_due(0, 0) == false;
 }
+
+/// The AI's health is MEASURED, not assumed: the weekly digest names the
+/// worst latency and the failure count for the window. An AI that did not
+/// answer is a fact on the table, not a silent gap.
+pub fn ai_digest_ok(reported_latency: bool, reported_failures: bool) -> bool {
+    return reported_latency and reported_failures;
+}
+
+test the_digest_states_the_ai_health {
+    assert ai_digest_ok(true, true) == true;
+    assert ai_digest_ok(true, false) == false;
+    assert ai_digest_ok(false, true) == false;
+}
