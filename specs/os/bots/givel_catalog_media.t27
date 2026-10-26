@@ -419,3 +419,34 @@ test the_digest_is_pinned {
     assert digest_pin_rule(true) == true;
     assert digest_pin_rule(false) == false;
 }
+
+/// The confirmation and both reminders ride the object's PHOTO when the
+/// catalog serves one: a person sees where they are going, days and hours
+/// before the visit. No photo -- the text goes alone (falls back, never
+/// blocks).
+pub fn notice_photo_ok(photo: str) -> bool {
+    return photo != "";
+}
+
+test the_notice_rides_the_photo {
+    assert notice_photo_ok("https://media.givelphuket.com/x.webp") == true;
+    assert notice_photo_ok("") == false;
+}
+
+/// A slot the client picked but the staff has not confirmed pings the CRM
+/// group after two hours: the loop closes on people, not on silence. The
+/// ping fires once -- the slot_pinged flag remembers.
+pub const SLOT_PING_H : u32 = 2;
+
+pub fn slot_ping_due(hours_since_pick: u32, confirmed: bool, pinged: bool) -> bool {
+    if (confirmed or pinged) { return false; }
+    return hours_since_pick >= SLOT_PING_H;
+}
+
+test the_unconfirmed_slot_pings_once_after_two_hours {
+    assert SLOT_PING_H == 2;
+    assert slot_ping_due(2, false, false) == true;
+    assert slot_ping_due(1, false, false) == false;
+    assert slot_ping_due(5, true, false) == false;   // confirmed: no ping
+    assert slot_ping_due(5, false, true) == false;   // once, never twice
+}
