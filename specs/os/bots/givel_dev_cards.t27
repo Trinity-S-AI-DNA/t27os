@@ -76,3 +76,50 @@ test only_open_states_get_cards {
     assert card_state_ok("repeat") == true;
     assert card_state_ok("done") == false;
 }
+
+/// The card carries PROOF: for a client with a past selection, up to TWO
+/// objects from that selection ride inside the card (photo + booking
+/// button) -- from advice to action in one tap.
+pub const CARD_OBJECTS_MAX : u32 = 2;
+
+pub fn card_objects_cap(count: u32) -> u32 {
+    if (count > CARD_OBJECTS_MAX) { return CARD_OBJECTS_MAX; }
+    return count;
+}
+
+/// An option's rank is EARNED, in integer basis points: converted * 10000 /
+/// shown. An option never shown has no rank and keeps the hand order -- the
+/// law's order is the prior, the data is the update.
+pub fn option_rank_bp(converted: u32, shown: u32) -> u32 {
+    if (shown == 0) { return 0; }
+    return converted * 10000 / shown;
+}
+
+/// A card composed at night does not die: it waits in the queue and goes
+/// out at the next send, which is always inside the window. It waits ONE
+/// day -- older than that it is stale and dropped.
+pub const QUEUE_MAX_AGE_H : u32 = 24;
+
+pub fn queue_ok(age_h: u32) -> bool {
+    return age_h <= QUEUE_MAX_AGE_H;
+}
+
+test the_card_carries_two_objects {
+    assert CARD_OBJECTS_MAX == 2;
+    assert card_objects_cap(5) == 2;
+    assert card_objects_cap(1) == 1;
+    assert card_objects_cap(0) == 0;
+}
+
+test the_rank_is_earned_in_basis_points {
+    assert option_rank_bp(3, 10) == 3000;
+    assert option_rank_bp(0, 5) == 0;
+    assert option_rank_bp(1, 0) == 0;   // never shown: hand order stands
+}
+
+test the_queue_holds_a_card_for_one_day {
+    assert QUEUE_MAX_AGE_H == 24;
+    assert queue_ok(0) == true;
+    assert queue_ok(24) == true;
+    assert queue_ok(25) == false;
+}
