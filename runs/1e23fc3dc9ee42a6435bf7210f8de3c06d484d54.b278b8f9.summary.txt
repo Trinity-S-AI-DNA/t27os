@@ -1,0 +1,11 @@
+specs/t27f/work_graph.t27|tests=9|pass=9|FAIL=0|vacuous=0|blocked=0
+specs/queen/actors.t27|tests=37|pass=37|FAIL=0|vacuous=0|blocked=0
+specs/t27f/export_video.t27|tests=6|pass=6|FAIL=0|vacuous=0|blocked=0
+specs/t27f/frame_render.t27|tests=15|pass=15|FAIL=0|vacuous=0|blocked=0
+specs/t27f/live_mode.t27|tests=8|pass=8|FAIL=0|vacuous=0|blocked=0
+specs/t27f/hud.t27|tests=4|pass=4|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 1e23fc3dc9ee42a6435bf7210f8de3c06d484d54; specs 
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 177 s wall-clock on one GitHub runner (lab run 40559434557)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=1e23fc3dc9ee42a6435bf7210f8de3c06d484d54 -f challenge=<fresh hex> -f specs=""
