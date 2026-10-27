@@ -279,3 +279,37 @@ test the_fallback_probe_is_daily {
     assert fallback_fresh(24) == true;
     assert fallback_fresh(25) == false;
 }
+
+/// Should this key's tier be demoted to FREE-only? The law composes the
+/// host's inline rule: the zero-balance refusal (1113) or the paid-only
+/// concurrency refusal (1210) on a PAID model means the key serves free
+/// tiers only -- a free-tier model never demotes. The host applies the
+/// verdict to its tier map.
+pub fn ai_mark_free(code: u32, model_free: bool) -> bool {
+    if (model_free) { return false; }
+    return is_no_balance(code) or code == 1210;
+}
+
+test the_tier_demotes_only_on_paid_refusals {
+    assert ai_mark_free(1113, false) == true;
+    assert ai_mark_free(1210, false) == true;
+    assert ai_mark_free(1113, true) == false;
+    assert ai_mark_free(1302, false) == false;
+    assert ai_mark_free(200, false) == false;
+}
+
+/// ONE verdict after an AI answer: which key index serves the NEXT pass.
+/// An accepted answer rotates to the next key; an empty (reasoning-drained)
+/// stream keeps the current position so the retry sees the same order.
+pub fn ai_gate(content_chars: u32, start: u32, offset: u32, keys: u32) -> u32 {
+    if (answer_accepted(content_chars)) {
+        return next_key(start, offset, keys);
+    }
+    return key_at(start, offset, keys);
+}
+
+test the_ai_gate_rotates_on_accept_and_stays_on_empty {
+    assert ai_gate(400, 0, 0, 2) == 1;
+    assert ai_gate(0, 0, 0, 2) == 0;
+    assert ai_gate(400, 1, 0, 2) == 0;
+}
