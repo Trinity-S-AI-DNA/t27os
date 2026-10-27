@@ -624,3 +624,35 @@ test the_funnel_sorts_by_conversion {
     assert funnel_ranks_first(2, 1, 1, 2, 1, 5) == true;
     assert funnel_ranks_first(2, 1, 5, 2, 1, 1) == false;
 }
+
+/// A booking in a terminal status never becomes a remind candidate: the
+/// pass skips it before any tick math. The codes are the STATUS_* codes
+/// above; the host translates the row's status word to its code (the
+/// table is data) and this verdict decides.
+pub fn booking_terminal(status_code: u32) -> bool {
+    return status_code == STATUS_CANCELLED or status_code == STATUS_DONE;
+}
+
+test terminal_bookings_never_become_candidates {
+    assert booking_terminal(STATUS_CANCELLED) == true;
+    assert booking_terminal(STATUS_DONE) == true;
+    assert booking_terminal(STATUS_BOOKED) == false;
+    assert booking_terminal(STATUS_CONFIRMED) == false;
+}
+
+/// The photo-coverage percent the CRM badge reports: with_photo of total,
+/// rounded half-up exactly like the host's former Math.round, and 0 for
+/// an empty catalog -- an empty catalog IS 0% coverable, which is an
+/// honest zero, not an unknown.
+pub fn coverage_pct(with_photo: u32, total: u32) -> u32 {
+    if (total == 0) { return 0; }
+    return (with_photo * 200 + total) / (total * 2);
+}
+
+test the_coverage_percent_rounds_half_up {
+    assert coverage_pct(180, 473) == 38;
+    assert coverage_pct(1, 3) == 33;
+    assert coverage_pct(2, 3) == 67;
+    assert coverage_pct(1, 8) == 13;
+    assert coverage_pct(0, 0) == 0;
+}
