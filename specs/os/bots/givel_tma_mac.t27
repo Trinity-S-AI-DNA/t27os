@@ -631,3 +631,221 @@ module GivelTmaMac;
         given result = gate()
         when expected = 3
         then result == expected
+
+    // ═══════════════════════════════════════════════════════════
+    // 6. The ready-secret path: when the 32-byte secret does not
+    //    depend on the request (the Telegram WebAppData secret is
+    //    derived from the token once), the inner hash is computed
+    //    ONCE and every outer word costs one sha pass -- 16 passes
+    //    for the whole gate instead of 32 x 9. Same construction,
+    //    anchored to its own published oracle below.
+    // ═══════════════════════════════════════════════════════════
+
+    fn hex_char(n: usize) -> u8 {
+        if (n >= 10) {
+            return (n + 87) as u8;
+        }
+        return (n + 48) as u8;
+    }
+
+    pub fn mac_word_ready(secret: [32]u8, msg: [2048]u8, mlen: u32, w: u32) -> u32 {
+        var ipad : [64]u8;
+        var opad : [64]u8;
+        var j : u32 = 0;
+        while (j < 32) {
+            ipad[j] = (secret[j] ^ 0x36);
+            opad[j] = (secret[j] ^ 0x5c);
+            j = j + 1;
+        }
+        while (j < 64) {
+            ipad[j] = 0x36;
+            opad[j] = 0x5c;
+            j = j + 1;
+        }
+        var opay : [2048]u8;
+        j = 0;
+        while (j < 8) {
+            var x : u32 = sha_core(1, ipad, msg, mlen, j);
+            var b : u32 = 0;
+            while (b < 4) {
+                var sh : u32 = 24 - 8 * b;
+                opay[j * 4 + b] = ((x >> sh) % 256) as u8;
+                b = b + 1;
+            }
+            j = j + 1;
+        }
+        return sha_core(1, opad, opay, 32, w);
+    }
+
+    // the gate from a ready secret: 8 inner passes + 8 outer, each once
+    pub fn tma_mac_ok_ready(secret: [32]u8, msg: [2048]u8, mlen: u32, hex: [64]u8) -> u32 {
+        var ipad : [64]u8;
+        var opad : [64]u8;
+        var j : u32 = 0;
+        while (j < 32) {
+            ipad[j] = (secret[j] ^ 0x36);
+            opad[j] = (secret[j] ^ 0x5c);
+            j = j + 1;
+        }
+        while (j < 64) {
+            ipad[j] = 0x36;
+            opad[j] = 0x5c;
+            j = j + 1;
+        }
+        var opay : [2048]u8;
+        j = 0;
+        while (j < 8) {
+            var x : u32 = sha_core(1, ipad, msg, mlen, j);
+            var b : u32 = 0;
+            while (b < 4) {
+                var sh : u32 = 24 - 8 * b;
+                opay[j * 4 + b] = ((x >> sh) % 256) as u8;
+                b = b + 1;
+            }
+            j = j + 1;
+        }
+        var i : u32 = 0;
+        while (i < 8) {
+            var word : u32 = sha_core(1, opad, opay, 32, i);
+            var b : u32 = 0;
+            while (b < 4) {
+                var sh : u32 = 24 - 8 * b;
+                var byte : usize = ((word >> sh) % 256) as usize;
+                var idx : u32 = i * 4 + b;
+                var want : usize = nibble(hex[2 * idx]) * 16 + nibble(hex[2 * idx + 1]);
+                if (byte != want) {
+                    return 0;
+                }
+                b = b + 1;
+            }
+            i = i + 1;
+        }
+        return 1;
+    }
+
+    // the published oracle of the ready path: HMAC-SHA256 keyed with the
+    // 32 bytes (i*7+3) mod 256 over "what do ya want for nothing?",
+    // computed with node crypto 2026-10-27
+    pub const EXP_READY : [8]u32 = [
+        0x043c1af2, 0x499fb5d3, 0xf0fb55e0, 0x624e722b,
+        0xdfecffda, 0x680fddf8, 0xee3da505, 0x48d58aa5,
+    ];
+
+    fn ready_words_ok() -> u32 {
+        var s : [32]u8;
+        var i : u32 = 0;
+        while (i < 32) {
+            s[i] = ((i * 7 + 3) % 256) as u8;
+            i = i + 1;
+        }
+        var m : [2048]u8;
+        // "what do ya want for nothing?"
+        m[0] = 0x77;
+        m[1] = 0x68;
+        m[2] = 0x61;
+        m[3] = 0x74;
+        m[4] = 0x20;
+        m[5] = 0x64;
+        m[6] = 0x6f;
+        m[7] = 0x20;
+        m[8] = 0x79;
+        m[9] = 0x61;
+        m[10] = 0x20;
+        m[11] = 0x77;
+        m[12] = 0x61;
+        m[13] = 0x6e;
+        m[14] = 0x74;
+        m[15] = 0x20;
+        m[16] = 0x66;
+        m[17] = 0x6f;
+        m[18] = 0x72;
+        m[19] = 0x20;
+        m[20] = 0x6e;
+        m[21] = 0x6f;
+        m[22] = 0x74;
+        m[23] = 0x68;
+        m[24] = 0x69;
+        m[25] = 0x6e;
+        m[26] = 0x67;
+        m[27] = 0x3f;
+        var ok : u32 = 0;
+        var w : u32 = 0;
+        while (w < 8) {
+            if (mac_word_ready(s, m, 28, w) == EXP_READY[w]) {
+                ok = ok + 1;
+            }
+            w = w + 1;
+        }
+        return ok;
+    }
+
+    fn ready_gate() -> u32 {
+        var s : [32]u8;
+        var i : u32 = 0;
+        while (i < 32) {
+            s[i] = ((i * 7 + 3) % 256) as u8;
+            i = i + 1;
+        }
+        var m : [2048]u8;
+        // "what do ya want for nothing?"
+        m[0] = 0x77;
+        m[1] = 0x68;
+        m[2] = 0x61;
+        m[3] = 0x74;
+        m[4] = 0x20;
+        m[5] = 0x64;
+        m[6] = 0x6f;
+        m[7] = 0x20;
+        m[8] = 0x79;
+        m[9] = 0x61;
+        m[10] = 0x20;
+        m[11] = 0x77;
+        m[12] = 0x61;
+        m[13] = 0x6e;
+        m[14] = 0x74;
+        m[15] = 0x20;
+        m[16] = 0x66;
+        m[17] = 0x6f;
+        m[18] = 0x72;
+        m[19] = 0x20;
+        m[20] = 0x6e;
+        m[21] = 0x6f;
+        m[22] = 0x74;
+        m[23] = 0x68;
+        m[24] = 0x69;
+        m[25] = 0x6e;
+        m[26] = 0x67;
+        m[27] = 0x3f;
+        var hex : [64]u8;
+        i = 0;
+        while (i < 8) {
+            var b : u32 = 0;
+            while (b < 4) {
+                var byte : u32 = (EXP_READY[i] >> (24 - 8 * b)) % 256;
+                var idx : u32 = i * 4 + b;
+                hex[2 * idx] = hex_char((byte / 16) as usize);
+                hex[2 * idx + 1] = hex_char((byte % 16) as usize);
+                b = b + 1;
+            }
+            i = i + 1;
+        }
+        var ok : u32 = 0;
+        if (tma_mac_ok_ready(s, m, 28, hex) == 1) {
+            ok = ok + 1;
+        }
+        hex[1] = 0x35;
+        if (tma_mac_ok_ready(s, m, 28, hex) == 0) {
+            ok = ok + 1;
+        }
+        return ok;
+    }
+
+    test ready_path_matches_its_oracle
+        given result = ready_words_ok()
+        when expected = 8
+        then result == expected
+
+    test ready_gate_accepts_and_refuses
+        given result = ready_gate()
+        when expected = 2
+        then result == expected
