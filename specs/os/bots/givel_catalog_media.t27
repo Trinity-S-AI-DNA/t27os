@@ -438,6 +438,29 @@ test the_notice_rides_the_photo {
 /// ping fires once -- the slot_pinged flag remembers.
 pub const SLOT_PING_H : u32 = 2;
 
+/// ONE verdict per booking row per remind pass: the host asks once and
+/// acts on the code instead of spawning three times (the row's missing
+/// fields travel as neutral values -- no row.at means a huge ms_until,
+/// no slot_pick_ts means 0 hours -- and the windows stay closed).
+///   0 nothing due, 1 reminder due, 2 morning note due, 3 slot ping due
+/// Priority follows the host's pass order: reminder > morning > ping.
+pub fn remind_tick(ms_until_start: i64, already_reminded: bool,
+                   is_morning_ict: bool, note_sent: bool,
+                   hours_since_pick: u32, confirmed: bool, pinged: bool) -> u32 {
+    if (remind_due(ms_until_start, already_reminded)) { return 1; }
+    if (morning_due(is_morning_ict, note_sent)) { return 2; }
+    if (slot_ping_due(hours_since_pick, confirmed, pinged)) { return 3; }
+    return 0;
+}
+
+test the_tick_answers_one_verdict_per_row {
+    assert remind_tick(3600000, false, false, false, 0, false, false) == 1;
+    assert remind_tick(-7200000, false, false, false, 0, false, false) == 0;
+    assert remind_tick(1000000000000, false, true, false, 0, false, false) == 2;
+    assert remind_tick(1000000000000, false, false, true, 3, false, false) == 3;
+    assert remind_tick(1000000000000, true, false, true, 1, true, false) == 0;
+}
+
 pub fn slot_ping_due(hours_since_pick: u32, confirmed: bool, pinged: bool) -> bool {
     if (confirmed or pinged) { return false; }
     return hours_since_pick >= SLOT_PING_H;
