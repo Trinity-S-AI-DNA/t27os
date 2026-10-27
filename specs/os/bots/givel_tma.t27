@@ -198,6 +198,7 @@ pub fn tma_login(hash_ok: u32, auth_s: u32, now_s: u32, user_id: u32, owner_id: 
 test the_login_gate_hashes_first_then_freshness_then_admin {
     const owner : u32 = 144022504;
     const staff : u32 = 42;
+
     // a bad hash rejects before anything else, even the owner, even fresh
     assert tma_login(0, 1000, 2000, owner, owner, true) == 0;
     assert tma_login(0, 1000, 2000, staff, owner, true) == 0;
@@ -211,4 +212,39 @@ test the_login_gate_hashes_first_then_freshness_then_admin {
     assert tma_login(1, 1000, 2000, staff, owner, false) == 1;
     // an unknown user outside the group never gets the admin view
     assert tma_login(1, 1000, 2000, 777, owner, false) == 1;
+}
+
+/// Which chat-log out-message kinds count in the touch funnel the CRM
+/// badge shows. The host translates the log's via word to its code (the
+/// table is data, like the texts); this verdict decides what counts.
+pub const TOUCH_REMINDER : u32 = 1;
+pub const TOUCH_MORNING : u32 = 2;
+pub const TOUCH_CONFIRMATION : u32 = 3;
+
+pub fn is_touch_via(code: u32) -> bool {
+    return code == TOUCH_REMINDER or code == TOUCH_MORNING or code == TOUCH_CONFIRMATION;
+}
+
+test only_the_three_reminder_kinds_count_as_touches {
+    assert is_touch_via(TOUCH_REMINDER) == true;
+    assert is_touch_via(TOUCH_MORNING) == true;
+    assert is_touch_via(TOUCH_CONFIRMATION) == true;
+    assert is_touch_via(0) == false;
+    assert is_touch_via(4) == false;
+}
+
+/// A stat the law could not measure is UNKNOWN, never a fabricated 0 --
+/// the CRM badge prints the unknown marker for it. This is the numeric
+/// form of the corpus rule "a missing value is not measured, never 0".
+pub const STAT_UNKNOWN : i64 = -1;
+
+pub fn stat_or_unknown(measured: bool, n: u32) -> i64 {
+    if (measured == false) { return STAT_UNKNOWN; }
+    return n as i64;
+}
+
+test an_unmeasured_stat_is_unknown_never_zero {
+    assert stat_or_unknown(true, 3) == 3;
+    assert stat_or_unknown(false, 0) == STAT_UNKNOWN;
+    assert stat_or_unknown(true, 0) == 0;
 }
