@@ -66,41 +66,42 @@ pub fn option_count(step: u32) -> u32 {
 
 /// The session key of a step; the host stores answers under these names.
 pub fn step_key(step: u32) -> str {
-    if (step == STEP_INTEREST) { return "interest"; }
-    if (step == STEP_BUDGET) { return "budget"; }
-    if (step == STEP_LOCATION) { return "location"; }
-    if (step == STEP_TIMING) { return "timing"; }
-    return "contact";
+    if (step == STEP_INTEREST) { return STEP_KEY_INTEREST; }
+    if (step == STEP_BUDGET) { return STEP_KEY_BUDGET; }
+    if (step == STEP_LOCATION) { return STEP_KEY_LOCATION; }
+    if (step == STEP_TIMING) { return STEP_KEY_TIMING; }
+    return STEP_KEY_CONTACT;
 }
 
 /// The value code of option `i` of `step`; empty when the option does not exist.
+/// The quiz option values are DATA here, one const per step -- the generated
+/// artifacts carry them (gen-js emits str-array consts), so neither this
+/// spec's bodies nor the host spell the strings twice. option_value and
+/// valid_answer read these; a value edit is a one-place edit.
+pub const OPT_INTEREST : [4]str = ["buy", "invest", "rent", "concierge"];
+pub const OPT_BUDGET : [6]str = ["under_200k", "200k_500k", "500k_1m", "over_1m", "rent_lt_1500", "rent_ge_1500"];
+pub const OPT_LOCATION : [5]str = ["kamala", "bangtao", "patong", "katakaron", "any"];
+pub const OPT_TIMING : [4]str = ["now", "1_3m", "3m_plus", "exploring"];
+
+/// The quiz step names, as DATA for the same reason.
+pub const STEP_KEY_INTEREST : str = "interest";
+pub const STEP_KEY_BUDGET : str = "budget";
+pub const STEP_KEY_LOCATION : str = "location";
+pub const STEP_KEY_TIMING : str = "timing";
+pub const STEP_KEY_CONTACT : str = "contact";
+
 pub fn option_value(step: u32, i: u32) -> str {
     if (step == STEP_INTEREST) {
-        if (i == 0) { return "buy"; }
-        if (i == 1) { return "invest"; }
-        if (i == 2) { return "rent"; }
-        if (i == 3) { return "concierge"; }
+        if (i < OPTION_COUNTS[STEP_INTEREST]) { return OPT_INTEREST[i]; }
     }
     if (step == STEP_BUDGET) {
-        if (i == 0) { return "under_200k"; }
-        if (i == 1) { return "200k_500k"; }
-        if (i == 2) { return "500k_1m"; }
-        if (i == 3) { return "over_1m"; }
-        if (i == 4) { return "rent_lt_1500"; }
-        if (i == 5) { return "rent_ge_1500"; }
+        if (i < OPTION_COUNTS[STEP_BUDGET]) { return OPT_BUDGET[i]; }
     }
     if (step == STEP_LOCATION) {
-        if (i == 0) { return "kamala"; }
-        if (i == 1) { return "bangtao"; }
-        if (i == 2) { return "patong"; }
-        if (i == 3) { return "katakaron"; }
-        if (i == 4) { return "any"; }
+        if (i < OPTION_COUNTS[STEP_LOCATION]) { return OPT_LOCATION[i]; }
     }
     if (step == STEP_TIMING) {
-        if (i == 0) { return "now"; }
-        if (i == 1) { return "1_3m"; }
-        if (i == 2) { return "3m_plus"; }
-        if (i == 3) { return "exploring"; }
+        if (i < OPTION_COUNTS[STEP_TIMING]) { return OPT_TIMING[i]; }
     }
     return "";
 }
