@@ -186,6 +186,23 @@ pub fn followup_due(hours_since_start: u32, already_followed: bool) -> bool {
     return hours_since_start >= FOLLOWUP_AFTER_H;
 }
 
+/// ONE verdict per candidate row per followup pass: the shim feeds the
+/// set-difference verdict (follow_needed, the batch law) plus the row's
+/// freshness and completion facts, and this composes them -- the host
+/// decides nothing.
+///   0 skip, 1 follow owed
+pub fn follow_tick(hours_since_start: u32, completed: bool, set_verdict: u32) -> u32 {
+    if (followup_due(hours_since_start, (set_verdict == 0) or completed)) { return 1; }
+    return 0;
+}
+
+test the_follow_tick_composes_set_freshness_and_completion {
+    assert follow_tick(24, false, 1) == 1;
+    assert follow_tick(48, true, 1) == 0;
+    assert follow_tick(48, false, 0) == 0;
+    assert follow_tick(23, false, 1) == 0;
+}
+
 test the_followup_fires_once_after_a_day {
     assert FOLLOWUP_AFTER_H == 24;
     assert followup_due(24, false) == true;
