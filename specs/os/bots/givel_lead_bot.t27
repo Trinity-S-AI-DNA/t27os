@@ -352,3 +352,31 @@ test the_unfollowed_start_still_owes_a_follow {
     assert follow_needed(144022504 * 4294967296 + 1792986500, seen, 2) == 1;
     assert follow_needed(144022504 * 4294967296 + 1792986436, seen, 0) == 1;
 }
+
+/// how many of the n unix-second timestamps fall inside the last window_h
+/// hours before now_s -- the numeric summary the log reports ask for, owned
+/// by the law instead of the host's filters. Batched: the shim feeds the
+/// timestamp array once per report.
+pub fn window_count(fts: [512]i64, n: u32, now_s: i64, window_h: u32) -> u32 {
+    var count : u32 = 0;
+    var i : u32 = 0;
+    while (i < n) {
+        if (fts[i] > (now_s - (window_h as i64) * 3600)) {
+            count = count + 1;
+        }
+        i = i + 1;
+    }
+    return count;
+}
+
+test window_counts_the_recent_tail {
+    var ts : [512]i64;
+    ts[0] = 1000;
+    ts[1] = 5000;
+    ts[2] = 9000;
+    ts[3] = 12000;
+    assert window_count(ts, 4, 12000, 1) == 2;
+    assert window_count(ts, 4, 12000, 2) == 3;
+    assert window_count(ts, 4, 12000, 24) == 4;
+    assert window_count(ts, 4, 12000, 0) == 0;
+}
