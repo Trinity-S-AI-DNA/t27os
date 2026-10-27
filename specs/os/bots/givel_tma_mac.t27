@@ -849,3 +849,239 @@ module GivelTmaMac;
         given result = ready_gate()
         when expected = 2
         then result == expected
+
+    // ═══════════════════════════════════════════════════════════
+    // 7. The initData gate over the RAW initData: the law builds
+    //    the Telegram check string itself (split, sort by key,
+    //    percent-decode, join with \n, drop the hash pair) and
+    //    answers the hash verdict in 16 sha passes. Byte windows
+    //    into the raw buffer, no str, no slices -- the portable
+    //    subset end to end.
+    // ═══════════════════════════════════════════════════════════
+
+    fn hexv(c: u8) -> u32 {
+        var x : u32 = c as u32;
+        if (x >= 97) { return x - 87; }
+        if (x >= 65) { return x - 55; }
+        return x - 48;
+    }
+
+    // is the key window at index a greater (byte-wise) than the one at b
+    fn key_gt(init: [2048]u8, a: u32, b: u32, koff: [64]u32, klen: [64]u32) -> u32 {
+        var la : u32 = klen[a];
+        var lb : u32 = klen[b];
+        var l : u32 = la;
+        if (lb < l) { l = lb; }
+        var t : u32 = 0;
+        while (t < l) {
+            var ca : u32 = init[koff[a] + t] as u32;
+            var cb : u32 = init[koff[b] + t] as u32;
+            if (ca < cb) { return 0; }
+            if (ca > cb) { return 1; }
+            t = t + 1;
+        }
+        if (la > lb) { return 1; }
+        return 0;
+    }
+
+    // ONE hash verdict over the raw initData: builds the check string
+    // (drop the hash pair, sort the rest by key bytes, percent-decode,
+    // join with \n) and HMACs it with the ready secret. 1 = the hash
+    // matches, 0 = it does not (or the pair count exceeds the law's
+    // 64-pair window -- the host sees the refusal, never a fake pass).
+    pub fn init_hash_ok(init: [2048]u8, ilen: u32, secret: [32]u8, want_hex: [64]u8) -> u32 {
+        var koff : [64]u32;
+        var klen : [64]u32;
+        var voff : [64]u32;
+        var vlen : [64]u32;
+        var drop : [64]u32;
+        var n : u32 = 0;
+        var i : u32 = 0;
+        while ((i < ilen) and (n < 64)) {
+            var ks : u32 = i;
+            var j : u32 = i;
+            while ((j < ilen) and (init[j] != 38) and (init[j] != 61)) {
+                j = j + 1;
+            }
+            koff[n] = ks;
+            klen[n] = j - ks;
+            voff[n] = 0;
+            vlen[n] = 0;
+            if (j < ilen and init[j] == 61) {
+                var ve : u32 = j + 1;
+                while ((ve < ilen) and (init[ve] != 38)) {
+                    ve = ve + 1;
+                }
+                voff[n] = j + 1;
+                vlen[n] = ve - j - 1;
+                i = ve + 1;
+            } else {
+                i = j + 1;
+            }
+            var ishash : u32 = 0;
+            if ((klen[n] == 4) and (init[koff[n]] == 104) and (init[koff[n] + 1] == 97)
+                and (init[koff[n] + 2] == 115) and (init[koff[n] + 3] == 104)) {
+                ishash = 1;
+            }
+            drop[n] = ishash;
+            n = n + 1;
+        }
+        // stable insertion sort over the pair indices, by key bytes
+        var order : [64]u32;
+        var m : u32 = 0;
+        while (m < n) {
+            order[m] = m;
+            m = m + 1;
+        }
+        m = 1;
+        while (m < n) {
+            var cur : u32 = order[m];
+            var k : u32 = m;
+            var go : u32 = 1;
+            while ((k > 0) and (go == 1)) {
+                if (key_gt(init, order[k - 1], cur, koff, klen) == 1) {
+                    order[k] = order[k - 1];
+                    k = k - 1;
+                } else {
+                    go = 0;
+                }
+            }
+            order[k] = cur;
+            m = m + 1;
+        }
+        // decode + join with \n (decode inlined twice: writes must stay
+        // in THIS function's locals -- see the note above)
+        var cs : [2048]u8;
+        var cl : u32 = 0;
+        var first : u32 = 1;
+        m = 0;
+        while (m < n) {
+            if (drop[order[m]] == 0) {
+                if (first == 0) {
+                    cs[cl] = 10;
+                    cl = cl + 1;
+                }
+                first = 0;
+                var t : u32 = 0;
+                while (t < klen[order[m]]) {
+                    var c : u32 = init[koff[order[m]] + t] as u32;
+                    if (c == 43) {
+                        cs[cl] = 32;
+                        cl = cl + 1;
+                        t = t + 1;
+                    } else if (c == 37 and (t + 2) < klen[order[m]] and hexv(init[koff[order[m]] + t + 1]) < 16 and hexv(init[koff[order[m]] + t + 2]) < 16) {
+                        cs[cl] = (hexv(init[koff[order[m]] + t + 1]) * 16 + hexv(init[koff[order[m]] + t + 2])) as u8;
+                        cl = cl + 1;
+                        t = t + 3;
+                    } else {
+                        cs[cl] = init[koff[order[m]] + t];
+                        cl = cl + 1;
+                        t = t + 1;
+                    }
+                }
+                cs[cl] = 61;
+                cl = cl + 1;
+                t = 0;
+                while (t < vlen[order[m]]) {
+                    var c2 : u32 = init[voff[order[m]] + t] as u32;
+                    if (c2 == 43) {
+                        cs[cl] = 32;
+                        cl = cl + 1;
+                        t = t + 1;
+                    } else if (c2 == 37 and (t + 2) < vlen[order[m]] and hexv(init[voff[order[m]] + t + 1]) < 16 and hexv(init[voff[order[m]] + t + 2]) < 16) {
+                        cs[cl] = (hexv(init[voff[order[m]] + t + 1]) * 16 + hexv(init[voff[order[m]] + t + 2])) as u8;
+                        cl = cl + 1;
+                        t = t + 3;
+                    } else {
+                        cs[cl] = init[voff[order[m]] + t];
+                        cl = cl + 1;
+                        t = t + 1;
+                    }
+                }
+            }
+            m = m + 1;
+        }
+        return tma_mac_ok_ready(secret, cs, cl, want_hex);
+    }
+
+    // the law's own oracle: the raw initData "c=3&a=%31%30&b=x+y&hash=dead"
+    // builds the check string "a=10\nb=x y\nc=3" (sorted, %31%30 decoded to
+    // "10", + decoded to a space, the hash pair dropped); HMAC-SHA256 with
+    // the fixed ready secret (i*7+3) mod 256 over those 14 bytes is
+    // 8c9722fc...efdb7beb, computed with node crypto 2026-10-27
+    fn cs_synthetic() -> u32 {
+        var init : [2048]u8;
+        var ilen : u32 = 32;
+        var i : u32 = 0;
+        init[0] = 99;
+        init[1] = 61;
+        init[2] = 51;
+        init[3] = 38;
+        init[4] = 97;
+        init[5] = 61;
+        init[6] = 37;
+        init[7] = 51;
+        init[8] = 49;
+        init[9] = 37;
+        init[10] = 51;
+        init[11] = 48;
+        init[12] = 38;
+        init[13] = 98;
+        init[14] = 61;
+        init[15] = 120;
+        init[16] = 43;
+        init[17] = 121;
+        init[18] = 38;
+        init[19] = 104;
+        init[20] = 97;
+        init[21] = 115;
+        init[22] = 104;
+        init[23] = 61;
+        init[24] = 100;
+        init[25] = 101;
+        init[26] = 97;
+        init[27] = 100;
+        init[28] = 98;
+        init[29] = 101;
+        init[30] = 101;
+        init[31] = 102;
+        var s : [32]u8;
+        i = 0;
+        while (i < 32) {
+            s[i] = ((i * 7 + 3) % 256) as u8;
+            i = i + 1;
+        }
+        var want : [64]u8;
+        i = 0;
+        while (i < 8) {
+            var b : u32 = 0;
+            while (b < 4) {
+                var byte : u32 = (EXP_CS[i] >> (24 - 8 * b)) % 256;
+                var idx : u32 = i * 4 + b;
+                want[2 * idx] = hex_char((byte / 16) as usize);
+                want[2 * idx + 1] = hex_char((byte % 16) as usize);
+                b = b + 1;
+            }
+            i = i + 1;
+        }
+        var ok : u32 = 0;
+        if (init_hash_ok(init, ilen, s, want) == 1) {
+            ok = ok + 1;
+        }
+        want[1] = 0x30;
+        if (init_hash_ok(init, ilen, s, want) == 0) {
+            ok = ok + 1;
+        }
+        return ok;
+    }
+
+    // the expected digest of "a=10\nb=x y\nc=3" under the fixed secret
+    pub const EXP_CS : [8]u32 = [
+        0x8c9722fc, 0x496f8345, 0xa0fc43a7, 0x98866237,
+        0xa41389a3, 0xab2cec4a, 0x9f6ba836, 0xefdb7beb,
+    ];
+
+    test check_string_built_sorted_decoded_and_hashed
+        given result = cs_synthetic()
+        when expected = 2
+        then result == expected
