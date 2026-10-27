@@ -329,3 +329,26 @@ test a_crashed_update_still_answers {
     assert update_answered(false, true) == true;
     assert update_answered(false, false) == false;
 }
+
+/// Does this started flow still need a follow-up? The host packs each flow
+/// event into one u64 key (user_id * 2^32 + unix_seconds, lossless for the
+/// seconds precision the logs carry) and asks once per pass -- a started key
+/// absent from the followed set means the follow is still owed.
+///   1 follow owed, 0 already followed
+pub fn follow_needed(key: u64, seen: [512]u64, n: u32) -> u32 {
+    var i : u32 = 0;
+    while (i < n) {
+        if (seen[i] == key) { return 0; }
+        i = i + 1;
+    }
+    return 1;
+}
+
+test the_unfollowed_start_still_owes_a_follow {
+    var seen : [512]u64;
+    seen[0] = 144022504 * 4294967296 + 1792986436;
+    seen[1] = 42 * 4294967296 + 1792986400;
+    assert follow_needed(144022504 * 4294967296 + 1792986436, seen, 2) == 0;
+    assert follow_needed(144022504 * 4294967296 + 1792986500, seen, 2) == 1;
+    assert follow_needed(144022504 * 4294967296 + 1792986436, seen, 0) == 1;
+}
