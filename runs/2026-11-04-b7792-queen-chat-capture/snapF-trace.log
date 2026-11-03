@@ -1,0 +1,8 @@
+env_present
+resolver_ok
+startup_complete
+want_detected
+render_started
+png_written
+snapshot_written
+capture_completed

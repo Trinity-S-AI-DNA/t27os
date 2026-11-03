@@ -1,0 +1,16 @@
+t27os-ui-snapshot 1 snap 1 frame 91 build 7792 surface window viewport 480x888 scale 200 count 14
+el window role window parent - layer bitmap at 0 0 size 480 888 z 0 state visible,enabled,opaque-unknown acts none text none capture own-bitmap
+el scene role region parent window layer bitmap at 0 0 size 480 888 z 0 state visible,enabled,opaque-unknown acts none text none capture own-bitmap
+el pane-area role terminal parent scene layer bitmap at 1 79 size 179 785 z 1 state visible,enabled acts click,type,paste,scroll text user capture own-bitmap
+el server-retry role button parent pane-area layer bitmap at 42 495 size 96 28 z 2 state enabled acts click text chrome capture own-bitmap
+el control-dashboard role region parent scene layer bitmap at 1 35 size 179 829 z 3 state visible,enabled,opaque acts click text chrome capture own-bitmap
+el dash-settle role region parent control-dashboard layer bitmap at 1 35 size 1 0 z 0 state enabled,opaque-unknown acts click,focus,type,paste,scroll,submit text user capture own-bitmap
+el dash-replay role region parent control-dashboard layer bitmap at 1 36 size 0 0 z 1 state visible,enabled,focused acts focus,type,paste,submit text user capture own-bitmap
+el dash-agent-0 role region parent control-dashboard layer bitmap at 102 502 size 20 20 z 4 state visible,enabled acts none text none capture own-bitmap
+el dash-agent-1 role region parent control-dashboard layer bitmap at 42 448 size 20 20 z 4 state visible,enabled acts none text none capture own-bitmap
+el dash-agent-2 role region parent control-dashboard layer bitmap at 164 452 size 20 20 z 4 state visible,enabled acts none text none capture own-bitmap
+el dash-agent-3 role region parent control-dashboard layer bitmap at 42 550 size 20 20 z 4 state visible,enabled acts none text none capture own-bitmap
+el dash-agent-4 role region parent control-dashboard layer bitmap at 70 362 size 20 20 z 4 state visible,enabled acts none text none capture own-bitmap
+el dsh role embed parent pane-area layer native at 1 79 size 179 785 z 0 state none acts none text none capture pixels-unavailable
+el queen-input role input parent scene layer native at 204 818 size 252 28 z 0 state none acts none text none capture pixels-unavailable
+owner dash-replay shape ok

@@ -1,0 +1,9 @@
+PASS the_state_and_the_light_share_one_byte
+PASS a_slot_says_why_it_is_held
+PASS only_nothing_lost_slots_are_offered
+PASS the_bench_table_of_2026_11_04_offers_pane_9
+PASS with_no_stale_slot_the_newest_idle_cell_is_offered_and_never_a_session
+PASS a_finished_pane_is_offered_before_an_idle_cell
+PASS closing_is_the_owners_word_alone
+PASS the_reason_texts_have_their_length
+T27osPaneSlots: 8 passed, 0 failed, 8 total
