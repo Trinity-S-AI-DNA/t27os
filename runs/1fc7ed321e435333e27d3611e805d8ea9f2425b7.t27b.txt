@@ -1,0 +1,1 @@
+specs/claw/merge_verdict.t27|leg=t27b|tests=21|pass=21|FAIL=0|vacuous=0|asserts=2678
