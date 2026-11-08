@@ -1,0 +1,198 @@
+// SPDX-License-Identifier: Apache-2.0
+// givel_contract.t27 -- the LAW of the GIVEL client contract's delivery rules:
+// the deal pipeline (8 stages), loss reasons, lead routing, the acceptance
+// gate and the report sections. The bot host and the weekly report are checked
+// against these fns. The viewing-booking lifecycle (STATUS_*) lives in
+// givel_catalog_media.t27 and is a different thing from the deal pipeline.
+// ASCII only (L3).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module GivelContract;
+
+// ---- 1. deal pipeline: exactly 8 stages, funnel order ----
+pub const STAGE_NEW : u32 = 0;         // request received
+pub const STAGE_QUALIFIED : u32 = 1;
+pub const STAGE_ASSIGNED : u32 = 2;    // a manager owns it
+pub const STAGE_SELECTION : u32 = 3;   // objects sent
+pub const STAGE_VIEWING : u32 = 4;
+pub const STAGE_NEGOTIATION : u32 = 5;
+pub const STAGE_WON : u32 = 6;
+pub const STAGE_LOST : u32 = 7;
+pub const STAGE_COUNT : u32 = 8;
+
+pub fn stage_known(s: u32) -> bool {
+    return s < STAGE_COUNT;
+}
+
+/// Open stages are 0..5; WON and LOST are closed.
+pub fn stage_open(s: u32) -> bool {
+    return s <= STAGE_NEGOTIATION;
+}
+
+/// Forward by exactly one among open stages, NEGOTIATION -> WON, any open
+/// stage -> LOST, LOST -> NEW (a lost client returns). WON is terminal.
+pub fn stage_step_ok(prev: u32, next: u32) -> bool {
+    if (stage_known(prev) == false) { return false; }
+    if (stage_known(next) == false) { return false; }
+    if (prev == STAGE_WON) { return false; }
+    if (prev == STAGE_LOST) { return next == STAGE_NEW; }
+    if (next == STAGE_LOST) { return true; }
+    if (prev == STAGE_NEGOTIATION) { return next == STAGE_WON; }
+    return next == prev + 1;
+}
+
+// ---- 2. loss reasons ----
+pub const LOSS_NONE : u32 = 0;
+pub const LOSS_NO_RESPONSE : u32 = 1;
+pub const LOSS_BUDGET : u32 = 2;
+pub const LOSS_TIMING : u32 = 3;
+pub const LOSS_CHOSE_OTHER : u32 = 4;
+pub const LOSS_NOT_TARGET : u32 = 5;
+pub const LOSS_OTHER : u32 = 6;
+
+/// A LOST deal carries a reason 1..6; any other stage carries none.
+pub fn loss_reason_ok(stage: u32, reason: u32) -> bool {
+    if (stage == STAGE_LOST) { return reason >= LOSS_NO_RESPONSE and reason <= LOSS_OTHER; }
+    return reason == LOSS_NONE;
+}
+
+// ---- 3. lead routing ----
+// WHICH staff member gets which kind is DATA in the host config, not law.
+pub const ROUTE_STAFF : u32 = 0;
+pub const ROUTE_OWNER : u32 = 1;
+pub const ROUTE_PARTNER_TOURS : u32 = 2;
+pub const ROUTE_PARTNER_EXCHANGE : u32 = 3;
+
+pub const KIND_BUY : u32 = 0;
+pub const KIND_RENT : u32 = 1;
+pub const KIND_INVEST : u32 = 2;
+pub const KIND_CONCIERGE : u32 = 3;
+pub const KIND_BIKE : u32 = 4;
+pub const KIND_TOURS : u32 = 5;
+pub const KIND_EXCHANGE : u32 = 6;
+
+pub fn route_for(kind: u32) -> u32 {
+    if (kind == KIND_TOURS) { return ROUTE_PARTNER_TOURS; }
+    if (kind == KIND_EXCHANGE) { return ROUTE_PARTNER_EXCHANGE; }
+    if (kind == KIND_BIKE) { return ROUTE_OWNER; }
+    return ROUTE_STAFF;
+}
+
+/// Every lead copies the owner, with the conversation.
+pub fn owner_copied(kind: u32) -> bool {
+    return true;
+}
+
+/// Exactly one manager per lead.
+pub fn assignment_ok(assigned_count: u32) -> bool {
+    return assigned_count == 1;
+}
+
+// ---- 4. acceptance gate (mandatory KPI) ----
+pub fn acceptance_ok(works_done: bool, handed_over: bool, test_request_passed: bool, within_budget: bool, weekly_reports_on_time: bool) -> bool {
+    if (works_done == false) { return false; }
+    if (handed_over == false) { return false; }
+    if (test_request_passed == false) { return false; }
+    if (within_budget == false) { return false; }
+    return weekly_reports_on_time;
+}
+
+/// A test request through the form lands at NEW with the owner copied.
+pub fn test_request_ok(stage_after_form: u32, owner_was_copied: bool) -> bool {
+    if (stage_after_form != STAGE_NEW) { return false; }
+    return owner_was_copied;
+}
+
+// ---- 5. reports as bitmasks ----
+pub const WEEKLY_TASKS : u32 = 1;
+pub const WEEKLY_BUDGET : u32 = 2;
+pub const WEEKLY_REQUESTS : u32 = 4;
+pub const WEEKLY_COST_PER_REQUEST : u32 = 8;
+pub const WEEKLY_CRM_QUALITY : u32 = 16;
+pub const WEEKLY_PLAN : u32 = 32;
+pub const WEEKLY_ALL : u32 = 63;
+
+pub const MONTHLY_SPEND : u32 = 1;
+pub const MONTHLY_CHANNELS : u32 = 2;
+pub const MONTHLY_CONVERSIONS : u32 = 4;
+pub const MONTHLY_GROSS_PROFIT : u32 = 8;
+pub const MONTHLY_KPI : u32 = 16;
+pub const MONTHLY_PROPOSALS : u32 = 32;
+pub const MONTHLY_ALL : u32 = 63;
+
+pub fn weekly_report_ok(mask: u32) -> bool {
+    return mask == WEEKLY_ALL;
+}
+
+pub fn monthly_report_ok(mask: u32) -> bool {
+    return mask == MONTHLY_ALL;
+}
+
+// ---- tests (every assert goes through a fn call) ----
+test pipeline_known_and_open {
+    assert stage_known(STAGE_NEW) == true;
+    assert stage_known(STAGE_LOST) == true;
+    assert stage_known(STAGE_COUNT) == false;
+    assert stage_open(STAGE_NEGOTIATION) == true;
+    assert stage_open(STAGE_WON) == false;
+    assert stage_open(STAGE_LOST) == false;
+}
+
+test pipeline_steps {
+    assert stage_step_ok(STAGE_NEW, STAGE_QUALIFIED) == true;
+    assert stage_step_ok(STAGE_SELECTION, STAGE_VIEWING) == true;
+    assert stage_step_ok(STAGE_NEGOTIATION, STAGE_WON) == true;
+    assert stage_step_ok(STAGE_VIEWING, STAGE_LOST) == true;
+    assert stage_step_ok(STAGE_LOST, STAGE_NEW) == true;
+    assert stage_step_ok(STAGE_WON, STAGE_LOST) == false;
+    assert stage_step_ok(STAGE_WON, STAGE_NEW) == false;
+    assert stage_step_ok(STAGE_NEW, STAGE_ASSIGNED) == false;
+    assert stage_step_ok(STAGE_VIEWING, STAGE_SELECTION) == false;
+    assert stage_step_ok(STAGE_VIEWING, STAGE_WON) == false;
+    assert stage_step_ok(STAGE_LOST, STAGE_QUALIFIED) == false;
+    assert stage_step_ok(STAGE_NEW, STAGE_COUNT) == false;
+}
+
+test loss_reasons {
+    assert loss_reason_ok(STAGE_LOST, LOSS_BUDGET) == true;
+    assert loss_reason_ok(STAGE_LOST, LOSS_OTHER) == true;
+    assert loss_reason_ok(STAGE_LOST, LOSS_NONE) == false;
+    assert loss_reason_ok(STAGE_LOST, 7) == false;
+    assert loss_reason_ok(STAGE_VIEWING, LOSS_NONE) == true;
+    assert loss_reason_ok(STAGE_WON, LOSS_TIMING) == false;
+}
+
+test routing {
+    assert route_for(KIND_TOURS) == ROUTE_PARTNER_TOURS;
+    assert route_for(KIND_EXCHANGE) == ROUTE_PARTNER_EXCHANGE;
+    assert route_for(KIND_BIKE) == ROUTE_OWNER;
+    assert route_for(KIND_BUY) == ROUTE_STAFF;
+    assert route_for(KIND_CONCIERGE) == ROUTE_STAFF;
+    assert route_for(KIND_BIKE) != ROUTE_STAFF;
+    assert owner_copied(KIND_BUY) == true;
+    assert owner_copied(KIND_EXCHANGE) == true;
+    assert assignment_ok(1) == true;
+    assert assignment_ok(0) == false;
+    assert assignment_ok(2) == false;
+}
+
+test acceptance {
+    assert acceptance_ok(true, true, true, true, true) == true;
+    assert acceptance_ok(false, true, true, true, true) == false;
+    assert acceptance_ok(true, false, true, true, true) == false;
+    assert acceptance_ok(true, true, false, true, true) == false;
+    assert acceptance_ok(true, true, true, false, true) == false;
+    assert acceptance_ok(true, true, true, true, false) == false;
+    assert test_request_ok(STAGE_NEW, true) == true;
+    assert test_request_ok(STAGE_NEW, false) == false;
+    assert test_request_ok(STAGE_QUALIFIED, true) == false;
+}
+
+test reports {
+    assert weekly_report_ok(63) == true;
+    assert weekly_report_ok(31) == false;
+    assert weekly_report_ok(0) == false;
+    assert monthly_report_ok(63) == true;
+    assert monthly_report_ok(62) == false;
+    assert monthly_report_ok(0) == false;
+}
