@@ -1,0 +1,1 @@
+.trinity/seals/claw_ClawMergeVerdict.json
