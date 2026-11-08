@@ -1,0 +1,13 @@
+{
+  "sha": "cf421107e94fae3789da7cd5d34afb1dfb281d98",
+  "challenge_sha256": "e40f616eaff9e415161711befda3b8fb11eeeadd2fd5be73400beaa43413eb99",
+  "t27c_build_stamp": "cf421107e94fae3789da7cd5d34afb1dfb281d98",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-11-08T04:32:24Z",
+  "specs": [
+    {"spec": "../specs/os/bots/givel_contract.t27", "tests": "tests=6", "pass": "pass=6", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "../specs/os/bots/givel_contract.t27", "tests": 6, "pass": 6, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
