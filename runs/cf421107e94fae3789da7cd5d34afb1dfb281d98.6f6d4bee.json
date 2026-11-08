@@ -1,0 +1,13 @@
+{
+  "sha": "cf421107e94fae3789da7cd5d34afb1dfb281d98",
+  "challenge_sha256": "6f6d4bee9ccce3ffd0597f87cb9dc1522c3be646e45feb89f619ea3a7579499c",
+  "t27c_build_stamp": "cf421107e94fae3789da7cd5d34afb1dfb281d98",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "utc": "2026-11-08T04:35:03Z",
+  "specs": [
+    {"spec": "../specs/os/bots/tri_claw_tma_layout.t27", "tests": "tests=8", "pass": "pass=8", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "../specs/os/bots/tri_claw_tma_layout.t27", "tests": 8, "pass": 8, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
