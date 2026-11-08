@@ -64,3 +64,233 @@ test the_twelve_canonical_districts_are_named {
 test tiny_numbers_are_not_budgets {
     assert MIN_BUDGET_THB == 10;
 }
+
+// ---------------------------------------------------------------------------
+// Mini App catalog view. The Mini App filters the same catalog the bot
+// searches. Codes are u32 and 0 always means "any". Budgets are THB.
+// ---------------------------------------------------------------------------
+
+pub const TYPE_VILLA : u32 = 1;
+pub const TYPE_CONDO : u32 = 2;
+pub const TYPE_APARTMENT : u32 = 3;
+pub const TYPE_TOWNHOUSE : u32 = 4;
+pub const TYPE_COMMERCIAL : u32 = 5;
+
+pub const STATUS_READY : u32 = 1;
+pub const STATUS_BUILDING : u32 = 2;
+
+pub const BAND_ON_REQUEST : u32 = 6;       // price_min == 0
+pub const BAND_1_MAX : u32 = 3_000_000;    // band 1 = 1..=3_000_000
+pub const BAND_2_MAX : u32 = 7_000_000;    // band 2 = 3_000_001..=7_000_000
+pub const BAND_3_MAX : u32 = 15_000_000;   // band 3 = ..=15_000_000
+pub const BAND_4_MAX : u32 = 30_000_000;   // band 4 = ..=30_000_000; band 5 = above
+
+pub const PHOTO_OBJECT : u32 = 1;          // the object's own photo
+pub const PHOTO_TYPE_COVER : u32 = 2;      // the cover of its type
+pub const PHOTO_BRAND : u32 = 3;           // the brand picture
+
+pub const PAGE_SIZE : u32 = 20;
+
+fn cv_max(a: u32, b: u32) -> u32 {
+    if (a > b) { return a; }
+    return b;
+}
+
+/// Type filter: 0 means any, otherwise the codes must be equal.
+pub fn type_matches(want: u32, have: u32) -> bool {
+    if (want == 0) { return true; }
+    return want == have;
+}
+
+/// Status filter: 0 any, 1 ready only, 2 building only; other codes match nothing.
+pub fn status_matches(want: u32, ready: bool) -> bool {
+    if (want == 0) { return true; }
+    if (want == STATUS_READY) { return ready; }
+    if (want == STATUS_BUILDING) { return ready == false; }
+    return false;
+}
+
+/// The budget band of a minimum price; 0 means price on request.
+pub fn budget_band(price_min: u32) -> u32 {
+    if (price_min == 0) { return BAND_ON_REQUEST; }
+    if (price_min <= BAND_1_MAX) { return 1; }
+    if (price_min <= BAND_2_MAX) { return 2; }
+    if (price_min <= BAND_3_MAX) { return 3; }
+    if (price_min <= BAND_4_MAX) { return 4; }
+    return 5;
+}
+
+/// Inclusive upper bound of a numeric band (0 for a code that is not one).
+fn band_hi(band: u32) -> u32 {
+    if (band == 1) { return BAND_1_MAX; }
+    if (band == 2) { return BAND_2_MAX; }
+    if (band == 3) { return BAND_3_MAX; }
+    if (band == 4) { return BAND_4_MAX; }
+    if (band == 5) { return 4_294_967_295; }
+    return 0;
+}
+
+/// Inclusive lower bound of a numeric band (above every price for a bad code).
+fn band_lo(band: u32) -> u32 {
+    if (band == 1) { return 1; }
+    if (band == 2) { return BAND_1_MAX + 1; }
+    if (band == 3) { return BAND_2_MAX + 1; }
+    if (band == 4) { return BAND_3_MAX + 1; }
+    if (band == 5) { return BAND_4_MAX + 1; }
+    return 4_294_967_295;
+}
+
+/// Band filter: 0 any; ON_REQUEST needs price_min == 0; a numeric band needs the
+/// object's range [price_min, max(price_min, price_max)] to overlap it, and an
+/// object on request never matches a numeric band.
+pub fn band_matches(band: u32, price_min: u32, price_max: u32) -> bool {
+    if (band == 0) { return true; }
+    if (band == BAND_ON_REQUEST) { return price_min == 0; }
+    if (price_min == 0) { return false; }
+    let hi: u32 = cv_max(price_min, price_max);
+    return price_min <= band_hi(band) and hi >= band_lo(band);
+}
+
+/// Bedroom filter: 0 any; 1 studio (0 bedrooms), 2 one, 3 two, 4 three,
+/// 5 four-plus. The object's range must cover the class.
+pub fn bedrooms_match(class: u32, rooms_min: u32, rooms_max: u32) -> bool {
+    if (class == 0) { return true; }
+    let hi: u32 = cv_max(rooms_min, rooms_max);
+    if (class == 5) { return hi >= 4; }
+    if (class > 5) { return false; }
+    let n: u32 = class - 1;
+    return rooms_min <= n and hi >= n;
+}
+
+/// An object is shown when type, status, budget band and bedrooms all match.
+pub fn object_matches(type_want: u32, type_have: u32, status_want: u32, ready: bool,
+                      band: u32, price_min: u32, price_max: u32,
+                      class: u32, rooms_min: u32, rooms_max: u32) -> bool {
+    return type_matches(type_want, type_have)
+        and status_matches(status_want, ready)
+        and band_matches(band, price_min, price_max)
+        and bedrooms_match(class, rooms_min, rooms_max);
+}
+
+/// A card is drawn only with both a name and a district.
+pub fn card_ok(has_name: bool, has_district: bool) -> bool {
+    return has_name and has_district;
+}
+
+/// Photo order: the object's photo unless it failed to load, then the cover of
+/// its type, then the brand picture.
+pub fn photo_source(has_photo: bool, photo_failed: bool, has_type_cover: bool) -> u32 {
+    if (has_photo and photo_failed == false) { return PHOTO_OBJECT; }
+    if (has_type_cover) { return PHOTO_TYPE_COVER; }
+    return PHOTO_BRAND;
+}
+
+/// Number of pages for n cards (ceiling; zero cards, zero pages).
+pub fn page_count(n: u32) -> u32 {
+    return (n + PAGE_SIZE - 1) / PAGE_SIZE;
+}
+
+test type_filter_any_and_exact {
+    assert type_matches(0, TYPE_VILLA) == true;
+    assert type_matches(TYPE_VILLA, TYPE_VILLA) == true;
+    assert type_matches(TYPE_VILLA, TYPE_CONDO) == false;
+    assert type_matches(TYPE_COMMERCIAL, TYPE_TOWNHOUSE) == false;
+}
+
+test status_filter_ready_and_building {
+    assert status_matches(0, true) == true;
+    assert status_matches(0, false) == true;
+    assert status_matches(STATUS_READY, true) == true;
+    assert status_matches(STATUS_READY, false) == false;
+    assert status_matches(STATUS_BUILDING, false) == true;
+    assert status_matches(STATUS_BUILDING, true) == false;
+    assert status_matches(9, true) == false;
+}
+
+test budget_band_edges {
+    assert budget_band(0) == 6;
+    assert budget_band(1) == 1;
+    assert budget_band(3_000_000) == 1;
+    assert budget_band(3_000_001) == 2;
+    assert budget_band(7_000_000) == 2;
+    assert budget_band(7_000_001) == 3;
+    assert budget_band(15_000_000) == 3;
+    assert budget_band(15_000_001) == 4;
+    assert budget_band(30_000_000) == 4;
+    assert budget_band(30_000_001) == 5;
+    assert budget_band(3_000_001) != 1;
+}
+
+test band_filter_any_request_and_range {
+    assert band_matches(0, 5_000_000, 5_000_000) == true;
+    assert band_matches(0, 0, 0) == true;
+    assert band_matches(6, 0, 0) == true;
+    assert band_matches(6, 5_000_000, 5_000_000) == false;
+    assert band_matches(1, 0, 0) == false;
+    assert band_matches(5, 0, 0) == false;
+    assert band_matches(1, 3_000_000, 3_000_000) == true;
+    assert band_matches(1, 3_000_001, 3_000_001) == false;
+    assert band_matches(2, 3_000_001, 3_000_001) == true;
+    assert band_matches(2, 3_000_000, 3_000_000) == false;
+    assert band_matches(5, 30_000_001, 30_000_001) == true;
+    assert band_matches(4, 30_000_001, 30_000_001) == false;
+}
+
+test a_range_spanning_two_bands_matches_both {
+    assert band_matches(1, 2_000_000, 5_000_000) == true;
+    assert band_matches(2, 2_000_000, 5_000_000) == true;
+    assert band_matches(3, 2_000_000, 5_000_000) == false;
+    assert band_matches(3, 20_000_000, 10_000_000) == false;  // max below min is read as min
+    assert band_matches(4, 20_000_000, 10_000_000) == true;
+}
+
+test bedroom_classes {
+    assert bedrooms_match(0, 3, 3) == true;
+    assert bedrooms_match(1, 0, 0) == true;
+    assert bedrooms_match(1, 1, 2) == false;
+    assert bedrooms_match(2, 1, 1) == true;
+    assert bedrooms_match(2, 2, 3) == false;
+    assert bedrooms_match(3, 1, 3) == true;
+    assert bedrooms_match(3, 3, 4) == false;
+    assert bedrooms_match(4, 3, 3) == true;
+    assert bedrooms_match(4, 1, 2) == false;
+    assert bedrooms_match(5, 4, 4) == true;
+    assert bedrooms_match(5, 2, 6) == true;
+    assert bedrooms_match(5, 2, 3) == false;
+    assert bedrooms_match(9, 4, 4) == false;
+}
+
+test object_is_the_and_of_four {
+    assert object_matches(0, 1, 0, true, 0, 0, 0, 0, 0, 0) == true;
+    assert object_matches(1, 1, 1, true, 2, 4_000_000, 5_000_000, 3, 2, 3) == true;
+    assert object_matches(2, 1, 1, true, 2, 4_000_000, 5_000_000, 3, 2, 3) == false;
+    assert object_matches(1, 1, 2, true, 2, 4_000_000, 5_000_000, 3, 2, 3) == false;
+    assert object_matches(1, 1, 1, true, 3, 4_000_000, 5_000_000, 3, 2, 3) == false;
+    assert object_matches(1, 1, 1, true, 2, 4_000_000, 5_000_000, 5, 2, 3) == false;
+}
+
+test card_needs_name_and_district {
+    assert card_ok(true, true) == true;
+    assert card_ok(true, false) == false;
+    assert card_ok(false, true) == false;
+    assert card_ok(false, false) == false;
+}
+
+test photo_fallback_order {
+    assert photo_source(true, false, true) == 1;
+    assert photo_source(true, true, true) == 2;
+    assert photo_source(false, false, true) == 2;
+    assert photo_source(true, true, false) == 3;
+    assert photo_source(false, false, false) == 3;
+    assert photo_source(true, false, false) != 3;
+}
+
+test pages_are_a_ceiling {
+    assert PAGE_SIZE == 20;
+    assert page_count(0) == 0;
+    assert page_count(1) == 1;
+    assert page_count(20) == 1;
+    assert page_count(21) == 2;
+    assert page_count(40) == 2;
+    assert page_count(21) != 1;
+}
