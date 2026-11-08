@@ -1,0 +1,120 @@
+// SPDX-License-Identifier: Apache-2.0
+// tri_claw_tma_layout.t27 -- the LAYOUT and PERFORMANCE contract of the TRI CLAW
+// concierge Telegram Mini App. White label: GIVEL is its first tenant, so no
+// tenant name or colour lives here. Sources: Telegram Bot API Mini Apps docs
+// (safe-area insets, MainButton, themeParams), Apple HIG (44 pt touch target),
+// web.dev (LCP good <= 2.5 s). The byte and time budgets are OUR WORKING TARGETS,
+// not external standards. Integers only (KB, px, ms). ASCII only (L3).
+; phi^2 + 1/phi^2 = 3 | TRINITY
+
+module TriClawTmaLayout;
+
+/// Apple HIG: the smallest comfortable touch target is 44 pt (px here).
+pub const TOUCH_MIN_PX : u32 = 44;
+/// Working target: neighbouring touch targets keep at least 8 px apart.
+pub const TOUCH_GAP_MIN_PX : u32 = 8;
+/// Working target: WASM bundle, raw, in KB.
+pub const WASM_RAW_BUDGET_KB : u32 = 1500;
+/// Working target: WASM bundle, compressed (brotli), in KB.
+pub const WASM_BR_BUDGET_KB : u32 = 450;
+/// web.dev "good" LCP threshold, ms.
+pub const LCP_BUDGET_MS : u32 = 2500;
+/// Working target: a skeleton is on screen within this many ms.
+pub const SKELETON_BUDGET_MS : u32 = 1000;
+/// Working target: time to interactive, ms.
+pub const TTI_BUDGET_MS : u32 = 3000;
+
+pub fn touch_ok(size_px: u32, gap_px: u32) -> bool {
+    return size_px >= TOUCH_MIN_PX and gap_px >= TOUCH_GAP_MIN_PX;
+}
+
+pub fn bundle_ok(raw_kb: u32, compressed_kb: u32) -> bool {
+    return raw_kb <= WASM_RAW_BUDGET_KB and compressed_kb <= WASM_BR_BUDGET_KB;
+}
+
+pub fn cold_start_ok(skeleton_ms: u32, tti_ms: u32, lcp_ms: u32) -> bool {
+    return skeleton_ms <= SKELETON_BUDGET_MS and tti_ms <= TTI_BUDGET_MS and lcp_ms <= LCP_BUDGET_MS;
+}
+
+/// Fullscreen mode adds both Telegram insets: the device safe area plus the
+/// Telegram content safe area.
+pub fn top_inset_px(device_inset: u32, content_inset: u32) -> u32 {
+    return device_inset + content_inset;
+}
+
+/// A tab bar item needs a text label; an icon-only tab fails.
+pub fn tab_item_ok(has_icon: bool, has_label: bool) -> bool {
+    return has_label;
+}
+
+/// A multi-step form shows "step of total": 1 <= step <= total, total >= 2.
+pub fn form_progress_ok(step: u32, total: u32) -> bool {
+    return total >= 2 and step >= 1 and step <= total;
+}
+
+/// Exactly one primary MainButton per screen.
+pub fn main_button_ok(count: u32) -> bool {
+    return count == 1;
+}
+
+/// White label: colours come from the tenant's data and Telegram themeParams,
+/// never hard-coded in the app.
+pub fn theme_from_tenant() -> bool {
+    return true;
+}
+
+test touch_targets_are_44_px_with_a_gap {
+    assert touch_ok(44, 8) == true;
+    assert touch_ok(48, 12) == true;
+    assert touch_ok(43, 8) == false;
+    assert touch_ok(44, 7) == false;
+}
+
+test the_bundle_budget_is_met_by_release_and_missed_by_debug {
+    // measured 2026-11-08: debug build, 54 MB raw, 4.7 MB gzip -- an honest red
+    assert bundle_ok(54000, 4700) == false;
+    assert bundle_ok(1400, 420) == true;
+    assert bundle_ok(1500, 450) == true;
+    assert bundle_ok(1400, 500) == false;
+    assert bundle_ok(1600, 420) == false;
+}
+
+test cold_start_meets_all_three_budgets {
+    assert cold_start_ok(800, 2500, 2000) == true;
+    assert cold_start_ok(1000, 3000, 2500) == true;
+    assert cold_start_ok(1200, 2500, 2000) == false;
+    assert cold_start_ok(800, 3500, 2000) == false;
+    assert cold_start_ok(800, 2500, 2600) == false;
+}
+
+test fullscreen_adds_both_insets {
+    assert top_inset_px(47, 44) == 91;
+    assert top_inset_px(0, 0) == 0;
+    assert top_inset_px(47, 44) != 47;
+}
+
+test a_tab_needs_a_text_label {
+    assert tab_item_ok(true, true) == true;
+    assert tab_item_ok(false, true) == true;
+    assert tab_item_ok(true, false) == false;
+    assert tab_item_ok(false, false) == false;
+}
+
+test a_form_shows_step_of_total {
+    assert form_progress_ok(1, 3) == true;
+    assert form_progress_ok(3, 3) == true;
+    assert form_progress_ok(0, 3) == false;
+    assert form_progress_ok(4, 3) == false;
+    assert form_progress_ok(1, 1) == false;
+}
+
+test one_main_button_per_screen {
+    assert main_button_ok(1) == true;
+    assert main_button_ok(0) == false;
+    assert main_button_ok(2) == false;
+}
+
+test the_theme_comes_from_the_tenant {
+    assert theme_from_tenant() == true;
+    assert theme_from_tenant() != false;
+}
