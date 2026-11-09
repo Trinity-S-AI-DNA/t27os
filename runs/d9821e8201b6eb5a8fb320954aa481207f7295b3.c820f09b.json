@@ -1,0 +1,13 @@
+{
+  "sha": "d9821e8201b6eb5a8fb320954aa481207f7295b3",
+  "challenge_sha256": "c820f09b94860a147b5f78e0e813a8c50a87e157d7c278837e55033241976521",
+  "t27c_build_stamp": "d9821e8201b6eb5a8fb320954aa481207f7295b3",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T10:00:17Z",
+  "specs": [
+    {"spec": "../specs/os/bots/tri_claw_tma_layout.t27", "tests": "tests=16", "pass": "pass=16", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "../specs/os/bots/tri_claw_tma_layout.t27", "tests": 16, "pass": 16, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
