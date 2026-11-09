@@ -1,0 +1,13 @@
+{
+  "sha": "10d91cf781ac3dd423a0e18e1f7d45603f4f4546",
+  "challenge_sha256": "120a7c46b7948a3f49c4256432e28943195268c1b385488463a607b9d21c56b6",
+  "t27c_build_stamp": "10d91cf781ac3dd423a0e18e1f7d45603f4f4546",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T11:44:08Z",
+  "specs": [
+    {"spec": "../specs/t27f/ui_kit.t27,../specs/t27f/vf_storybook.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [], "ok": false, "asked": 1, "reported": 0}
+}
