@@ -1,0 +1,3 @@
+specs/tri/t27b/flow_plan.t27|leg=t27b|tests=4|pass=4|FAIL=0|vacuous=0|asserts=17
+specs/tri/t27b/frame_layout.t27|leg=t27b|tests=7|pass=7|FAIL=0|vacuous=0|asserts=70
+specs/tri/t27b/a64.t27|leg=t27b|tests=45|pass=45|FAIL=0|vacuous=0|asserts=24845
