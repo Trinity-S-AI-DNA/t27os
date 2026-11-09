@@ -1,0 +1,1 @@
+gen/rust/tri/t27b/inline.rs|changed
