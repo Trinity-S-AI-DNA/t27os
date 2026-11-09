@@ -1,0 +1,6 @@
+../specs/os/bots/givel_catalog_search.t27|tests=NA|pass=NA|FAIL=NA|vacuous=NA|blocked=1
+reader: t27c 0.5.2 built from t27 d9821e8201b6eb5a8fb320954aa481207f7295b3; specs ../specs/os/bots/givel_catalog_search.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 259 s wall-clock on one GitHub runner (lab run 42595603183)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=d9821e8201b6eb5a8fb320954aa481207f7295b3 -f challenge=<fresh hex> -f specs="../specs/os/bots/givel_catalog_search.t27"
