@@ -1,1 +1,1 @@
-../specs/os/bots/givel_catalog_search.t27|leg=t27b|tests=20|pass=20|FAIL=0|vacuous=0|asserts=128
+../specs/os/bots/tri_claw_tma_layout.t27|leg=t27b|tests=16|pass=16|FAIL=0|vacuous=0|asserts=70
