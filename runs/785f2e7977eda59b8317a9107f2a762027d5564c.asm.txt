@@ -1,0 +1,59 @@
+# asm leg, t27@785f2e7977eda59b8317a9107f2a762027d5564c: the hot loop is the longest span from a back branch target to that branch, inclusive, in the spec functions (aarch64, static count)
+# t27b asm | gcc -O2 of t27c gen-c (13.3.0) | zig ReleaseFast of t27c gen (0.16.0); x100 = 100 * t27b / reference
+specs/tri/shootout/inline_select.t27|leg=asm|t27b=19|t27b_calls=1|gcc_O2=0|gcc_calls=0|zig_RFast=0|zig_calls=0|gcc_x100=NA|zig_x100=NA|fn=hot_expr_args/-/-
+specs/tri/shootout/bench_audit.t27|leg=asm|t27b=16|t27b_calls=0|gcc_O2=10|gcc_calls=0|zig_RFast=0|zig_calls=0|gcc_x100=160|zig_x100=NA|fn=verdict_benchmark_200m/verdict_benchmark_200m/-
+specs/tri/shootout/l1_clamp.t27|leg=asm|t27b=0|t27b_calls=0|gcc_O2=0|gcc_calls=0|zig_RFast=0|zig_calls=0|gcc_x100=NA|zig_x100=NA|fn=-/-/-
+--- specs/tri/shootout/inline_select.t27 t27b: 19 1 hot_expr_args
+     23c: b1000669  adds x9, x19, #1
+     240: 540002e2  b.hs 0x29c
+     244: f9000be9  str x9, [sp, #16]
+     248: aa1303e0  mov x0, x19
+     24c: 97ffffc1  bl 0x150
+     250: aa0003ea  mov x10, x0
+     254: f9400be9  ldr x9, [sp, #16]
+     258: d2800051  movz x17, #0x2
+     25c: 9bd17d48  umulh x8, x10, x17
+     260: 9b117d4a  mul x10, x10, x17
+     264: b50001c8  cbnz x8, 0x29c
+     268: eb0a013f  cmp x9, x10
+     26c: 9a9f17e9  cset x9, eq
+     270: ab090294  adds x20, x20, x9
+     274: 54000142  b.hs 0x29c
+     278: b1000673  adds x19, x19, #1
+     27c: 54000102  b.hs 0x29c
+     280: f100227f  cmp x19, #8
+     284: 54fffdc3  b.lo 0x23c
+--- specs/tri/shootout/inline_select.t27 gcc: 0 0 -
+--- specs/tri/shootout/inline_select.t27 zig: 0 0 -
+--- specs/tri/shootout/bench_audit.t27 t27b: 16 0 verdict_benchmark_200m
+      60: eb15027f  cmp x19, x21
+      64: 9a9f07e9  cset x9, ne
+      68: ab0902d6  adds x22, x22, x9
+      6c: 540002a2  b.hs 0xc0
+      70: b1000673  adds x19, x19, #1
+      74: 54000262  b.hs 0xc0
+      78: f1000670  subs x16, x19, #1
+      7c: 54000223  b.lo 0xc0
+      80: d2807d11  movz x17, #0x3e8
+      84: f10fa27f  cmp x19, #1000
+      88: 9a9383f3  .word 0x9a9383f3
+      8c: 9a908235  .word 0x9a908235
+      90: b1000694  adds x20, x20, #1
+      94: 54000162  b.hs 0xc0
+      98: eb19029f  cmp x20, x25
+      9c: 54fffe23  b.lo 0x60
+--- specs/tri/shootout/bench_audit.t27 gcc: 10 0 verdict_benchmark_200m
+  20:	aa0003e1 	mov	x1, x0
+  24:	f1000442 	subs	x2, x2, #0x1
+  28:	aa0303e0 	mov	x0, x3
+  2c:	54000140 	b.eq	54 <verdict_benchmark_200m+0x44>  // b.none
+  30:	eb00003f 	cmp	x1, x0
+  34:	91000403 	add	x3, x0, #0x1
+  38:	9a840484 	cinc	x4, x4, ne	// ne = any
+  3c:	d2807d01 	mov	x1, #0x3e8                 	// #1000
+  40:	eb01007f 	cmp	x3, x1
+  44:	54fffee9 	b.ls	20 <verdict_benchmark_200m+0x10>  // b.plast
+--- specs/tri/shootout/bench_audit.t27 zig: 0 0 -
+--- specs/tri/shootout/l1_clamp.t27 t27b: 0 0 -
+--- specs/tri/shootout/l1_clamp.t27 gcc: 0 0 -
+--- specs/tri/shootout/l1_clamp.t27 zig: 0 0 -
