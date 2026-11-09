@@ -1,0 +1,4 @@
+specs/tri/t27b/check_elide_plan.t27|leg=t27b|tests=15|pass=15|FAIL=0|vacuous=0|asserts=24
+specs/tri/shootout/check_elide.t27|leg=t27b|tests=10|pass=10|FAIL=0|vacuous=0|asserts=27
+specs/tri/shootout/bench_audit.t27|leg=t27b|tests=1|pass=1|FAIL=0|vacuous=0|asserts=unknown
+specs/tri/shootout/l1_clamp.t27|leg=t27b|tests=7|pass=7|FAIL=0|vacuous=0|asserts=26
