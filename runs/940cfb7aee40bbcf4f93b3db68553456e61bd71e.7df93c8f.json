@@ -1,0 +1,13 @@
+{
+  "sha": "940cfb7aee40bbcf4f93b3db68553456e61bd71e",
+  "challenge_sha256": "7df93c8f768386b7c0069415e5f5c58587cc270094c59ba296f753999735230f",
+  "t27c_build_stamp": "940cfb7aee40bbcf4f93b3db68553456e61bd71e",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T04:01:06Z",
+  "specs": [
+    {"spec": "specs/t27os/lab_legs.t27", "tests": "tests=19", "pass": "pass=19", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27os/lab_legs.t27", "tests": 19, "pass": 19, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}

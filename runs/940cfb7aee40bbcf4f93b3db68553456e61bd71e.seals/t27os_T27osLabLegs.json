@@ -1,0 +1,37 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+940cfb7ae",
+  "closure": [
+    {
+      "spec": "specs/t27os/keysync.t27",
+      "spec_hash": "sha256:a8789910273fcc9b273da4c8e791ecb9c4fa910ec7ecc39c29226e51dd438d9f"
+    },
+    {
+      "spec": "specs/t27os/lab_publish.t27",
+      "spec_hash": "sha256:0126b46b479b5d96356758a4748a4528717d051f787f5e72d5c5e92cd661e52f"
+    }
+  ],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:b2ae83440a570e352bf3de1c680f595fc2bbdf3834e2758207238a632fec641e",
+  "gen_hash_rust": "sha256:ad054b20412059c82ab7cba89e3d9cf46a6c47d55abe97438f0272494af70d96",
+  "gen_hash_verilog": "sha256:d94cddd6e0d1558ce7bbc3b83c03ac04431f3e8a2f109005050c7fba513a239e",
+  "gen_hash_zig": "sha256:aff7b4513da46197ba254d1e433467106b00b346f0880f3a858fd64d0261f705",
+  "module": "T27osLabLegs",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-11-09T04:01:06Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:489ad17eddceb112997a76080400d334df1fc271ca0a6d946edfc5b4158cb9fd",
+  "spec_path": "specs/t27os/lab_legs.t27",
+  "tests": {
+    "failed": 0,
+    "failing": [],
+    "forced": false,
+    "passed": 19,
+    "total": 19,
+    "vacuous": 0
+  },
+  "toolchain": {
+    "test_runner": "sha256:1a50286d6170ef41c779d26385a1be59823925d7131497c93d84194144ba93b3",
+    "zig": "0.16.0"
+  }
+}
