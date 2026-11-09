@@ -633,3 +633,77 @@ jobs:
             sleep 5
           done
           exit 1
+      - name: asm leg -- static hot-loop length of the shootout specs, t27b vs gcc -O2 vs zig ReleaseFast (t27#12871)
+        if: ${{ contains(inputs.specs, 'specs/tri/shootout/') }}
+        timeout-minutes: 25
+        shell: bash
+        env:
+          SPECS: ${{ inputs.specs || 'specs/t27f/work_graph.t27 specs/queen/actors.t27 specs/t27f/export_video.t27 specs/t27f/frame_render.t27 specs/t27f/live_mode.t27 specs/t27f/hud.t27' }}
+        run: |
+          set -f
+          sha=${{ needs.run.outputs.resolved }}
+          out="$GITHUB_WORKSPACE/runs/$sha.asm.txt"
+          mkdir -p "$GITHUB_WORKSPACE/runs" /tmp/asm /tmp/zig
+          : > "$out"
+          : > /tmp/asm/listing.txt
+          curl -fsSL "https://ziglang.org/download/0.16.0/zig-aarch64-linux-0.16.0.tar.xz" -o /tmp/zig.tar.xz
+          tar -xJf /tmp/zig.tar.xz -C /tmp/zig --strip-components=1
+          cd t27
+          cargo build --release -p t27c
+          hot() {
+            awk -v re="^((test|invariant)[ ._]|[^ ]*[.])?($1)([.][^ ]*)?$" '
+              /^[0-9a-f]+ <.*>:$/ { f = $2; gsub(/[<>:]/, "", f); on = (f ~ re); split("", at); n = 0; next }
+              / ; line [0-9]+$/ { f = $1; if (f == "test" || f == "invariant") f = $2; sub(/:$/, "", f); sub(/^_/, "", f); on = (f ~ re); split("", at); n = 0; next }
+              on && /^ +[0-9a-f]+:/ {
+                a = $1; sub(/:$/, "", a); n++; at[a] = n; L[n] = $0; c[n] = c[n - 1] + ($3 == "bl"); m = $3; t = ""
+                if (m == "b" || m ~ /^b[.]/) t = $4; else if (m == "cbz" || m == "cbnz") t = $5; else if (m == "tbz" || m == "tbnz") t = $6
+                sub(/^0x/, "", t)
+                if (t != "" && (t in at)) { k = n - at[t] + 1; if (k > hot) { hot = k; calls = c[n] - c[at[t] - 1]; hf = f; H = ""; for (i = at[t]; i <= n; i++) H = H L[i] ORS } }
+              }
+              END { print hot + 0, calls + 0, (hf == "" ? "-" : hf); printf "%s", H }' "$2"
+          }
+          echo "# asm leg, t27@${sha}: the hot loop is the longest span from a back branch target to that branch, inclusive, in the spec functions (aarch64, static count)" >> "$out"
+          echo "# t27b asm | gcc -O2 of t27c gen-c ($(gcc -dumpfullversion)) | zig ReleaseFast of t27c gen ($(/tmp/zig/zig version)); x100 = 100 * t27b / reference" >> "$out"
+          for spec in $SPECS; do
+            case "$spec" in specs/tri/shootout/*) ;; *) continue ;; esac
+            s="/tmp/asm/$(basename "$spec" .t27)"
+            : > "$s.err"; : > "$s.t27b.s"; : > "$s.gcc.s"; : > "$s.zig.s"
+            ./target/release/t27b asm "$spec" > "$s.t27b.s" 2>> "$s.err" || true
+            names=$(awk '/ ; line [0-9]+$/ { f = $1; if (f == "test" || f == "invariant") f = $2; sub(/:$/, "", f); sub(/^_/, "", f); print f }' "$s.t27b.s" | paste -sd'|' -)
+            names=${names:-NONE}
+            ./target/release/t27c gen-c "$spec" > "$s.c" 2>> "$s.err" && gcc -std=gnu11 -O2 -w -c "$s.c" -o "$s.o" 2>> "$s.err" && objdump -d "$s.o" > "$s.gcc.s" || true
+            ./target/release/t27c gen "$spec" > "$s.zig" 2>> "$s.err" && echo 'test { @import("std").testing.refAllDecls(@This()); }' >> "$s.zig" && /tmp/zig/zig test -O ReleaseFast --test-no-exec -femit-bin="$s.elf" "$s.zig" 2>> "$s.err" && objdump -d "$s.elf" > "$s.zig.s" || true
+            for p in t27b gcc zig; do hot "$names" "$s.$p.s" > "$s.$p.hot"; done
+            read -r bt bc bf < "$s.t27b.hot" || true
+            read -r g gc gf < "$s.gcc.hot" || true
+            read -r z zc zf < "$s.zig.hot" || true
+            gx=NA; zx=NA
+            if [ "$bt" -gt 0 ] && [ "$g" -gt 0 ]; then gx=$(( (bt * 100 + g / 2) / g )); fi
+            if [ "$bt" -gt 0 ] && [ "$z" -gt 0 ]; then zx=$(( (bt * 100 + z / 2) / z )); fi
+            echo "${spec}|leg=asm|t27b=${bt}|t27b_calls=${bc}|gcc_O2=${g}|gcc_calls=${gc}|zig_RFast=${z}|zig_calls=${zc}|gcc_x100=${gx}|zig_x100=${zx}|fn=${bf}/${gf}/${zf}" >> "$out"
+            for p in t27b gcc zig; do echo "--- ${spec} ${p}: $(head -n 1 "$s.$p.hot")"; tail -n +2 "$s.$p.hot"; done >> /tmp/asm/listing.txt
+            if [ ! -s "$s.t27b.s" ] || [ ! -s "$s.gcc.s" ] || [ ! -s "$s.zig.s" ]; then echo "--- ${spec}: a listing is missing; the last 20 error lines:"; tail -n 20 "$s.err"; fi
+          done
+          cat /tmp/asm/listing.txt >> "$out"
+          cat "$out"
+      - name: publish the asm leg beside the receipt
+        if: ${{ contains(inputs.specs, 'specs/tri/shootout/') }}
+        shell: bash
+        run: |
+          # the receipt home is master, whatever ref was dispatched (t27 specs/t27os/lab_publish.t27)
+          git config user.name "t27os lab"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add runs/${{ needs.run.outputs.resolved }}.asm.txt
+          git diff --cached --quiet && exit 0
+          git commit -q -m "lab asm leg (staging)"
+          rcpt=$(git rev-parse HEAD)
+          for i in 1 2 3; do
+            git fetch origin master
+            git checkout -q -f -B receipt origin/master
+            git checkout "$rcpt" -- runs/${{ needs.run.outputs.resolved }}.asm.txt
+            git diff --cached --quiet && exit 0
+            git commit -q -m "lab: asm leg for ${{ needs.run.outputs.resolved }}"
+            git push origin HEAD:master && exit 0
+            sleep 5
+          done
+          exit 1
