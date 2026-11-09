@@ -131,15 +131,66 @@ pub fn is_contact(step: u32) -> bool {
 pub fn is_quiz_step(step: u32) -> bool {
     return step < STEP_COUNT;
 }
-
-/// Two funnel languages: the client's own, auto-detected by the host's
-/// has-cyrillic primitive; RU stays the default for silent entries (QR, ads).
+/// Three funnel languages. The language is a CHOICE (the /start picker) kept
+/// in the user's profile; message text never decides it (2026-11-09: an
+/// e-mail typed without Cyrillic switched a Russian client to English).
 pub const LANG_RU : str = "ru";
 pub const LANG_EN : str = "en";
+pub const LANG_ZH : str = "zh";
+pub const LANG_LABEL_RU : str = "Русский";
+pub const LANG_LABEL_EN : str = "English";
+pub const LANG_LABEL_ZH : str = "中文";
 
-pub fn lang_for(has_cyrillic: bool) -> str {
-    if (has_cyrillic) { return LANG_RU; }
-    return LANG_EN;
+pub fn lang_valid(l: str) -> bool {
+    return l == LANG_RU or l == LANG_EN or l == LANG_ZH;
+}
+
+/// A valid explicit choice wins; else a valid stored language; else RU.
+pub fn lang_for(stored: str, choice: str) -> str {
+    if (lang_valid(choice)) { return choice; }
+    if (lang_valid(stored)) { return stored; }
+    return LANG_RU;
+}
+
+/// /start shows the RU / EN / ZH picker until a language is stored.
+pub fn start_needs_picker(stored: str) -> bool {
+    return not lang_valid(stored);
+}
+
+/// The unit printed after a room count.
+pub fn rooms_unit(lang: str) -> str {
+    if (lang == LANG_EN) { return "br."; }
+    if (lang == LANG_ZH) { return "卧"; }
+    return "сп.";
+}
+
+/// Catalog property types arrive in Russian; unknown types pass unchanged.
+pub fn type_label(ru_type: str, lang: str) -> str {
+    if (lang == LANG_EN) {
+        if (ru_type == "вилла") { return "Villa"; }
+        if (ru_type == "кондоминиум") { return "Condominium"; }
+        if (ru_type == "апартаменты") { return "Apartment"; }
+        if (ru_type == "таунхаус") { return "Townhouse"; }
+        if (ru_type == "дом") { return "House"; }
+        if (ru_type == "земля") { return "Land"; }
+    }
+    if (lang == LANG_ZH) {
+        if (ru_type == "вилла") { return "别墅"; }
+        if (ru_type == "кондоминиум") { return "公寓"; }
+        if (ru_type == "апартаменты") { return "酒店式公寓"; }
+        if (ru_type == "таунхаус") { return "联排别墅"; }
+        if (ru_type == "дом") { return "住宅"; }
+        if (ru_type == "земля") { return "土地"; }
+    }
+    return ru_type;
+}
+
+/// Listed prices under the floor are placeholders (the partner says they are
+/// not real): the card says "price on request" instead.
+pub const PRICE_FLOOR_THB : u64 = 500000;
+
+pub fn price_shown(price_min_thb: u64) -> bool {
+    return price_min_thb >= PRICE_FLOOR_THB;
 }
 
 /// A client with at least one prior lead is a REPEAT client: the funnel
@@ -189,11 +240,57 @@ test a_contact_makes_the_lead_hot {
     assert hot_lead_ok("") == false;
 }
 
-test the_two_languages_and_the_default {
-    assert lang_for(true) == LANG_RU;
-    assert lang_for(false) == LANG_EN;
+test the_three_languages_and_the_default {
     assert LANG_RU == "ru";
     assert LANG_EN == "en";
+    assert LANG_ZH == "zh";
+    assert lang_valid("ru") == true;
+    assert lang_valid("zh") == true;
+    assert lang_valid("de") == false;
+    assert lang_valid("") == false;
+}
+
+test message_text_never_decides_the_language {
+    assert lang_for("", "") == LANG_RU;        // regression: an e-mail answer cannot switch it
+    assert lang_for("ru", "") == LANG_RU;
+    assert lang_for("en", "") == LANG_EN;
+    assert lang_for("ru", "zh") == LANG_ZH;    // an explicit choice wins
+    assert lang_for("en", "xx") == LANG_EN;    // an invalid choice is ignored
+    assert lang_for("xx", "") == LANG_RU;
+}
+
+test the_picker_shows_until_a_language_is_stored {
+    assert start_needs_picker("") == true;
+    assert start_needs_picker("xx") == true;
+    assert start_needs_picker("ru") == false;
+    assert start_needs_picker("zh") == false;
+    assert LANG_LABEL_RU == "Русский";
+    assert LANG_LABEL_EN == "English";
+    assert LANG_LABEL_ZH == "中文";
+}
+
+test types_and_units_follow_the_language {
+    assert type_label("вилла", "ru") == "вилла";
+    assert type_label("вилла", "en") == "Villa";
+    assert type_label("вилла", "zh") == "别墅";
+    assert type_label("кондоминиум", "en") == "Condominium";
+    assert type_label("апартаменты", "en") == "Apartment";
+    assert type_label("таунхаус", "zh") == "联排别墅";
+    assert type_label("дом", "en") == "House";
+    assert type_label("земля", "zh") == "土地";
+    assert type_label("замок", "en") == "замок";   // unknown: unchanged
+    assert rooms_unit("ru") == "сп.";
+    assert rooms_unit("en") == "br.";
+    assert rooms_unit("zh") == "卧";
+}
+
+test prices_under_the_floor_are_not_shown {
+    assert PRICE_FLOOR_THB == 500000;
+    assert price_shown(499999) == false;
+    assert price_shown(100000) == false;
+    assert price_shown(0) == false;
+    assert price_shown(500000) == true;
+    assert price_shown(12000000) == true;
 }
 
 test a_repeat_client_has_prior_leads {
