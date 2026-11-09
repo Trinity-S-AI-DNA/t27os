@@ -1,0 +1,13 @@
+{
+  "sha": "4b193cf634355f756469cf15178d301f229953a4",
+  "challenge_sha256": "fc6a926a973848aaa597848145eb20c267e9fca75e012b7d0227a65e511baa0f",
+  "t27c_build_stamp": "4b193cf634355f756469cf15178d301f229953a4",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T07:10:42Z",
+  "specs": [
+    {"spec": "specs/compiler/string_escapes.t27", "tests": "tests=14", "pass": "pass=14", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/compiler/string_escapes.t27", "tests": 14, "pass": 14, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}

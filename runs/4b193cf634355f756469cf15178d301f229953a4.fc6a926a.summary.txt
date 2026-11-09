@@ -1,0 +1,6 @@
+specs/compiler/string_escapes.t27|tests=14|pass=14|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 4b193cf634355f756469cf15178d301f229953a4; specs specs/compiler/string_escapes.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 96 s wall-clock on one GitHub runner (lab run 42577468123)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=4b193cf634355f756469cf15178d301f229953a4 -f challenge=<fresh hex> -f specs="specs/compiler/string_escapes.t27"
