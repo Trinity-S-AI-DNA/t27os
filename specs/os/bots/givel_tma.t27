@@ -248,3 +248,99 @@ test an_unmeasured_stat_is_unknown_never_zero {
     assert stat_or_unknown(false, 0) == STAT_UNKNOWN;
     assert stat_or_unknown(true, 0) == 0;
 }
+
+/// Read-route kinds. On 2026-11-09 the host served every GET read before it
+/// called auth, so the leads, chats, cards and export were public. The law
+/// now says which reads need auth: every kind except the three public
+/// aggregates, and any kind this table does not know (fail closed).
+pub const READ_STATE : u32 = 1;
+pub const READ_CHATS : u32 = 2;
+pub const READ_FUNNEL : u32 = 3;
+pub const READ_CONTENT : u32 = 4;
+pub const READ_REELS : u32 = 5;
+pub const READ_CHAT : u32 = 6;
+pub const READ_AGENTS : u32 = 7;
+pub const READ_CLIENT : u32 = 8;
+pub const READ_CALENDAR : u32 = 9;
+pub const READ_EXPORT : u32 = 10;
+pub const READ_METRICS : u32 = 11;
+pub const READ_STATS : u32 = 20;
+pub const READ_FOLLOWUP_STATS : u32 = 21;
+pub const READ_PHOTO_STATS : u32 = 22;
+
+pub fn tma_read_needs_auth(kind: u32) -> bool {
+    if (kind == READ_STATS or kind == READ_FOLLOWUP_STATS or kind == READ_PHOTO_STATS) {
+        return false;
+    }
+    return true;
+}
+
+test every_read_but_the_three_aggregates_needs_auth {
+    assert tma_read_needs_auth(READ_STATE) == true;
+    assert tma_read_needs_auth(READ_CHATS) == true;
+    assert tma_read_needs_auth(READ_FUNNEL) == true;
+    assert tma_read_needs_auth(READ_CONTENT) == true;
+    assert tma_read_needs_auth(READ_REELS) == true;
+    assert tma_read_needs_auth(READ_CHAT) == true;
+    assert tma_read_needs_auth(READ_AGENTS) == true;
+    assert tma_read_needs_auth(READ_CLIENT) == true;
+    assert tma_read_needs_auth(READ_CALENDAR) == true;
+    assert tma_read_needs_auth(READ_EXPORT) == true;
+    assert tma_read_needs_auth(READ_METRICS) == true;
+}
+
+test the_three_aggregates_stay_public {
+    assert tma_read_needs_auth(READ_STATS) == false;
+    assert tma_read_needs_auth(READ_FOLLOWUP_STATS) == false;
+    assert tma_read_needs_auth(READ_PHOTO_STATS) == false;
+}
+
+test an_unknown_read_kind_needs_auth {
+    assert tma_read_needs_auth(0) == true;
+    assert tma_read_needs_auth(12) == true;
+    assert tma_read_needs_auth(23) == true;
+    assert tma_read_needs_auth(4294967295) == true;
+}
+
+/// /vip: the owner or a CRM group admin grants CRM access by Telegram id.
+/// The target must be a real id (above 0), never the sender, and the list
+/// stays bounded. The command handler and the list store are host work.
+pub const VIP_MAX : u32 = 50;
+
+pub fn vip_grant_ok(sender_id: u32, owner_id: u32, sender_is_admin: bool, target_id: u32, list_len: u32) -> bool {
+    if (sender_id != owner_id and sender_is_admin == false) { return false; }
+    if (target_id == 0) { return false; }
+    if (target_id == sender_id) { return false; }
+    return list_len < VIP_MAX;
+}
+
+test only_the_owner_or_an_admin_may_grant {
+    const owner : u32 = 144022504;
+    assert vip_grant_ok(owner, owner, false, 42, 0) == true;    // owner needs no admin flag
+    assert vip_grant_ok(7, owner, true, 42, 0) == true;         // CRM group admin
+    assert vip_grant_ok(7, owner, false, 42, 0) == false;       // non-admin refused
+}
+
+test a_grant_needs_a_real_other_target_and_room {
+    const owner : u32 = 144022504;
+    assert vip_grant_ok(owner, owner, true, 0, 0) == false;     // id 0
+    assert vip_grant_ok(owner, owner, true, owner, 0) == false; // self-grant
+    assert vip_grant_ok(7, owner, true, 7, 0) == false;         // admin self-grant
+    assert vip_grant_ok(owner, owner, true, 42, 49) == true;    // last free slot
+    assert vip_grant_ok(owner, owner, true, 42, 50) == false;   // full list
+    assert vip_grant_ok(owner, owner, true, 42, 51) == false;
+}
+
+/// The CRM viewer: the existing gate (owner or live group member) OR a user
+/// the admins listed with /vip. The gate is called, not restated.
+pub fn crm_viewer_ok(user_id: u32, owner_id: u32, in_group: bool, listed: bool) -> bool {
+    return tma_admin_ok(user_id, owner_id, in_group) or listed;
+}
+
+test a_listed_user_views_the_crm_without_the_group {
+    const owner : u32 = 144022504;
+    assert crm_viewer_ok(owner, owner, false, false) == true;   // owner
+    assert crm_viewer_ok(42, owner, true, false) == true;       // group member
+    assert crm_viewer_ok(42, owner, false, true) == true;       // listed by /vip
+    assert crm_viewer_ok(42, owner, false, false) == false;     // outsider
+}
