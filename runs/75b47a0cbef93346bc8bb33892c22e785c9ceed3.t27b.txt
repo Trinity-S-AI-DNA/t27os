@@ -1,0 +1,1 @@
+../specs/os/bots/tri_claw_tma_layout.t27|leg=t27b|tests=18|pass=18|FAIL=0|vacuous=0|asserts=88
