@@ -1,0 +1,13 @@
+{
+  "sha": "22b18b09116523b6c6845d11de648ebcd709c7f0",
+  "challenge_sha256": "be7adbfefb0d1e44210f2182af5e5ca13de5b0220dbea25d9d2be51246a8be4f",
+  "t27c_build_stamp": "22b18b09116523b6c6845d11de648ebcd709c7f0",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T03:19:58Z",
+  "specs": [
+    {"spec": "specs/tri/t27b/ifconv_plan.t27", "tests": "tests=20", "pass": "pass=20", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tri/t27b/ifconv_plan.t27", "tests": 20, "pass": 20, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
