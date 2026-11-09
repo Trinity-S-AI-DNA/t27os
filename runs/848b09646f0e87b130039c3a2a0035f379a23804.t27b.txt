@@ -1,0 +1,1 @@
+specs/tri/t27b/flow_plan.t27|leg=t27b|tests=4|pass=4|FAIL=0|vacuous=0|asserts=17
