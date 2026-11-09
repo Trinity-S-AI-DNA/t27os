@@ -1,0 +1,9 @@
+specs/tri/t27b/check_elide_plan.t27|tests=15|pass=15|FAIL=0|vacuous=0|blocked=0
+specs/tri/shootout/check_elide.t27|tests=10|pass=10|FAIL=0|vacuous=0|blocked=0
+specs/tri/shootout/bench_audit.t27|tests=1|pass=1|FAIL=0|vacuous=0|blocked=0
+specs/tri/shootout/inline_select.t27|tests=17|pass=17|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 efc2600c1818f7fcc106d1b185163f11b0ce575f; specs specs/tri/t27b/check_elide_plan.t27 specs/tri/shootout/check_elide.t27 specs/tri/shootout/bench_audit.t27 specs/tri/shootout/inline_select.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 102 s wall-clock on one GitHub runner (lab run 42576079218)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=efc2600c1818f7fcc106d1b185163f11b0ce575f -f challenge=<fresh hex> -f specs="specs/tri/t27b/check_elide_plan.t27 specs/tri/shootout/check_elide.t27 specs/tri/shootout/bench_audit.t27 specs/tri/shootout/inline_select.t27"

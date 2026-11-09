@@ -1,0 +1,19 @@
+{
+  "sha": "efc2600c1818f7fcc106d1b185163f11b0ce575f",
+  "challenge_sha256": "bbf869055c8ab210a23c964973f0398e2382c2c87de8c48590fece1901724901",
+  "t27c_build_stamp": "efc2600c1818f7fcc106d1b185163f11b0ce575f",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T06:57:25Z",
+  "specs": [
+    {"spec": "specs/tri/t27b/check_elide_plan.t27", "tests": "tests=15", "pass": "pass=15", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/shootout/check_elide.t27", "tests": "tests=10", "pass": "pass=10", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/shootout/bench_audit.t27", "tests": "tests=1", "pass": "pass=1", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/shootout/inline_select.t27", "tests": "tests=17", "pass": "pass=17", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tri/t27b/check_elide_plan.t27", "tests": 15, "pass": 15, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tri/shootout/check_elide.t27", "tests": 10, "pass": 10, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tri/shootout/bench_audit.t27", "tests": 1, "pass": 1, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tri/shootout/inline_select.t27", "tests": 17, "pass": 17, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 4, "reported": 4}
+}
