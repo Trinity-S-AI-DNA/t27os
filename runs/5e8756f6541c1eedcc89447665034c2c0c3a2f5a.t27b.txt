@@ -1,4 +1,2 @@
 specs/tri/t27b/check_elide_plan.t27|leg=t27b|tests=26|pass=26|FAIL=0|vacuous=0|asserts=37
 specs/tri/shootout/check_elide.t27|leg=t27b|tests=16|pass=16|FAIL=0|vacuous=0|asserts=40
-specs/tri/shootout/inline_select.t27|leg=t27b|tests=17|pass=17|FAIL=0|vacuous=0|asserts=36
-specs/tri/shootout/bench_audit.t27|leg=t27b|tests=1|pass=1|FAIL=0|vacuous=0|asserts=unknown
