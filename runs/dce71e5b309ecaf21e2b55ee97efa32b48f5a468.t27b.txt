@@ -1,0 +1,1 @@
+../specs/os/bots/givel_lead_bot.t27|leg=t27b|tests=27|pass=27|FAIL=0|vacuous=0|asserts=146
