@@ -1,0 +1,13 @@
+{
+  "sha": "33698f075bec8d4b588b84993b8cb9c1a5f96ef0",
+  "challenge_sha256": "1037e2bc2e8a54bccff11e9c38d444c49782a3220424c247eb994d2fd334ff50",
+  "t27c_build_stamp": "33698f075bec8d4b588b84993b8cb9c1a5f96ef0",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T08:51:02Z",
+  "specs": [
+    {"spec": "specs/t27os/queen_dash.t27", "tests": "tests=23", "pass": "pass=23", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27os/queen_dash.t27", "tests": 23, "pass": 23, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
