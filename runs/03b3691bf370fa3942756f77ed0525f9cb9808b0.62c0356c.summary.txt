@@ -1,0 +1,6 @@
+specs/t27os/install.t27|tests=27|pass=27|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 03b3691bf370fa3942756f77ed0525f9cb9808b0; specs specs/t27os/install.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 317 s wall-clock on one GitHub runner (lab run 42569203767)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=03b3691bf370fa3942756f77ed0525f9cb9808b0 -f challenge=<fresh hex> -f specs="specs/t27os/install.t27"

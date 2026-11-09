@@ -1,0 +1,13 @@
+{
+  "sha": "03b3691bf370fa3942756f77ed0525f9cb9808b0",
+  "challenge_sha256": "62c0356cded2d8c1f7196904b7c671e2ad0cb81e29854b83f62dc4cdb0b73d66",
+  "t27c_build_stamp": "03b3691bf370fa3942756f77ed0525f9cb9808b0",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T05:51:42Z",
+  "specs": [
+    {"spec": "specs/t27os/install.t27", "tests": "tests=27", "pass": "pass=27", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27os/install.t27", "tests": 27, "pass": 27, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
