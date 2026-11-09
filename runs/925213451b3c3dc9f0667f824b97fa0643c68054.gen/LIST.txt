@@ -1,0 +1,2 @@
+gen/rust/tri/t27b/frame_layout.rs|changed
+gen/rust/tri/t27b/a64.rs|same

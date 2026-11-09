@@ -1,0 +1,17 @@
+{
+  "sha": "925213451b3c3dc9f0667f824b97fa0643c68054",
+  "challenge_sha256": "02e8524b5e3e5686a3f42df736414e4b606aef7dfc9cab52470c3994dd1a8339",
+  "t27c_build_stamp": "925213451b3c3dc9f0667f824b97fa0643c68054",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T05:41:10Z",
+  "specs": [
+    {"spec": "specs/tri/t27b/flow_plan.t27", "tests": "tests=4", "pass": "pass=4", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/t27b/frame_layout.t27", "tests": "tests=7", "pass": "pass=7", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/t27b/a64.t27", "tests": "tests=45", "pass": "pass=45", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tri/t27b/flow_plan.t27", "tests": 4, "pass": 4, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tri/t27b/frame_layout.t27", "tests": 7, "pass": 7, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tri/t27b/a64.t27", "tests": 45, "pass": 45, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 3, "reported": 3}
+}
