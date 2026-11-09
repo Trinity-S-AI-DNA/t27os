@@ -1,0 +1,17 @@
+{
+  "sha": "d7f1500f67813b7fa00d0fc3bba9dc2f92e52d5b",
+  "challenge_sha256": "b662b014103a89d8bb2da64b577ef34d96899f49ebb1339651c51187697ca303",
+  "t27c_build_stamp": "d7f1500f67813b7fa00d0fc3bba9dc2f92e52d5b",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T06:54:17Z",
+  "specs": [
+    {"spec": "specs/compiler/string_escapes.t27", "tests": "tests=12", "pass": "pass=10", "FAIL": "FAIL=cr_len_is_3", "vacuous": "", "blocked": ""}
+,
+    {"spec": "cr_byte_is_13", "tests": "", "pass": "", "FAIL": "", "vacuous": "", "blocked": ""}
+,
+    {"spec": "2", "tests": "vacuous=0", "pass": "blocked=0", "FAIL": "", "vacuous": "", "blocked": ""}
+
+  ]
+  ,"result": {"specs": [], "ok": false, "asked": 1, "reported": 0}
+}
