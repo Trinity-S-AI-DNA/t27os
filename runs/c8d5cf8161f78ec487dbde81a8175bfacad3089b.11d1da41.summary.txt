@@ -1,0 +1,10 @@
+specs/compiler/use_splice.t27|tests=30|pass=30|FAIL=0|vacuous=0|blocked=0
+specs/compiler/use_before_endmodule.t27|tests=3|pass=3|FAIL=0|vacuous=0|blocked=0
+specs/numeric/sha256_nabits.t27|tests=32|pass=32|FAIL=0|vacuous=0|blocked=0
+specs/t27os/dev_swap.t27|tests=8|pass=8|FAIL=0|vacuous=0|blocked=0
+specs/fpga/w5_cast_widen.t27|tests=4|pass=4|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 c8d5cf8161f78ec487dbde81a8175bfacad3089b; specs specs/compiler/use_splice.t27 specs/compiler/use_before_endmodule.t27 specs/numeric/sha256_nabits.t27 specs/t27os/dev_swap.t27 specs/fpga/w5_cast_widen.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 248 s wall-clock on one GitHub runner (lab run 42589194966)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=c8d5cf8161f78ec487dbde81a8175bfacad3089b -f challenge=<fresh hex> -f specs="specs/compiler/use_splice.t27 specs/compiler/use_before_endmodule.t27 specs/numeric/sha256_nabits.t27 specs/t27os/dev_swap.t27 specs/fpga/w5_cast_widen.t27"
