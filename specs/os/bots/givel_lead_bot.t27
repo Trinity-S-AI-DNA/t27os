@@ -154,7 +154,7 @@ pub fn lang_for(stored: str, choice: str) -> str {
 
 /// /start shows the RU / EN / ZH picker until a language is stored.
 pub fn start_needs_picker(stored: str) -> bool {
-    return not lang_valid(stored);
+    return lang_valid(stored) == false;
 }
 
 /// The unit printed after a room count.
