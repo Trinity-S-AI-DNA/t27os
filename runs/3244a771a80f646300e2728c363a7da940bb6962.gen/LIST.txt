@@ -1,0 +1,2 @@
+gen/rust/os/bots/givel_tma.rs|changed
+gen/c/os/bots/givel_tma.c|changed
