@@ -1,0 +1,13 @@
+{
+  "sha": "d0eb4072e9fc3bd910e0acfab3ea7c71978af783",
+  "challenge_sha256": "11cd9b41af749c97cdfada035ce24d4f10812951319b10967634460d322940ae",
+  "t27c_build_stamp": "d0eb4072e9fc3bd910e0acfab3ea7c71978af783",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T07:48:58Z",
+  "specs": [
+    {"spec": "../specs/os/bots/givel_lead_bot.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+
+  ]
+  ,"result": {"specs": [], "ok": false, "asked": 1, "reported": 0}
+}
