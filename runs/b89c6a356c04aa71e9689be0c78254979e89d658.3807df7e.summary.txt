@@ -1,0 +1,8 @@
+specs/t27os/glass_window.t27|tests=127|pass=127|FAIL=0|vacuous=0|blocked=0
+specs/t27os/observatory_capture.t27|tests=5|pass=5|FAIL=0|vacuous=0|blocked=0
+specs/course/course_hud_wasm.t27|tests=8|pass=8|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 b89c6a356c04aa71e9689be0c78254979e89d658; specs specs/t27os/glass_window.t27 specs/t27os/observatory_capture.t27 specs/course/course_hud_wasm.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 225 s wall-clock on one GitHub runner (lab run 42579563096)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=b89c6a356c04aa71e9689be0c78254979e89d658 -f challenge=<fresh hex> -f specs="specs/t27os/glass_window.t27 specs/t27os/observatory_capture.t27 specs/course/course_hud_wasm.t27"

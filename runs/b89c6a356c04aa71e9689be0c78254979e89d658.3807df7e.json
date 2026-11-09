@@ -1,0 +1,17 @@
+{
+  "sha": "b89c6a356c04aa71e9689be0c78254979e89d658",
+  "challenge_sha256": "3807df7e667be2ad232cfcd561c930825d420c9b2de945b894486f6cb9110f52",
+  "t27c_build_stamp": "b89c6a356c04aa71e9689be0c78254979e89d658",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T07:32:13Z",
+  "specs": [
+    {"spec": "specs/t27os/glass_window.t27", "tests": "tests=127", "pass": "pass=127", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27os/observatory_capture.t27", "tests": "tests=5", "pass": "pass=5", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/course/course_hud_wasm.t27", "tests": "tests=8", "pass": "pass=8", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27os/glass_window.t27", "tests": 127, "pass": 127, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27os/observatory_capture.t27", "tests": 5, "pass": 5, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/course/course_hud_wasm.t27", "tests": 8, "pass": 8, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 3, "reported": 3}
+}
