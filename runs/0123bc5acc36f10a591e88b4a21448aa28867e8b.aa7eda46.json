@@ -1,0 +1,13 @@
+{
+  "sha": "0123bc5acc36f10a591e88b4a21448aa28867e8b",
+  "challenge_sha256": "aa7eda46f438c759757e63dda40ad6d0bcab21a46e2912b44bcf60dfeb920664",
+  "t27c_build_stamp": "0123bc5acc36f10a591e88b4a21448aa28867e8b",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T08:40:39Z",
+  "specs": [
+    {"spec": "specs/t27os/glass_window.t27", "tests": "tests=129", "pass": "pass=129", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27os/glass_window.t27", "tests": 129, "pass": 129, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
