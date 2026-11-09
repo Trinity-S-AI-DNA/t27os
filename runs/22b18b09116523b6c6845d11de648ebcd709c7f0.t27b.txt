@@ -1,0 +1,1 @@
+specs/tri/t27b/ifconv_plan.t27|leg=t27b|tests=20|pass=20|FAIL=0|vacuous=0|asserts=87
