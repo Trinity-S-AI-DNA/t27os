@@ -522,3 +522,101 @@ test window_counts_the_recent_tail {
     assert window_count(ts, 4, 12000, 24) == 4;
     assert window_count(ts, 4, 12000, 0) == 0;
 }
+
+/// Catalog dedupe (owner order V2 item 3). The catalog keeps duplicate data
+/// rows (leads and chats reference their ids), but a search shows one card
+/// for rows equal on (name, district, type, price_min, price_max, rooms,
+/// deadline); the FIRST row in catalog order keeps its id. A row that differs
+/// in any of these stays a separate card. Arrays are parallel, n rows used.
+pub const DEDUPE_SLOTS : u32 = 16;
+
+pub fn same_card(i: u32, j: u32, name: [16]str, district: [16]str, kind: [16]str, price_min: [16]u64, price_max: [16]u64, rooms: [16]str, deadline: [16]str) -> bool {
+    return name[i] == name[j] and district[i] == district[j] and kind[i] == kind[j] and price_min[i] == price_min[j] and price_max[i] == price_max[j] and rooms[i] == rooms[j] and deadline[i] == deadline[j];
+}
+
+/// 1 when row i is the first of its equal group (show it), 0 when an earlier row equals it.
+pub fn keep_card(i: u32, name: [16]str, district: [16]str, kind: [16]str, price_min: [16]u64, price_max: [16]u64, rooms: [16]str, deadline: [16]str) -> u32 {
+    var j : u32 = 0;
+    while (j < i) {
+        if (same_card(i, j, name, district, kind, price_min, price_max, rooms, deadline)) { return 0; }
+        j = j + 1;
+    }
+    return 1;
+}
+
+/// How many cards the n rows collapse to; n is clamped to the slots.
+pub fn card_count(n: u32, name: [16]str, district: [16]str, kind: [16]str, price_min: [16]u64, price_max: [16]u64, rooms: [16]str, deadline: [16]str) -> u32 {
+    var m : u32 = n;
+    if (m > DEDUPE_SLOTS) { m = DEDUPE_SLOTS; }
+    var k : u32 = 0;
+    var i : u32 = 0;
+    while (i < m) {
+        k = k + keep_card(i, name, district, kind, price_min, price_max, rooms, deadline);
+        i = i + 1;
+    }
+    return k;
+}
+
+test the_laya_copies_collapse_to_one_card {
+    var name : [16]str;
+    var district : [16]str;
+    var kind : [16]str;
+    var price_min : [16]u64;
+    var price_max : [16]u64;
+    var rooms : [16]str;
+    var deadline : [16]str;
+    var i : u32 = 0;
+    while (i < 3) {
+        name[i] = "Laya Resort";
+        district[i] = "Bang Tao";
+        kind[i] = "condominium";
+        price_min[i] = 2500000;
+        price_max[i] = 2500000;
+        rooms[i] = "1";
+        deadline[i] = "ready";
+        i = i + 1;
+    }
+    name[3] = "Laya Resort";
+    district[3] = "Bang Tao";
+    kind[3] = "condominium";
+    price_min[3] = 3500000;
+    price_max[3] = 3500000;
+    rooms[3] = "1";
+    deadline[3] = "ready";
+    assert keep_card(0, name, district, kind, price_min, price_max, rooms, deadline) == 1;   // first id kept
+    assert keep_card(1, name, district, kind, price_min, price_max, rooms, deadline) == 0;
+    assert keep_card(2, name, district, kind, price_min, price_max, rooms, deadline) == 0;
+    assert keep_card(3, name, district, kind, price_min, price_max, rooms, deadline) == 1;   // real distinct listing
+    assert card_count(4, name, district, kind, price_min, price_max, rooms, deadline) == 2;
+    assert card_count(3, name, district, kind, price_min, price_max, rooms, deadline) == 1;
+    assert card_count(0, name, district, kind, price_min, price_max, rooms, deadline) == 0;
+}
+
+test rows_differing_in_one_field_stay_separate {
+    var name : [16]str;
+    var district : [16]str;
+    var kind : [16]str;
+    var price_min : [16]u64;
+    var price_max : [16]u64;
+    var rooms : [16]str;
+    var deadline : [16]str;
+    name[0] = "Laya Resort";
+    name[1] = "Laya Resort";
+    district[0] = "Bang Tao";
+    district[1] = "Bang Tao";
+    kind[0] = "condominium";
+    kind[1] = "condominium";
+    price_min[0] = 2500000;
+    price_min[1] = 2600000;     // only the price differs
+    price_max[0] = 2500000;
+    price_max[1] = 2500000;
+    rooms[0] = "1";
+    rooms[1] = "1";
+    deadline[0] = "ready";
+    deadline[1] = "ready";
+    assert card_count(2, name, district, kind, price_min, price_max, rooms, deadline) == 2;
+    price_min[1] = 2500000;
+    assert card_count(2, name, district, kind, price_min, price_max, rooms, deadline) == 1;
+    rooms[1] = "2";
+    assert card_count(2, name, district, kind, price_min, price_max, rooms, deadline) == 2;
+}
