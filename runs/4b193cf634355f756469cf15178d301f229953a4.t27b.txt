@@ -1,0 +1,1 @@
+specs/compiler/string_escapes.t27|leg=t27b|tests=14|pass=14|FAIL=0|vacuous=0|asserts=36
