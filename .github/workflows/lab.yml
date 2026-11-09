@@ -155,10 +155,10 @@ jobs:
           mkdir -p "$out"
           cd t27
           for spec in ${{ inputs.specs }}; do
-            rel=${spec#specs/}; rel=${rel%.t27}
+            rel=${spec#specs/}; rel=${rel#../specs/}; rel=${rel%.t27}
             for pair in "rust:gen/rust/$rel.rs" "c:gen/c/$rel.c"; do
               path=${pair#*:}
-              git ls-files --error-unmatch "$path" >/dev/null 2>&1 || continue
+              git ls-files --error-unmatch "$path" >/dev/null 2>&1 || [ "${spec#../specs/}" != "$spec" ] || continue
               mkdir -p "$out/$(dirname "$path")"
               ./target/release/t27c gen-${pair%%:*} "$spec" > "$out/$path" || { echo "$path|gen-${pair%%:*} exited non-zero" >> "$out/FAILED.txt"; continue; }
               cmp -s "$out/$path" "$path" && echo "$path|same" >> "$out/LIST.txt" || echo "$path|changed" >> "$out/LIST.txt"
