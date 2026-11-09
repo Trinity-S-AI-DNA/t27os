@@ -1,0 +1,6 @@
+../specs/os/bots/tri_claw_tma_layout.t27|tests=18|pass=18|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 75b47a0cbef93346bc8bb33892c22e785c9ceed3; specs ../specs/os/bots/tri_claw_tma_layout.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 106 s wall-clock on one GitHub runner (lab run 42604814618)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=75b47a0cbef93346bc8bb33892c22e785c9ceed3 -f challenge=<fresh hex> -f specs="../specs/os/bots/tri_claw_tma_layout.t27"
