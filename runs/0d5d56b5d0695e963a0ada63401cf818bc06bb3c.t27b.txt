@@ -1,0 +1,1 @@
+specs/t27os/glass_window.t27|leg=t27b|tests=128|pass=128|FAIL=0|vacuous=0|asserts=2950
