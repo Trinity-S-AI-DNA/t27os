@@ -1,0 +1,13 @@
+{
+  "sha": "dc57ef8f8f2d049f86d17e428542b3acd8f26d38",
+  "challenge_sha256": "f7373b5b96b308fa9363a19ebac89418be2e23758187bb748b0ec20e710047a5",
+  "t27c_build_stamp": "dc57ef8f8f2d049f86d17e428542b3acd8f26d38",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T08:29:01Z",
+  "specs": [
+    {"spec": "specs/t27os/research_card.t27", "tests": "tests=5", "pass": "pass=5", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27os/research_card.t27", "tests": 5, "pass": 5, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
