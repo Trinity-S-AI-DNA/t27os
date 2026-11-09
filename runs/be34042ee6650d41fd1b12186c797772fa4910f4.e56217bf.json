@@ -1,0 +1,17 @@
+{
+  "sha": "be34042ee6650d41fd1b12186c797772fa4910f4",
+  "challenge_sha256": "e56217bf022adffe4150c4aa250d78a45d7d1f72659c200a8eee126b31907bb5",
+  "t27c_build_stamp": "be34042ee6650d41fd1b12186c797772fa4910f4",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T10:18:33Z",
+  "specs": [
+    {"spec": "specs/tri/t27b/if_convert_plan.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+,
+    {"spec": "specs/tri/t27b/countdown_plan.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+,
+    {"spec": "specs/tri/t27b/golden_spec.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+
+  ]
+  ,"result": {"specs": [], "ok": false, "asked": 3, "reported": 0}
+}
