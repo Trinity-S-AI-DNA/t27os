@@ -1,0 +1,1 @@
+specs/t27os/queen_dash.t27|leg=t27b|tests=23|pass=23|FAIL=0|vacuous=0|asserts=379
