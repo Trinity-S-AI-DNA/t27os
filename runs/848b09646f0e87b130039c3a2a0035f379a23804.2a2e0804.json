@@ -1,0 +1,13 @@
+{
+  "sha": "848b09646f0e87b130039c3a2a0035f379a23804",
+  "challenge_sha256": "2a2e080480bbfe955be7b51cb4ddd5ac59b5d4da06440becba0feaafe297cf56",
+  "t27c_build_stamp": "848b09646f0e87b130039c3a2a0035f379a23804",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T06:46:18Z",
+  "specs": [
+    {"spec": "specs/tri/t27b/flow_plan.t27", "tests": "tests=4", "pass": "pass=4", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tri/t27b/flow_plan.t27", "tests": 4, "pass": 4, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
