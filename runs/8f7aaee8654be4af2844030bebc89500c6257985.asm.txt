@@ -1,0 +1,6 @@
+# asm leg, t27@8f7aaee8654be4af2844030bebc89500c6257985: the hot loop is the longest span from a back branch target to that branch, inclusive, in the spec functions (aarch64, static count)
+# t27b asm | gcc -O2 of t27c gen-c (13.3.0) | zig ReleaseFast of t27c gen (0.16.0); x100 = 100 * t27b / reference
+specs/tri/shootout/l1_clamp.t27|leg=asm|t27b=0|t27b_calls=0|gcc_O2=0|gcc_calls=0|zig_RFast=0|zig_calls=0|gcc_x100=NA|zig_x100=NA|fn=-/-/-
+--- specs/tri/shootout/l1_clamp.t27 t27b: 0 0 -
+--- specs/tri/shootout/l1_clamp.t27 gcc: 0 0 -
+--- specs/tri/shootout/l1_clamp.t27 zig: 0 0 -
