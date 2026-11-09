@@ -1,0 +1,13 @@
+{
+  "sha": "a175c2ad49f57626febf60e3d3fe6dec48da36cd",
+  "challenge_sha256": "42f10579996027d72732ef5c9093170304a5701c9a646bbb4def1f6676a105f2",
+  "t27c_build_stamp": "a175c2ad49f57626febf60e3d3fe6dec48da36cd",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T03:27:11Z",
+  "specs": [
+    {"spec": "specs/tri/t27b/middle_end.t27", "tests": "tests=13", "pass": "pass=13", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tri/t27b/middle_end.t27", "tests": 13, "pass": 13, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
