@@ -1,0 +1,8 @@
+specs/tri/t27b/flow_plan.t27|tests=4|pass=4|FAIL=0|vacuous=0|blocked=0
+specs/tri/t27b/frame_layout.t27|tests=7|pass=7|FAIL=0|vacuous=0|blocked=0
+specs/tri/t27b/a64.t27|tests=45|pass=45|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 96302541ef120ae00e70f6e7a6c3d178ee7280c1; specs specs/tri/t27b/flow_plan.t27 specs/tri/t27b/frame_layout.t27 specs/tri/t27b/a64.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 290 s wall-clock on one GitHub runner (lab run 42571069275)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=96302541ef120ae00e70f6e7a6c3d178ee7280c1 -f challenge=<fresh hex> -f specs="specs/tri/t27b/flow_plan.t27 specs/tri/t27b/frame_layout.t27 specs/tri/t27b/a64.t27"

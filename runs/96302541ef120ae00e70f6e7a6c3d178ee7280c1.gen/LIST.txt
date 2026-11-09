@@ -1,0 +1,3 @@
+gen/rust/tri/t27b/flow_plan.rs|same
+gen/rust/tri/t27b/frame_layout.rs|same
+gen/rust/tri/t27b/a64.rs|same
