@@ -1,0 +1,17 @@
+{
+  "sha": "76562b8b182b2bd27f5db9e944830d27f691e3c6",
+  "challenge_sha256": "9d78fa3d0621caf0cab1a3bd3b2c37da06fbe7fe5df53af7579abcbc5b6aaef6",
+  "t27c_build_stamp": "76562b8b182b2bd27f5db9e944830d27f691e3c6",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T07:08:35Z",
+  "specs": [
+    {"spec": "specs/t27os/replay_mode.t27", "tests": "tests=6", "pass": "pass=6", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27os/observatory_capture.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+,
+    {"spec": "specs/t27f/gnn_work_graph_viz.t27", "tests": "tests=57", "pass": "pass=57", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27os/replay_mode.t27", "tests": 6, "pass": 6, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27f/gnn_work_graph_viz.t27", "tests": 57, "pass": 57, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": false, "asked": 3, "reported": 2}
+}
