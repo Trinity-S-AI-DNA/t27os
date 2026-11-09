@@ -13,7 +13,10 @@ module GivelTma;
 /// current member of the CRM group -- managers work in the same view.
 /// Membership is checked LIVE against Telegram on every session, never
 /// copied: leaving the group closes the access on the next check.
+/// Id 0 is nobody: Telegram never issues it, and a parser that defaulted to
+/// 0 must not match an owner_id that is unset (0) in the config.
 pub fn tma_admin_ok(user_id: u64, owner_id: u64, in_group: bool) -> bool {
+    if (user_id == 0) { return false; }
     return user_id == owner_id or in_group;
 }
 
@@ -308,6 +311,7 @@ test an_unknown_read_kind_needs_auth {
 pub const VIP_MAX : u32 = 50;
 
 pub fn vip_grant_ok(sender_id: u64, owner_id: u64, sender_is_admin: bool, target_id: u64, list_len: u32) -> bool {
+    if (sender_id == 0) { return false; }
     if (sender_id != owner_id and sender_is_admin == false) { return false; }
     if (target_id == 0) { return false; }
     if (target_id == sender_id) { return false; }
@@ -334,6 +338,7 @@ test a_grant_needs_a_real_other_target_and_room {
 /// The CRM viewer: the existing gate (owner or live group member) OR a user
 /// the admins listed with /vip. The gate is called, not restated.
 pub fn crm_viewer_ok(user_id: u64, owner_id: u64, in_group: bool, listed: bool) -> bool {
+    if (user_id == 0) { return false; }
     return tma_admin_ok(user_id, owner_id, in_group) or listed;
 }
 
@@ -363,4 +368,32 @@ test ids_above_2_pow_32_are_compared_whole {
     assert vip_grant_ok(same_low, big_owner, false, 42, 0) == false;
     assert vip_grant_ok(big_owner, big_owner, true, same_low, 0) == true;   // other user, not a self-grant
     assert vip_grant_ok(big_owner, big_owner, true, big_owner, 0) == false;
+}
+
+/// Boundary ids: 0 is nobody, and the values at 2^32 - 1, 2^32 and 2^53 + 1
+/// are compared whole. A failed membership check reaches the law as
+/// in_group = false, so it denies everyone but the owner.
+test boundary_ids_are_whole_and_zero_is_nobody {
+    const lo_max : u64 = 4294967295;
+    const two32 : u64 = 4294967296;
+    const two53p1 : u64 = 9007199254740993;
+    const owner : u64 = 5000000001;
+    assert tma_admin_ok(0, 0, false) == false;
+    assert tma_admin_ok(0, 0, true) == false;
+    assert tma_admin_ok(0, owner, true) == false;
+    assert tma_admin_ok(1, 1, false) == true;
+    assert tma_admin_ok(lo_max, lo_max, false) == true;
+    assert tma_admin_ok(two32, two32, false) == true;
+    assert tma_admin_ok(two32, 0, false) == false;
+    assert tma_admin_ok(two32, lo_max, false) == false;
+    assert tma_admin_ok(two53p1, two53p1 - 1, false) == false;
+    assert tma_admin_ok(two53p1, two53p1, false) == true;
+    assert tma_login(1, 1000, 2000, 0, 0, true) == 1;
+    assert tma_login(1, 1000, 2000, two32, owner, false) == 1;
+    assert tma_login(1, 1000, 2000, owner, owner, false) == 2;
+    assert crm_viewer_ok(0, 0, false, true) == false;
+    assert crm_viewer_ok(0, owner, true, true) == false;
+    assert vip_grant_ok(0, 0, false, 42, 0) == false;
+    assert vip_grant_ok(owner, owner, false, two32, 0) == true;
+    assert vip_grant_ok(owner, owner, false, 42, VIP_MAX) == false;
 }
