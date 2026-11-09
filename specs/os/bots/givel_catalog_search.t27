@@ -294,3 +294,185 @@ test pages_are_a_ceiling {
     assert page_count(40) == 2;
     assert page_count(21) != 1;
 }
+
+// ---------------------------------------------------------------------------
+// Place names (tri-claw-concierge#112). The source catalog's district and city
+// are free text typed by managers: one district in up to 8 spellings, Russian
+// and English mixed. A place is one id with an EN and a RU name; the card and
+// the object page show the name of the UI language. The first 12 places are
+// DISTRICTS in the same order. The Cyrillic strings are data (as in
+// givel_routing.t27); the code stays ASCII.
+// Host duty: collapse every run of whitespace (newlines too) to one space and
+// trim before place_id; an unknown spelling is shown raw, never dropped.
+// ---------------------------------------------------------------------------
+
+pub const PLACE_COUNT : u32 = 63;
+
+pub const PLACE_EN : [63]str = [
+    "Bang Tao", "Rawai", "Thalang", "Cherng Talay", "Kamala", "Chalong",
+    "Nai Yang", "Laguna", "Layan", "Surin", "Karon", "Patong",
+    "Nai Harn", "Kata", "Nai Thon", "Kathu", "Mai Khao", "Koh Kaew",
+    "Bang Jo", "Pa Khlok", "Wichit", "Sakhu", "Mueang", "Phuket",
+    "Bangkok", "Pattaya", "Jomtien", "Wongamat", "Krabi", "Millionaires Mile",
+    "Central Phuket", "Rawai / Nai Harn", "Bang Tao / Laguna", "Bang Tao / Surin",
+    "Bang Tao / Cherng Talay", "Between Patong and Kathu", "Koh Samui, Bang Rak",
+    "Si Chon", "Phru Champa", "Nong Pla Lai", "Ratsada", "Soi Ta-iad",
+    "The Title Sierra", "Pattaya, Thappraya", "Pattaya, Na Jomtien",
+    "Pattaya, Third Road", "Central Pattaya",
+    "Central Pattaya (Soi Buakhao, Third Road)", "South Pattaya",
+    "Pattaya, Na Kluea", "Pattaya, Bang Saray", "Pattaya, Pratamnak Hill",
+    "Bangkok, Bang Phli", "Bangkok, Thong Lo", "Bangkok, Samrong Nuea",
+    "Bangkok, Rat Burana", "Bangkok, Lat Phrao", "Bangkok, Ari",
+    "Bangkok, Ekkamai-Ramintra", "Bangkok, Pathum Wan", "Bangkok, Nong Bon",
+    "Bangkok, Don Mueang", "Bangkok, New CBD",
+];
+
+pub const PLACE_RU : [63]str = [
+    "Банг Тао", "Раваи", "Таланг", "Чернг Талай", "Камала", "Чалонг",
+    "Най Янг", "Лагуна", "Лаян", "Сурин", "Карон", "Патонг",
+    "Най Харн", "Ката", "Най Тон", "Кату", "Май Кхао", "Ко Кео",
+    "Банг Джо", "Па Клок", "Вичит", "Сакху", "Муанг", "Пхукет",
+    "Бангкок", "Паттайя", "Джомтьен", "Вонгамат", "Краби", "Миля миллионеров",
+    "Центр Пхукета", "Раваи / Най Харн", "Банг Тао / Лагуна", "Банг Тао / Сурин",
+    "Банг Тао / Чернг Талай", "Между Патонгом и Кату", "Самуи, Банг Рак",
+    "Сичон", "Пру Джампа", "Нонг Пла Лай", "Ратсада", "Сой Та-иад",
+    "The Title Sierra", "Паттайя, Таппрая", "Паттайя, На-Джомтьен",
+    "Паттайя, Третья улица", "Паттайя, Центральная",
+    "Паттайя (центр, Soi Buakhao и Third Road)", "Южная Паттайя",
+    "Паттайя, На-Клуа", "Паттайя, Банг-Сарай", "Паттайя, холм Пратамнак",
+    "Бангкок, Банг Пхли", "Бангкок, Тонглор", "Бангкок, Самронг Нуа",
+    "Бангкок, Ратбурана", "Бангкок, Лат Пхрао", "Бангкок, Ари",
+    "Бангкок, Экамай-Раминтра", "Бангкок, Патум Ван", "Бангкок, Нонг Бон",
+    "Бангкок, Дон Мыанг", "Бангкок, New CBD",
+];
+
+/// Source spellings that are neither the EN nor the RU name, counted on the
+/// live catalog of 2026-11-09 (whitespace already collapsed). ALIAS_TO[i] is
+/// the place of ALIAS_FROM[i].
+pub const ALIAS_COUNT : u32 = 62;
+
+pub const ALIAS_FROM : [62]str = [
+    "Бангтао", "Bangtao", "Банг тао", "Банг-Тао", "BangTao", "БангТао", "Bangthao",
+    "Равай", "Talang", "Талан", "Чернгталай", "Cherngtalay",
+    "Найянг", "Naiyang", "Най-Янг", "Наянг", "Laguna Phuket", "Лагуна (Laguna)",
+    "Лаян (Bang Tao)", "Surin Beach", "Найхарн", "Найтон", "Katu", "Май Као",
+    "Ко Каео", "Кох Кео", "Паттайя Джомтьен", "Паттайя р-н Джомтьен",
+    "Джомтьен Паттайя", "Mile of Millionaires", "Central Phuket area",
+    "Равай/Най Харн", "Naiharn/Rawai", "Лагуна / Бангтао", "Laguna/Bangtao",
+    "Банг Тао (Сурин)", "Surin/Bang Tao", "Bang Tao / Cherngtalay",
+    "между Патонгом и Кату", "Самуи Банг Рак", "Паттайя р-н Таппрая",
+    "Паттайя р-н На-Джомтьен", "Паттайя Третья улица", "Паттайя р-н На-Клуа",
+    "Паттайя р-н Банг-Сарай", "Паттайя Банг-Сарей", "Паттайя Холм Пратамнак",
+    "Бангкок район Банг Пхли", "Бангкок р-н Тонглор", "Бангкок р-н Самронг Нуа",
+    "Бангкок р-н Ратбурана", "Бангкок р-н Лат Пхрао", "Бангкок р-н Ари",
+    "Бангкок Ари", "Бангкок р-н Экамай-Раминтра", "Бангкок р-н Патум Ван",
+    "Бангкок р-н Нонг Бон", "Бангкок р-н Дон Мыанг", "Бангкок р-н New CBD",
+    "р-н Таппрая", "р-н На-Джомтьен", "Третья улица",
+];
+
+pub const ALIAS_TO : [62]u32 = [
+    0, 0, 0, 0, 0, 0, 0,
+    1, 2, 2, 3, 3,
+    6, 6, 6, 6, 7, 7,
+    8, 9, 12, 14, 15, 16,
+    17, 17, 26, 26,
+    26, 29, 30,
+    31, 31, 32, 32,
+    33, 33, 34,
+    35, 36, 43,
+    44, 45, 49,
+    50, 50, 51,
+    52, 53, 54,
+    55, 56, 57,
+    57, 58, 59,
+    60, 61, 62,
+    43, 44, 45,
+];
+
+/// The place of a source spelling: its EN name, its RU name, or a known alias.
+/// PLACE_COUNT when the law does not know it (the host then shows it raw).
+pub fn place_id(raw: str) -> u32 {
+    var i : u32 = 0;
+    while (i < PLACE_COUNT) {
+        if (PLACE_EN[i] == raw) { return i; }
+        if (PLACE_RU[i] == raw) { return i; }
+        i = i + 1;
+    }
+    var j : u32 = 0;
+    while (j < ALIAS_COUNT) {
+        if (ALIAS_FROM[j] == raw) { return ALIAS_TO[j]; }
+        j = j + 1;
+    }
+    return PLACE_COUNT;
+}
+
+/// The name of a place in the UI language; "" for an id that is not a place.
+pub fn place_name(id: u32, ru: bool) -> str {
+    if (id >= PLACE_COUNT) { return ""; }
+    if (ru) { return PLACE_RU[id]; }
+    return PLACE_EN[id];
+}
+
+/// Every alias points at a place.
+fn aliases_point_at_places() -> bool {
+    var j : u32 = 0;
+    while (j < ALIAS_COUNT) {
+        if (ALIAS_TO[j] >= PLACE_COUNT) { return false; }
+        j = j + 1;
+    }
+    return true;
+}
+
+test the_twelve_districts_lead_the_places {
+    assert PLACE_EN[0] == DISTRICTS[0];
+    assert PLACE_EN[1] == DISTRICTS[1];
+    assert PLACE_EN[5] == DISTRICTS[5];
+    assert PLACE_EN[11] == DISTRICTS[11];
+    assert PLACE_RU[0] == "Банг Тао";
+    assert PLACE_RU[1] == "Раваи";
+    assert PLACE_RU[5] == "Чалонг";
+}
+
+test one_alias_per_canonical_district {
+    assert place_id("Бангтао") == 0;
+    assert place_id("Bangtao") == 0;
+    assert place_id("Равай") == 1;
+    assert place_id("Талан") == 2;
+    assert place_id("Чернгталай") == 3;
+    assert place_id("Kamala") == 4;
+    assert place_id("Чалонг") == 5;
+    assert place_id("Chalong") == 5;
+    assert place_id("Найянг") == 6;
+    assert place_id("Laguna Phuket") == 7;
+    assert place_id("Лаян (Bang Tao)") == 8;
+    assert place_id("Surin Beach") == 9;
+    assert place_id("Карон") == 10;
+    assert place_id("Патонг") == 11;
+}
+
+test a_name_follows_the_language {
+    assert place_name(place_id("Банг Тао"), false) == "Bang Tao";
+    assert place_name(place_id("Bang Tao"), true) == "Банг Тао";
+    assert place_name(place_id("Rawai"), true) == "Раваи";
+    assert place_name(place_id("Раваи"), false) == "Rawai";
+    assert place_name(place_id("Чалонг"), false) == "Chalong";
+    assert place_name(place_id("Пхукет"), false) == "Phuket";
+    assert place_name(place_id("Бангкок р-н Ари"), false) == "Bangkok, Ari";
+    assert place_name(place_id("р-н Таппрая"), false) == "Pattaya, Thappraya";
+}
+
+test an_unknown_spelling_is_not_a_place {
+    assert place_id("Atlantis") == PLACE_COUNT;
+    assert place_id("") == PLACE_COUNT;
+    assert place_id("Bang  Tao") == PLACE_COUNT;   // the host collapses whitespace first
+    assert place_name(PLACE_COUNT, false) == "";
+    assert place_name(PLACE_COUNT, true) == "";
+}
+
+test the_alias_table_is_whole {
+    assert ALIAS_COUNT == 62;
+    assert PLACE_COUNT == 63;
+    assert aliases_point_at_places() == true;
+    assert ALIAS_TO[0] == 0;
+    assert ALIAS_TO[61] == 45;
+}
