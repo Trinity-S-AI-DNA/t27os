@@ -137,9 +137,9 @@ pub fn is_quiz_step(step: u32) -> bool {
 pub const LANG_RU : str = "ru";
 pub const LANG_EN : str = "en";
 pub const LANG_ZH : str = "zh";
-pub const LANG_LABEL_RU : str = "Russkij";
+pub const LANG_LABEL_RU : str = "Русский";
 pub const LANG_LABEL_EN : str = "English";
-pub const LANG_LABEL_ZH : str = "Zhongwen";
+pub const LANG_LABEL_ZH : str = "中文";
 
 pub fn lang_valid(l: str) -> bool {
     return l == LANG_RU or l == LANG_EN or l == LANG_ZH;
@@ -160,27 +160,27 @@ pub fn start_needs_picker(stored: str) -> bool {
 /// The unit printed after a room count.
 pub fn rooms_unit(lang: str) -> str {
     if (lang == LANG_EN) { return "br."; }
-    if (lang == LANG_ZH) { return "wo"; }
-    return "sp.";
+    if (lang == LANG_ZH) { return "卧"; }
+    return "сп.";
 }
 
 /// Catalog property types arrive in Russian; unknown types pass unchanged.
 pub fn type_label(ru_type: str, lang: str) -> str {
     if (lang == LANG_EN) {
-        if (ru_type == "villa_ru") { return "Villa"; }
-        if (ru_type == "condo_ru") { return "Condominium"; }
-        if (ru_type == "apt_ru") { return "Apartment"; }
-        if (ru_type == "town_ru") { return "Townhouse"; }
-        if (ru_type == "house_ru") { return "House"; }
-        if (ru_type == "land_ru") { return "Land"; }
+        if (ru_type == "вилла") { return "Villa"; }
+        if (ru_type == "кондоминиум") { return "Condominium"; }
+        if (ru_type == "апартаменты") { return "Apartment"; }
+        if (ru_type == "таунхаус") { return "Townhouse"; }
+        if (ru_type == "дом") { return "House"; }
+        if (ru_type == "земля") { return "Land"; }
     }
     if (lang == LANG_ZH) {
-        if (ru_type == "villa_ru") { return "bieshu"; }
-        if (ru_type == "condo_ru") { return "gongyu"; }
-        if (ru_type == "apt_ru") { return "jiudian"; }
-        if (ru_type == "town_ru") { return "lianpai"; }
-        if (ru_type == "house_ru") { return "zhuzhai"; }
-        if (ru_type == "land_ru") { return "tudi"; }
+        if (ru_type == "вилла") { return "别墅"; }
+        if (ru_type == "кондоминиум") { return "公寓"; }
+        if (ru_type == "апартаменты") { return "酒店式公寓"; }
+        if (ru_type == "таунхаус") { return "联排别墅"; }
+        if (ru_type == "дом") { return "住宅"; }
+        if (ru_type == "земля") { return "土地"; }
     }
     return ru_type;
 }
@@ -264,24 +264,24 @@ test the_picker_shows_until_a_language_is_stored {
     assert start_needs_picker("xx") == true;
     assert start_needs_picker("ru") == false;
     assert start_needs_picker("zh") == false;
-    assert LANG_LABEL_RU == "Russkij";
+    assert LANG_LABEL_RU == "Русский";
     assert LANG_LABEL_EN == "English";
-    assert LANG_LABEL_ZH == "Zhongwen";
+    assert LANG_LABEL_ZH == "中文";
 }
 
 test types_and_units_follow_the_language {
-    assert type_label("villa_ru", "ru") == "villa_ru";
-    assert type_label("villa_ru", "en") == "Villa";
-    assert type_label("villa_ru", "zh") == "bieshu";
-    assert type_label("condo_ru", "en") == "Condominium";
-    assert type_label("apt_ru", "en") == "Apartment";
-    assert type_label("town_ru", "zh") == "lianpai";
-    assert type_label("house_ru", "en") == "House";
-    assert type_label("land_ru", "zh") == "tudi";
-    assert type_label("castle_ru", "en") == "castle_ru";   // unknown: unchanged
-    assert rooms_unit("ru") == "sp.";
+    assert type_label("вилла", "ru") == "вилла";
+    assert type_label("вилла", "en") == "Villa";
+    assert type_label("вилла", "zh") == "别墅";
+    assert type_label("кондоминиум", "en") == "Condominium";
+    assert type_label("апартаменты", "en") == "Apartment";
+    assert type_label("таунхаус", "zh") == "联排别墅";
+    assert type_label("дом", "en") == "House";
+    assert type_label("земля", "zh") == "土地";
+    assert type_label("замок", "en") == "замок";   // unknown: unchanged
+    assert rooms_unit("ru") == "сп.";
     assert rooms_unit("en") == "br.";
-    assert rooms_unit("zh") == "wo";
+    assert rooms_unit("zh") == "卧";
 }
 
 test prices_under_the_floor_are_not_shown {
