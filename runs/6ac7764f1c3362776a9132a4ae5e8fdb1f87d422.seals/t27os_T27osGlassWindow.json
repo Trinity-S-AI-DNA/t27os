@@ -1,0 +1,273 @@
+{
+  "built_by": "t27c-bootstrap@0.5.2+6ac7764f1",
+  "closure": [
+    {
+      "spec": "specs/t27f/formula_orbit.t27",
+      "spec_hash": "sha256:8539caa8b9a6cf19a76dac9e48978c3d3491ca8b5537ac0f22adb94d6af4fee5"
+    },
+    {
+      "spec": "specs/t27f/formula_table.t27",
+      "spec_hash": "sha256:86fa1a3bdbc03a80e988e9f5417f16ed01a868d0634d6815d8dd57fb38a2b84b"
+    },
+    {
+      "spec": "specs/t27f/gnn_work_graph_viz.t27",
+      "spec_hash": "sha256:0ce1edc5cf0c5e16f5982b827f00f0f238119c87980784649c031759a7331266"
+    },
+    {
+      "spec": "specs/t27f/petal_glass.t27",
+      "spec_hash": "sha256:b45d350c621a9c8f399360f5b2301bb0acb3357c0184cffc0b3369620cadfddc"
+    },
+    {
+      "spec": "specs/t27f/petal_menu.t27",
+      "spec_hash": "sha256:6683da35b8933eb9e4eb2f33f355278604d9905b51f98e949b96c737ffe25f09"
+    },
+    {
+      "spec": "specs/t27f/petal_specs_viz.t27",
+      "spec_hash": "sha256:77af107678ba38db08e88a88314fe05e5ac16d874a8b2902f8857c6d1c9d157c"
+    },
+    {
+      "spec": "specs/t27f/spec_graph.t27",
+      "spec_hash": "sha256:110d07291552a9558ab192ff07ea6c3160e880306cbb847f89544ea7324c9d17"
+    },
+    {
+      "spec": "specs/t27f/viz_contract.t27",
+      "spec_hash": "sha256:eff3c683e32cdbc25a95add686cb19b5528c4a5b745968579f7c16db4e848868"
+    },
+    {
+      "spec": "specs/t27f/work_graph.t27",
+      "spec_hash": "sha256:bc5b6f5d5a1f823abe8585bfec7487ab589831826e25dd768348e5eec5e3cac2"
+    },
+    {
+      "spec": "specs/t27os/agent_parts.t27",
+      "spec_hash": "sha256:97454e3a7c5e8669560914da238388b54e66ae6615673feea624294b8df207bb"
+    },
+    {
+      "spec": "specs/t27os/agents.t27",
+      "spec_hash": "sha256:1695d1b4bb7aced491b178a8d4bffec7f1dc017ebcf8d3605d348dbe2b317b4d"
+    },
+    {
+      "spec": "specs/t27os/bench.t27",
+      "spec_hash": "sha256:7f50f4105c23ef181cdbdaa0c58977327df9a860c48f15cfeeabeabce3ce4621"
+    },
+    {
+      "spec": "specs/t27os/dash.t27",
+      "spec_hash": "sha256:37c2e662634ec722afce1d9df80b72b29cce70a58a079afbacff8865cee1ad9c"
+    },
+    {
+      "spec": "specs/t27os/dev_swap.t27",
+      "spec_hash": "sha256:40163aa63783e9f87bc5ab9a02332fd7b2cc6a5b035b926a0bf0d3d164f27249"
+    },
+    {
+      "spec": "specs/t27os/devices.t27",
+      "spec_hash": "sha256:ab582df4884caa4a938259d9efd91f7f46f9eba53eb5f460b8cd18c917fa4075"
+    },
+    {
+      "spec": "specs/t27os/doctor.t27",
+      "spec_hash": "sha256:de72fc6f28165ead69bee1dc0ec2072ecd61436806acf91ec5423a9293db62fa"
+    },
+    {
+      "spec": "specs/t27os/editors.t27",
+      "spec_hash": "sha256:011e3d626e16cd41a0dad50a2474be00a0fda08350991ef73c838199ac4185c2"
+    },
+    {
+      "spec": "specs/t27os/editors_host.t27",
+      "spec_hash": "sha256:b2a4a50d882154b7fe8412fc78ec078444d13799eb8ad4627a5a68a2106890ff"
+    },
+    {
+      "spec": "specs/t27os/evolve.t27",
+      "spec_hash": "sha256:34f8280c89399959cc87826a9785aec38652faf6102e93a113c6952082be7547"
+    },
+    {
+      "spec": "specs/t27os/frame_gate.t27",
+      "spec_hash": "sha256:f83fbc365ae92760ceaf87c2385c1a64d137ea7b4dc866c1bc3f08cd4fc9657f"
+    },
+    {
+      "spec": "specs/t27os/homes.t27",
+      "spec_hash": "sha256:44cd212c535b399d885ad925d9ca72ebebc71c44119e8342f81026226fdc8cc6"
+    },
+    {
+      "spec": "specs/t27os/hot_reload.t27",
+      "spec_hash": "sha256:e2c9b0a4efa20a690c6046b7ba6abd4eedc0cbbebf2bb6bc6cccdf062d6975d0"
+    },
+    {
+      "spec": "specs/t27os/identity_table.t27",
+      "spec_hash": "sha256:f46a8b9f0aadc9d411ee650de64de33394193f537a7b378ffc99b4af4465294d"
+    },
+    {
+      "spec": "specs/t27os/install.t27",
+      "spec_hash": "sha256:6cb0d685ca211ccea0a230a39949fa2cf3f2d1423b28c9e699d97708de6b0a35"
+    },
+    {
+      "spec": "specs/t27os/kanban.t27",
+      "spec_hash": "sha256:af1398d2d94b4eff9e406e15a553985041ffff8ebfc13bf9a5f3ec233e062216"
+    },
+    {
+      "spec": "specs/t27os/keys.t27",
+      "spec_hash": "sha256:6bae6c91902d041e429031b70e7e589def00d4b6ee49fb49a1f2582b29fb720f"
+    },
+    {
+      "spec": "specs/t27os/keys_host.t27",
+      "spec_hash": "sha256:5bf4b6a62da2c224ddb7822bfb6bcc8763374ed9aaeef7de1cda639c8c2e7f32"
+    },
+    {
+      "spec": "specs/t27os/keys_probe.t27",
+      "spec_hash": "sha256:55dc65ae727f1a413092e9dc80d1e094600211234dcbcf053aaf28bad2d6dbe0"
+    },
+    {
+      "spec": "specs/t27os/keysync.t27",
+      "spec_hash": "sha256:a8789910273fcc9b273da4c8e791ecb9c4fa910ec7ecc39c29226e51dd438d9f"
+    },
+    {
+      "spec": "specs/t27os/keysync_host.t27",
+      "spec_hash": "sha256:7b537f9a3a08302ddff9e543297ee263775712e9b98e02bb91e7c58a0491568b"
+    },
+    {
+      "spec": "specs/t27os/lanes_view.t27",
+      "spec_hash": "sha256:2f9f24d4bc2b254f9b0bba62f7244cf6c69bf519d519bbf976b42ec195649200"
+    },
+    {
+      "spec": "specs/t27os/layout.t27",
+      "spec_hash": "sha256:79274b113dc41e29de95f09eaad9e303356c3f0eb226fccddd3ae54fc0bc89e7"
+    },
+    {
+      "spec": "specs/t27os/live_data.t27",
+      "spec_hash": "sha256:d98915c5d2a6f7a738229127661ca4f2c007d80a08c462c3b5f751ae350c1f06"
+    },
+    {
+      "spec": "specs/t27os/orbit_view.t27",
+      "spec_hash": "sha256:e0ad13288b7f6826bd5e7c109fe26ceae01299f0f5b08307313c0e223b5d0e53"
+    },
+    {
+      "spec": "specs/t27os/petal_centre_unused.t27",
+      "spec_hash": "missing"
+    },
+    {
+      "spec": "specs/t27os/pins.t27",
+      "spec_hash": "sha256:01d9307107d878c94eb7e0464740a09935c2dd7466d045ba33237495447e3c9e"
+    },
+    {
+      "spec": "specs/t27os/profile.t27",
+      "spec_hash": "sha256:4feff5e55b67d3376d8a930882964d12335a2855031e094a8bf0a3bf2fe964a5"
+    },
+    {
+      "spec": "specs/t27os/profile_host.t27",
+      "spec_hash": "sha256:27673d2c77f0727f19eb24f51a32988a3422ab69b64f1662415e518fe03a5898"
+    },
+    {
+      "spec": "specs/t27os/pty_client.t27",
+      "spec_hash": "sha256:65447c3c367bdee46ede3c128de6ab804a9a46f53c6f9591836d09738f1c8d26"
+    },
+    {
+      "spec": "specs/t27os/pty_proto.t27",
+      "spec_hash": "sha256:c110bca8a70ae304294826c51fabba5aa38fa867f9f8545d64835620dfba2313"
+    },
+    {
+      "spec": "specs/t27os/pty_sys.t27",
+      "spec_hash": "sha256:d257b0b94083a7500fb7b8708f9242d6ed46858149fe3c8f7423706178b6c498"
+    },
+    {
+      "spec": "specs/t27os/queen.t27",
+      "spec_hash": "sha256:015102d6814ee39a2044340925ff9a5537e90ac24fb383cb8b060a65a3df7efd"
+    },
+    {
+      "spec": "specs/t27os/queen_board.t27",
+      "spec_hash": "sha256:3ddcfb5d503ffa973b94772625304af20632f05820a1d68aeb3747b35be88a3b"
+    },
+    {
+      "spec": "specs/t27os/queen_chats.t27",
+      "spec_hash": "sha256:59489ce6c7d7318598563d159102689582dd31a9c353b3075296b14cac47bb02"
+    },
+    {
+      "spec": "specs/t27os/queen_dash.t27",
+      "spec_hash": "sha256:a5c67c579b58f0b8b89d8c1035968be5cfa4955fe4685e25ffaa754189e3d20f"
+    },
+    {
+      "spec": "specs/t27os/queen_graph_plane.t27",
+      "spec_hash": "sha256:ce6fdf6d1bd5c18390e3ea80082af399156364e86b4c70569c07fb2ec52f766e"
+    },
+    {
+      "spec": "specs/t27os/queen_live_graph.t27",
+      "spec_hash": "sha256:e7c1edc0b022f3a2a09c62a84b6b9f4329b17550a590f20ae9677831094df719"
+    },
+    {
+      "spec": "specs/t27os/release.t27",
+      "spec_hash": "sha256:c573c7945d9025cefdb719effa3569c94994a700cac46a88c0f27143728e5bd6"
+    },
+    {
+      "spec": "specs/t27os/replay_mode.t27",
+      "spec_hash": "sha256:8328e8b82f2cfe72a38324d44ff0fa34e224f3e99319a08f6e1c2abf34b05dec"
+    },
+    {
+      "spec": "specs/t27os/research_card.t27",
+      "spec_hash": "sha256:ae7d0084b3d4cbe9bce25c0d4f969626da88539ee2f9b67aa31a85434164be49"
+    },
+    {
+      "spec": "specs/t27os/session_store.t27",
+      "spec_hash": "sha256:9b1a26507cb4c496e76c08ce54209efaba651f6da33a7703836cea12db7e1260"
+    },
+    {
+      "spec": "specs/t27os/statusbar.t27",
+      "spec_hash": "sha256:53ee5b668c6e9da2ee77fa38b7b7cc27bfad11f0a3dfc9ee9965676aa17c4c45"
+    },
+    {
+      "spec": "specs/t27os/term_input.t27",
+      "spec_hash": "sha256:8ec75a88544c11036a0288ce196affcc6d362f140ff57bcf90ff64ee1da18b5f"
+    },
+    {
+      "spec": "specs/t27os/term_pane.t27",
+      "spec_hash": "sha256:f23a2bebd1337f8512e642ede46baf34daff82286a10b6d4bac00314cc1f4456"
+    },
+    {
+      "spec": "specs/t27os/text_cache.t27",
+      "spec_hash": "sha256:36bcec0ef7a5d91e1fe8242bf2ffa47bae9f6c1b73a3ecce787563fa3aaf5047"
+    },
+    {
+      "spec": "specs/t27os/vt.t27",
+      "spec_hash": "sha256:839a0bba1057c9368e8712ca0998cab141b49a93080f57f01ff04cfd917f8283"
+    },
+    {
+      "spec": "specs/t27os/win_layout.t27",
+      "spec_hash": "sha256:572c0834fdb8d1d1e50366a4d68b303cfbfb48d47fbba48e88b2ef3dac0609bc"
+    },
+    {
+      "spec": "specs/t27os/win_material.t27",
+      "spec_hash": "sha256:41ec53f1c8b868672307a0d55adb71c62534e294d902776a3cd4e1fa259d552f"
+    },
+    {
+      "spec": "specs/t27os/window_keep.t27",
+      "spec_hash": "sha256:83cbff50f89c7734a8ca0c50653bbd639d0b2574a9c11a065e41c6d5653897d6"
+    },
+    {
+      "spec": "specs/t27os/windows.t27",
+      "spec_hash": "sha256:8308b518a9bf7371b6b31ad42bb72216914b990b62ecce281c6faa6863c252e3"
+    },
+    {
+      "spec": "specs/t27os/workspace_tasks.t27",
+      "spec_hash": "sha256:db99a9c4b83679ff6b59764f26c5bd1463267713c20071889e9ee32ae4345b78"
+    }
+  ],
+  "config": "gen=c,rust,verilog,zig;tests=zig",
+  "gen_hash_c": "sha256:8f51c63dfab45cf690db74d53f37f0eb32d104c0ca3177eb58e9a0d99f747fe4",
+  "gen_hash_rust": "sha256:707c70c6d85dad994a09b981a4daa884430e5d4ad5d167dd296b8b1f6d62dd62",
+  "gen_hash_verilog": "sha256:b34468b0c86404c994a2fa6da763814438ac83e710656a2b0e83ac4d87f9f4da",
+  "gen_hash_zig": "sha256:21393427d8541781389b8339c2aea474afc1b1170d822612eb7373f03be91f15",
+  "module": "T27osGlassWindow",
+  "ring": 12,
+  "seal_schema": 2,
+  "sealed_at": "2026-11-09T07:46:00Z",
+  "sealed_by": "t27c-bootstrap@0.5.2",
+  "spec_hash": "sha256:3716356ae07e35bde71d72e1d76d062b69352e385347501c991152d3c01d50e2",
+  "spec_path": "specs/t27os/glass_window.t27",
+  "tests": {
+    "failed": 0,
+    "failing": [],
+    "forced": false,
+    "passed": 128,
+    "total": 128,
+    "vacuous": 0
+  },
+  "toolchain": {
+    "test_runner": "sha256:1a50286d6170ef41c779d26385a1be59823925d7131497c93d84194144ba93b3",
+    "zig": "0.16.0"
+  }
+}
