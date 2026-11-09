@@ -331,27 +331,71 @@ test a_crashed_update_still_answers {
     assert update_answered(false, false) == false;
 }
 
-/// Does this started flow still need a follow-up? The host packs each flow
-/// event into one u64 key (user_id * 2^32 + unix_seconds, lossless for the
-/// seconds precision the logs carry) and asks once per pass -- a started key
-/// absent from the followed set means the follow is still owed.
-///   1 follow owed, 0 already followed
-pub fn follow_needed(key: u64, seen: [512]u64, n: u32) -> u32 {
+/// Does this started flow still need a follow-up? Each flow event is the
+/// PAIR (user_id u64, unix seconds u32): the id stays a whole 64-bit
+/// Telegram id and the seconds stay their own field. The old one-u64 key
+/// (user_id * 2^32 + seconds) wrapped for ids >= 2^32, so two users could
+/// share a key. The host asks once per pass -- a started pair absent from
+/// the followed set means the follow is still owed. Id 0 is nobody and is
+/// never owed; n is clamped to the 512 slots, never read past them.
+///   1 follow owed, 0 already followed (or id 0)
+pub const FOLLOW_SLOTS : u32 = 512;
+
+pub fn follow_needed(user_id: u64, at_s: u32, seen_id: [512]u64, seen_s: [512]u32, n: u32) -> u32 {
+    if (user_id == 0) { return 0; }
+    var m : u32 = n;
+    if (m > FOLLOW_SLOTS) { m = FOLLOW_SLOTS; }
     var i : u32 = 0;
-    while (i < n) {
-        if (seen[i] == key) { return 0; }
+    while (i < m) {
+        if (seen_id[i] == user_id and seen_s[i] == at_s) { return 0; }
         i = i + 1;
     }
     return 1;
 }
 
 test the_unfollowed_start_still_owes_a_follow {
-    var seen : [512]u64;
-    seen[0] = 144022504 * 4294967296 + 1792986436;
-    seen[1] = 42 * 4294967296 + 1792986400;
-    assert follow_needed(144022504 * 4294967296 + 1792986436, seen, 2) == 0;
-    assert follow_needed(144022504 * 4294967296 + 1792986500, seen, 2) == 1;
-    assert follow_needed(144022504 * 4294967296 + 1792986436, seen, 0) == 1;
+    var seen_id : [512]u64;
+    var seen_s : [512]u32;
+    seen_id[0] = 144022504;
+    seen_s[0] = 1792986436;
+    seen_id[1] = 42;
+    seen_s[1] = 1792986400;
+    assert follow_needed(144022504, 1792986436, seen_id, seen_s, 2) == 0;
+    assert follow_needed(144022504, 1792986500, seen_id, seen_s, 2) == 1;
+    assert follow_needed(144022504, 1792986436, seen_id, seen_s, 0) == 1;
+    // the same seconds under another id is another flow
+    assert follow_needed(42, 1792986436, seen_id, seen_s, 2) == 1;
+}
+
+test follow_pairs_keep_whole_64_bit_ids_apart {
+    var seen_id : [512]u64;
+    var seen_s : [512]u32;
+    seen_id[0] = 5;
+    seen_s[0] = 1792986436;
+    seen_id[1] = 9007199254740993;
+    seen_s[1] = 4294967295;
+    // 2^32 + 5: the packed key wrapped onto id 5; the pair keeps them apart
+    assert follow_needed(4294967301, 1792986436, seen_id, seen_s, 2) == 1;
+    assert follow_needed(5, 1792986436, seen_id, seen_s, 2) == 0;
+    // 2^53 + 1 against 2^53, at the last u32 second
+    assert follow_needed(9007199254740993, 4294967295, seen_id, seen_s, 2) == 0;
+    assert follow_needed(9007199254740992, 4294967295, seen_id, seen_s, 2) == 1;
+    // id 0 is nobody
+    assert follow_needed(0, 1792986436, seen_id, seen_s, 2) == 0;
+}
+
+test follow_count_is_clamped_to_the_slots {
+    var seen_id : [512]u64;
+    var seen_s : [512]u32;
+    var j : u32 = 0;
+    while (j < FOLLOW_SLOTS) {
+        seen_id[j] = 1;
+        seen_s[j] = 1;
+        j = j + 1;
+    }
+    assert follow_needed(1, 1, seen_id, seen_s, 4000) == 0;
+    assert follow_needed(77, 1, seen_id, seen_s, 4000) == 1;
+    assert FOLLOW_SLOTS == 512;
 }
 
 /// how many of the n unix-second timestamps fall inside the last window_h
