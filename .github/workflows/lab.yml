@@ -4,7 +4,6 @@
 # checkout Trinity-S-AI-DNA/t27 at the requested sha, build t27c, test-report the named
 # specs, publish the receipt into THIS repo's runs/ directory. No Railway anywhere.
 name: lab
-# re-registration touch 2026-10-23: the dispatch API cached the pre-trigger definition
 on:
   schedule:
     - cron: '*/15 * * * *'
@@ -305,7 +304,6 @@ jobs:
           }
           ZIG
           cd /tmp/wasm
-          # the heredoc carried the block-scalar indent; strip exactly 10 leading spaces
           sed -i 's/^          //' export_live.zig
           zig build-exe export_live.zig -target wasm32-freestanding -fno-entry -rdynamic -O ReleaseSmall -femit-bin=t27f_live.wasm
           sha256sum t27f_live.wasm | tee t27f_live.wasm.sha256
@@ -707,3 +705,5 @@ jobs:
             sleep 5
           done
           exit 1
+      - name: gate -- a t27b row that is not FAIL=0 (a failing test, or NA when t27b could not run the spec) fails the run, after the leg is published (t27 specs/t27os/lab_legs.t27, fn t27b_row_ok)
+        run: "f=runs/${{ needs.run.outputs.resolved }}.t27b.txt; [ -f $f ] && ! grep -v '|leg=t27b|.*|FAIL=0|' $f || { echo '::error::t27b rows above are FAIL>0 or NA'; exit 1; }"
