@@ -1,0 +1,15 @@
+{
+  "sha": "42e8843d6b614ab96a9f4b9e2b469264f3dc8281",
+  "challenge_sha256": "d400397b7de87054734bcff6ae638505510331078e6efa703f64f931ad834a3f",
+  "t27c_build_stamp": "42e8843d6b614ab96a9f4b9e2b469264f3dc8281",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T08:46:42Z",
+  "specs": [
+    {"spec": "specs/compiler/use_splice.t27", "tests": "tests=30", "pass": "pass=30", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/compiler/use_before_endmodule.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/compiler/use_splice.t27", "tests": 30, "pass": 30, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": false, "asked": 2, "reported": 1}
+}
