@@ -530,8 +530,9 @@ pub const TYPE_RU : [5]str = ["Вилла", "Кондоминиум", "Апар�
 /// The name of a type code in the UI language; "" for an unknown code.
 pub fn type_name(code: u32, ru: bool) -> str {
     if (code == 0 or code > TYPE_COMMERCIAL) { return ""; }
-    if (ru) { return TYPE_RU[code - 1]; }
-    return TYPE_EN[code - 1];
+    const k : u32 = code - 1;
+    if (ru) { return TYPE_RU[k]; }
+    return TYPE_EN[k];
 }
 
 /// Stage classes. A class is named in English only: on the Russian page the
@@ -569,7 +570,8 @@ fn holds_at(s: str, at: usize, p: str) -> bool {
     if (at + p.len > s.len) { return false; }
     var i : usize = 0;
     while (i < p.len) {
-        if (s[at + i] != p[i]) { return false; }
+        const c : usize = at + i;
+        if (s[c] != p[i]) { return false; }
         i = i + 1;
     }
     return true;
@@ -678,7 +680,7 @@ fn deadline_code(s: str) -> u32 {
     if (is_digit_at(s, 0) and is_digit_at(s, 1) and s[2] == 46) {
         const m : u32 = digit_at(s, 0) * 10 + digit_at(s, 1);
         const my : u32 = year_tail(s, 2);
-        if (m < 1 or m > 12 or my == 0) { return 0; }
+        if (m == 0 or m > 12 or my == 0) { return 0; }
         return (DL_JANUARY + m - 1) * 10000 + my;
     }
     var k : u32 = 0;
