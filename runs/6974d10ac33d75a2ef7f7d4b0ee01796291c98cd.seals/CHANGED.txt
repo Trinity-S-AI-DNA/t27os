@@ -1,0 +1,2 @@
+.trinity/seals/t27b_T27bIfconvPlan.json
+.trinity/seals/t27b_T27bMiddleEnd.json
