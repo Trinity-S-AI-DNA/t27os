@@ -13,7 +13,7 @@ module GivelTma;
 /// current member of the CRM group -- managers work in the same view.
 /// Membership is checked LIVE against Telegram on every session, never
 /// copied: leaving the group closes the access on the next check.
-pub fn tma_admin_ok(user_id: u32, owner_id: u32, in_group: bool) -> bool {
+pub fn tma_admin_ok(user_id: u64, owner_id: u64, in_group: bool) -> bool {
     return user_id == owner_id or in_group;
 }
 
@@ -182,7 +182,7 @@ test the_client_hears_only_the_first_confirmation {
 ///   2 allow  -- admin CRM view (tma_admin_ok)
 /// Membership (in_group) arrives from the live Telegram check; the network
 /// stays host plumbing, the VERDICT is the law's.
-pub fn tma_login(hash_ok: u32, auth_s: u32, now_s: u32, user_id: u32, owner_id: u32, in_group: bool) -> u32 {
+pub fn tma_login(hash_ok: u32, auth_s: u32, now_s: u32, user_id: u64, owner_id: u64, in_group: bool) -> u32 {
     if (hash_ok != 1) {
         return 0;
     }
@@ -196,8 +196,8 @@ pub fn tma_login(hash_ok: u32, auth_s: u32, now_s: u32, user_id: u32, owner_id: 
 }
 
 test the_login_gate_hashes_first_then_freshness_then_admin {
-    const owner : u32 = 144022504;
-    const staff : u32 = 42;
+    const owner : u64 = 144022504;
+    const staff : u64 = 42;
 
     // a bad hash rejects before anything else, even the owner, even fresh
     assert tma_login(0, 1000, 2000, owner, owner, true) == 0;
@@ -307,7 +307,7 @@ test an_unknown_read_kind_needs_auth {
 /// stays bounded. The command handler and the list store are host work.
 pub const VIP_MAX : u32 = 50;
 
-pub fn vip_grant_ok(sender_id: u32, owner_id: u32, sender_is_admin: bool, target_id: u32, list_len: u32) -> bool {
+pub fn vip_grant_ok(sender_id: u64, owner_id: u64, sender_is_admin: bool, target_id: u64, list_len: u32) -> bool {
     if (sender_id != owner_id and sender_is_admin == false) { return false; }
     if (target_id == 0) { return false; }
     if (target_id == sender_id) { return false; }
@@ -315,14 +315,14 @@ pub fn vip_grant_ok(sender_id: u32, owner_id: u32, sender_is_admin: bool, target
 }
 
 test only_the_owner_or_an_admin_may_grant {
-    const owner : u32 = 144022504;
+    const owner : u64 = 144022504;
     assert vip_grant_ok(owner, owner, false, 42, 0) == true;    // owner needs no admin flag
     assert vip_grant_ok(7, owner, true, 42, 0) == true;         // CRM group admin
     assert vip_grant_ok(7, owner, false, 42, 0) == false;       // non-admin refused
 }
 
 test a_grant_needs_a_real_other_target_and_room {
-    const owner : u32 = 144022504;
+    const owner : u64 = 144022504;
     assert vip_grant_ok(owner, owner, true, 0, 0) == false;     // id 0
     assert vip_grant_ok(owner, owner, true, owner, 0) == false; // self-grant
     assert vip_grant_ok(7, owner, true, 7, 0) == false;         // admin self-grant
@@ -333,14 +333,34 @@ test a_grant_needs_a_real_other_target_and_room {
 
 /// The CRM viewer: the existing gate (owner or live group member) OR a user
 /// the admins listed with /vip. The gate is called, not restated.
-pub fn crm_viewer_ok(user_id: u32, owner_id: u32, in_group: bool, listed: bool) -> bool {
+pub fn crm_viewer_ok(user_id: u64, owner_id: u64, in_group: bool, listed: bool) -> bool {
     return tma_admin_ok(user_id, owner_id, in_group) or listed;
 }
 
 test a_listed_user_views_the_crm_without_the_group {
-    const owner : u32 = 144022504;
+    const owner : u64 = 144022504;
     assert crm_viewer_ok(owner, owner, false, false) == true;   // owner
     assert crm_viewer_ok(42, owner, true, false) == true;       // group member
     assert crm_viewer_ok(42, owner, false, true) == true;       // listed by /vip
     assert crm_viewer_ok(42, owner, false, false) == false;     // outsider
+}
+
+/// Telegram user ids need up to 52 bits, so the gates take u64. An id that
+/// differs from the owner id by a multiple of 2^32 is a different user.
+test ids_above_2_pow_32_are_compared_whole {
+    const big_owner : u64 = 5000000001;
+    const same_low : u64 = 705032705;        // big_owner mod 2^32
+    const same_low_up : u64 = 9294967297;    // big_owner + 2^32
+    assert tma_admin_ok(big_owner, big_owner, false) == true;
+    assert tma_admin_ok(same_low, big_owner, false) == false;
+    assert tma_admin_ok(same_low_up, big_owner, false) == false;
+    assert tma_admin_ok(same_low, big_owner, true) == true;     // live group member still passes
+    assert crm_viewer_ok(big_owner, big_owner, false, false) == true;
+    assert crm_viewer_ok(same_low, big_owner, false, false) == false;
+    assert tma_login(1, 1000, 2000, big_owner, big_owner, false) == 2;
+    assert tma_login(1, 1000, 2000, same_low, big_owner, false) == 1;
+    assert vip_grant_ok(big_owner, big_owner, false, 42, 0) == true;
+    assert vip_grant_ok(same_low, big_owner, false, 42, 0) == false;
+    assert vip_grant_ok(big_owner, big_owner, true, same_low, 0) == true;   // other user, not a self-grant
+    assert vip_grant_ok(big_owner, big_owner, true, big_owner, 0) == false;
 }
