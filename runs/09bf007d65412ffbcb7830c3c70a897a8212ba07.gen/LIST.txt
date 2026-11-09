@@ -1,3 +1,4 @@
 gen/rust/tri/t27b/ifconv_plan.rs|same
 gen/rust/tri/t27b/middle_end.rs|same
 gen/rust/tri/t27b/a64.rs|same
+gen/rust/tri/t27b/inline.rs|changed
