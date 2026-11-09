@@ -1,1 +1,1 @@
-specs/tri/shootout/bench_audit.t27|leg=t27b|tests=1|pass=1|FAIL=0|vacuous=0|asserts=unknown
+specs/tri/t27b/inline.t27|leg=t27b|tests=10|pass=10|FAIL=0|vacuous=0|asserts=13
