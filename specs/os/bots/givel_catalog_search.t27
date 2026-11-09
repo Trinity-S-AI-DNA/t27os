@@ -56,9 +56,9 @@ test a_search_without_filters_is_not_a_search {
 }
 
 test the_twelve_canonical_districts_are_named {
-    assert DISTRICTS[0] == "Bang Tao";
-    assert DISTRICTS[1] == "Rawai";
-    assert DISTRICTS[11] == "Patong";
+    assert str_eq(DISTRICTS[0], "Bang Tao");
+    assert str_eq(DISTRICTS[1], "Rawai");
+    assert str_eq(DISTRICTS[11], "Patong");
 }
 
 test tiny_numbers_are_not_budgets {
@@ -389,18 +389,30 @@ pub const ALIAS_TO : [62]u32 = [
     43, 44, 45,
 ];
 
+/// Byte equality. `==` on str does not lower to Zig (t27c test-report refuses
+/// it), so every text compare in this law goes through here.
+pub fn str_eq(a: str, b: str) -> bool {
+    if (a.len != b.len) { return false; }
+    var i : usize = 0;
+    while (i < a.len) {
+        if (a[i] != b[i]) { return false; }
+        i = i + 1;
+    }
+    return true;
+}
+
 /// The place of a source spelling: its EN name, its RU name, or a known alias.
 /// PLACE_COUNT when the law does not know it (the host then shows it raw).
 pub fn place_id(raw: str) -> u32 {
     var i : u32 = 0;
     while (i < PLACE_COUNT) {
-        if (PLACE_EN[i] == raw) { return i; }
-        if (PLACE_RU[i] == raw) { return i; }
+        if (str_eq(PLACE_EN[i], raw)) { return i; }
+        if (str_eq(PLACE_RU[i], raw)) { return i; }
         i = i + 1;
     }
     var j : u32 = 0;
     while (j < ALIAS_COUNT) {
-        if (ALIAS_FROM[j] == raw) { return ALIAS_TO[j]; }
+        if (str_eq(ALIAS_FROM[j], raw)) { return ALIAS_TO[j]; }
         j = j + 1;
     }
     return PLACE_COUNT;
@@ -424,13 +436,13 @@ fn aliases_point_at_places() -> bool {
 }
 
 test the_twelve_districts_lead_the_places {
-    assert PLACE_EN[0] == DISTRICTS[0];
-    assert PLACE_EN[1] == DISTRICTS[1];
-    assert PLACE_EN[5] == DISTRICTS[5];
-    assert PLACE_EN[11] == DISTRICTS[11];
-    assert PLACE_RU[0] == "Банг Тао";
-    assert PLACE_RU[1] == "Раваи";
-    assert PLACE_RU[5] == "Чалонг";
+    assert str_eq(PLACE_EN[0], DISTRICTS[0]);
+    assert str_eq(PLACE_EN[1], DISTRICTS[1]);
+    assert str_eq(PLACE_EN[5], DISTRICTS[5]);
+    assert str_eq(PLACE_EN[11], DISTRICTS[11]);
+    assert str_eq(PLACE_RU[0], "Банг Тао");
+    assert str_eq(PLACE_RU[1], "Раваи");
+    assert str_eq(PLACE_RU[5], "Чалонг");
 }
 
 test one_alias_per_canonical_district {
@@ -451,22 +463,22 @@ test one_alias_per_canonical_district {
 }
 
 test a_name_follows_the_language {
-    assert place_name(place_id("Банг Тао"), false) == "Bang Tao";
-    assert place_name(place_id("Bang Tao"), true) == "Банг Тао";
-    assert place_name(place_id("Rawai"), true) == "Раваи";
-    assert place_name(place_id("Раваи"), false) == "Rawai";
-    assert place_name(place_id("Чалонг"), false) == "Chalong";
-    assert place_name(place_id("Пхукет"), false) == "Phuket";
-    assert place_name(place_id("Бангкок р-н Ари"), false) == "Bangkok, Ari";
-    assert place_name(place_id("р-н Таппрая"), false) == "Pattaya, Thappraya";
+    assert str_eq(place_name(place_id("Банг Тао"), false), "Bang Tao");
+    assert str_eq(place_name(place_id("Bang Tao"), true), "Банг Тао");
+    assert str_eq(place_name(place_id("Rawai"), true), "Раваи");
+    assert str_eq(place_name(place_id("Раваи"), false), "Rawai");
+    assert str_eq(place_name(place_id("Чалонг"), false), "Chalong");
+    assert str_eq(place_name(place_id("Пхукет"), false), "Phuket");
+    assert str_eq(place_name(place_id("Бангкок р-н Ари"), false), "Bangkok, Ari");
+    assert str_eq(place_name(place_id("р-н Таппрая"), false), "Pattaya, Thappraya");
 }
 
 test an_unknown_spelling_is_not_a_place {
     assert place_id("Atlantis") == PLACE_COUNT;
     assert place_id("") == PLACE_COUNT;
     assert place_id("Bang  Tao") == PLACE_COUNT;   // the host collapses whitespace first
-    assert place_name(PLACE_COUNT, false) == "";
-    assert place_name(PLACE_COUNT, true) == "";
+    assert str_eq(place_name(PLACE_COUNT, false), "");
+    assert str_eq(place_name(PLACE_COUNT, true), "");
 }
 
 test the_alias_table_is_whole {
