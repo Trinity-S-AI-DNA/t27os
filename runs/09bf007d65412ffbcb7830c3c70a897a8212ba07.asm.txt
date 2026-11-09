@@ -1,6 +1,34 @@
 # asm leg, t27@09bf007d65412ffbcb7830c3c70a897a8212ba07: the hot loop is the longest span from a back branch target to that branch, inclusive, in the spec functions (aarch64, static count)
 # t27b asm | gcc -O2 of t27c gen-c (13.3.0) | zig ReleaseFast of t27c gen (0.16.0); x100 = 100 * t27b / reference
-specs/tri/shootout/l1_clamp.t27|leg=asm|t27b=0|t27b_calls=0|gcc_O2=0|gcc_calls=0|zig_RFast=0|zig_calls=0|gcc_x100=NA|zig_x100=NA|fn=-/-/-
---- specs/tri/shootout/l1_clamp.t27 t27b: 0 0 -
---- specs/tri/shootout/l1_clamp.t27 gcc: 0 0 -
---- specs/tri/shootout/l1_clamp.t27 zig: 0 0 -
+specs/tri/shootout/bench_audit.t27|leg=asm|t27b=18|t27b_calls=1|gcc_O2=10|gcc_calls=0|zig_RFast=0|zig_calls=0|gcc_x100=180|zig_x100=NA|fn=verdict_benchmark_200m/verdict_benchmark_200m/-
+--- specs/tri/shootout/bench_audit.t27 t27b: 18 1 verdict_benchmark_200m
+      60: aa1303e0  mov x0, x19
+      64: aa1503e1  mov x1, x21
+      68: 97ffffe6  bl 0x0
+      6c: aa0003e9  mov x9, x0
+      70: ab0902d6  adds x22, x22, x9
+      74: 540002a2  b.hs 0xc8
+      78: b1000673  adds x19, x19, #1
+      7c: 54000262  b.hs 0xc8
+      80: f1000670  subs x16, x19, #1
+      84: 54000223  b.lo 0xc8
+      88: d2807d11  movz x17, #0x3e8
+      8c: f10fa27f  cmp x19, #1000
+      90: 9a9383f3  .word 0x9a9383f3
+      94: 9a908235  .word 0x9a908235
+      98: b1000694  adds x20, x20, #1
+      9c: 54000162  b.hs 0xc8
+      a0: eb19029f  cmp x20, x25
+      a4: 54fffde3  b.lo 0x60
+--- specs/tri/shootout/bench_audit.t27 gcc: 10 0 verdict_benchmark_200m
+  20:	aa0003e1 	mov	x1, x0
+  24:	f1000442 	subs	x2, x2, #0x1
+  28:	aa0303e0 	mov	x0, x3
+  2c:	54000140 	b.eq	54 <verdict_benchmark_200m+0x44>  // b.none
+  30:	eb00003f 	cmp	x1, x0
+  34:	91000403 	add	x3, x0, #0x1
+  38:	9a840484 	cinc	x4, x4, ne	// ne = any
+  3c:	d2807d01 	mov	x1, #0x3e8                 	// #1000
+  40:	eb01007f 	cmp	x3, x1
+  44:	54fffee9 	b.ls	20 <verdict_benchmark_200m+0x10>  // b.plast
+--- specs/tri/shootout/bench_audit.t27 zig: 0 0 -
