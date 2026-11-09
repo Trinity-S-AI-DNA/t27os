@@ -1,1 +1,1 @@
-../specs/os/bots/givel_tma.t27|leg=t27b|tests=22|pass=22|FAIL=0|vacuous=0|asserts=119
+../specs/os/bots/givel_lead_bot.t27|leg=t27b|tests=23|pass=23|FAIL=0|vacuous=0|asserts=116
