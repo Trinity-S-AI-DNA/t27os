@@ -1,0 +1,7 @@
+specs/tri/t27b/cinc_peephole_plan.t27|tests=7|pass=7|FAIL=0|vacuous=0|blocked=0
+specs/tri/shootout/bench_audit.t27|tests=1|pass=1|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 40e4b286fc5fe92add0145358d507365dcd69ea7; specs specs/tri/t27b/cinc_peephole_plan.t27 specs/tri/shootout/bench_audit.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 153 s wall-clock on one GitHub runner (lab run 42592349791)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=40e4b286fc5fe92add0145358d507365dcd69ea7 -f challenge=<fresh hex> -f specs="specs/tri/t27b/cinc_peephole_plan.t27 specs/tri/shootout/bench_audit.t27"
