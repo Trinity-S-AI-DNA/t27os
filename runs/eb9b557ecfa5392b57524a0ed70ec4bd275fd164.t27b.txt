@@ -1,0 +1,1 @@
+specs/tri/t27b/middle_end.t27|leg=t27b|tests=13|pass=13|FAIL=0|vacuous=0|asserts=108
