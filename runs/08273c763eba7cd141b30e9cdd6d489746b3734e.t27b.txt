@@ -1,0 +1,1 @@
+specs/tri/t27b/a64.t27|leg=t27b|tests=45|pass=45|FAIL=0|vacuous=0|asserts=24845
