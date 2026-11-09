@@ -1,0 +1,13 @@
+{
+  "sha": "e07f41e933edf9ce67fc726138a46e806dff1802",
+  "challenge_sha256": "c6f1f70936ce96d67777cd2540db3a6f8945cf48d182c556ae71c141d929c03d",
+  "t27c_build_stamp": "e07f41e933edf9ce67fc726138a46e806dff1802",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T03:37:23Z",
+  "specs": [
+    {"spec": "specs/tri/shootout/l1_clamp.t27", "tests": "tests=5", "pass": "pass=5", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tri/shootout/l1_clamp.t27", "tests": 5, "pass": 5, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
