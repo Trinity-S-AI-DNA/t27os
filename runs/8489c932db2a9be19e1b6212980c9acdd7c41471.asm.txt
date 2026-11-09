@@ -1,0 +1,87 @@
+# asm leg, t27@8489c932db2a9be19e1b6212980c9acdd7c41471: the hot loop is the longest span from a back branch target to that branch, inclusive, in the spec functions (aarch64, static count)
+# t27b asm | gcc -O2 of t27c gen-c (13.3.0) | zig ReleaseFast of t27c gen (0.16.0); x100 = 100 * t27b / reference
+specs/tri/shootout/check_elide.t27|leg=asm|t27b=8|t27b_calls=0|gcc_O2=22|gcc_calls=0|zig_RFast=0|zig_calls=0|gcc_x100=36|zig_x100=NA|fn=twice_u64/test_refusal_limit_assigned_in_body/-
+specs/tri/shootout/bench_audit.t27|leg=asm|t27b=15|t27b_calls=0|gcc_O2=10|gcc_calls=0|zig_RFast=0|zig_calls=0|gcc_x100=150|zig_x100=NA|fn=verdict_benchmark_200m/verdict_benchmark_200m/-
+specs/tri/shootout/inline_select.t27|leg=asm|t27b=18|t27b_calls=1|gcc_O2=0|gcc_calls=0|zig_RFast=0|zig_calls=0|gcc_x100=NA|zig_x100=NA|fn=hot_expr_args/-/-
+--- specs/tri/shootout/check_elide.t27 t27b: 8 0 twice_u64
+      e8: b1000421  adds x1, x1, #1
+      ec: 54000122  b.hs 0x110
+      f0: eb00003f  cmp x1, x0
+      f4: 54000062  b.hs 0x100
+      f8: b1000421  adds x1, x1, #1
+      fc: 540000a2  b.hs 0x110
+     100: eb00003f  cmp x1, x0
+     104: 54ffff23  b.lo 0xe8
+--- specs/tri/shootout/check_elide.t27 gcc: 22 0 test_refusal_limit_assigned_in_body
+ 140:	91000400 	add	x0, x0, #0x1
+ 144:	f1000c1f 	cmp	x0, #0x3
+ 148:	54000240 	b.eq	190 <test_refusal_limit_assigned_in_body+0x60>  // b.none
+ 14c:	eb01001f 	cmp	x0, x1
+ 150:	54ffff81 	b.ne	140 <test_refusal_limit_assigned_in_body+0x10>  // b.any
+ 154:	f100141f 	cmp	x0, #0x5
+ 158:	54000201 	b.ne	198 <test_refusal_limit_assigned_in_body+0x68>  // b.any
+ 15c:	d2800041 	mov	x1, #0x2                   	// #2
+ 160:	d2800000 	mov	x0, #0x0                   	// #0
+ 164:	14000005 	b	178 <test_refusal_limit_assigned_in_body+0x48>
+ 168:	91000400 	add	x0, x0, #0x1
+ 16c:	d28000a2 	mov	x2, #0x5                   	// #5
+ 170:	f1000c1f 	cmp	x0, #0x3
+ 174:	9a821021 	csel	x1, x1, x2, ne	// ne = any
+ 178:	eb01001f 	cmp	x0, x1
+ 17c:	54ffff63 	b.cc	168 <test_refusal_limit_assigned_in_body+0x38>  // b.lo, b.ul, b.last
+ 180:	f100081f 	cmp	x0, #0x2
+ 184:	540001a1 	b.ne	1b8 <test_refusal_limit_assigned_in_body+0x88>  // b.any
+ 188:	a8c17bfd 	ldp	x29, x30, [sp], #16
+ 18c:	d65f03c0 	ret
+ 190:	d28000a1 	mov	x1, #0x5                   	// #5
+ 194:	17ffffeb 	b	140 <test_refusal_limit_assigned_in_body+0x10>
+--- specs/tri/shootout/check_elide.t27 zig: 0 0 -
+--- specs/tri/shootout/bench_audit.t27 t27b: 15 0 verdict_benchmark_200m
+      60: eb15027f  cmp x19, x21
+      64: 9a9f07e9  cset x9, ne
+      68: ab0902d6  adds x22, x22, x9
+      6c: 54000282  b.hs 0xbc
+      70: b1000673  adds x19, x19, #1
+      74: 54000242  b.hs 0xbc
+      78: f10fa27f  cmp x19, #1000
+      7c: 54000089  b.ls 0x8c
+      80: d2800013  movz x19, #0x0
+      84: d2807d15  movz x21, #0x3e8
+      88: 14000002  b 0x90
+      8c: d1000675  sub x21, x19, #1
+      90: 91000694  add x20, x20, #1
+      94: eb19029f  cmp x20, x25
+      98: 54fffe43  b.lo 0x60
+--- specs/tri/shootout/bench_audit.t27 gcc: 10 0 verdict_benchmark_200m
+  20:	aa0003e1 	mov	x1, x0
+  24:	f1000442 	subs	x2, x2, #0x1
+  28:	aa0303e0 	mov	x0, x3
+  2c:	54000140 	b.eq	54 <verdict_benchmark_200m+0x44>  // b.none
+  30:	eb00003f 	cmp	x1, x0
+  34:	91000403 	add	x3, x0, #0x1
+  38:	9a840484 	cinc	x4, x4, ne	// ne = any
+  3c:	d2807d01 	mov	x1, #0x3e8                 	// #1000
+  40:	eb01007f 	cmp	x3, x1
+  44:	54fffee9 	b.ls	20 <verdict_benchmark_200m+0x10>  // b.plast
+--- specs/tri/shootout/bench_audit.t27 zig: 0 0 -
+--- specs/tri/shootout/inline_select.t27 t27b: 18 1 hot_expr_args
+     22c: b1000669  adds x9, x19, #1
+     230: 540002c2  b.hs 0x288
+     234: f9000be9  str x9, [sp, #16]
+     238: aa1303e0  mov x0, x19
+     23c: 97ffffc5  bl 0x150
+     240: aa0003ea  mov x10, x0
+     244: f9400be9  ldr x9, [sp, #16]
+     248: d2800051  movz x17, #0x2
+     24c: 9bd17d48  umulh x8, x10, x17
+     250: 9b117d4a  mul x10, x10, x17
+     254: b50001a8  cbnz x8, 0x288
+     258: eb0a013f  cmp x9, x10
+     25c: 9a9f17e9  cset x9, eq
+     260: ab090294  adds x20, x20, x9
+     264: 54000122  b.hs 0x288
+     268: 91000673  add x19, x19, #1
+     26c: f100227f  cmp x19, #8
+     270: 54fffde3  b.lo 0x22c
+--- specs/tri/shootout/inline_select.t27 gcc: 0 0 -
+--- specs/tri/shootout/inline_select.t27 zig: 0 0 -
