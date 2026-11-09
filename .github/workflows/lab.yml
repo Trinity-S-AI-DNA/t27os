@@ -166,23 +166,26 @@ jobs:
           done
           touch "$out/LIST.txt"; cat "$out/LIST.txt"
 
-      - name: check the encoder plumbing (M6 -- export_video encodes on the lab; distro ffmpeg first, static build as fallback, never fatal -- t27os#10)
+      - name: check the encoder plumbing (M6 only -- distro ffmpeg first, static build as fallback)
         shell: bash
         run: |
+          M6="${{ inputs.m6 }}"
+          if ! command -v ffmpeg >/dev/null 2>&1 && [ "$M6" = "true" ]; then
+            sudo apt-get install -y -qq ffmpeg || echo "apt ffmpeg failed"
+          fi
+          if ! command -v ffmpeg >/dev/null 2>&1 && [ "$M6" = "true" ]; then
+            if curl -fsSL --retry 3 -o /tmp/ffmpeg.tar.xz https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz && tar -xJf /tmp/ffmpeg.tar.xz -C /tmp; then
+              FFMPEG_DIR=$(ls -d /tmp/ffmpeg-*static | head -1)
+              export PATH="$FFMPEG_DIR:$PATH"
+              echo "$FFMPEG_DIR" >> "$GITHUB_PATH"
+            else
+              echo "static ffmpeg fetch failed"
+            fi
+          fi
           if command -v ffmpeg >/dev/null 2>&1; then
             ffmpeg -version | head -1 | tee /tmp/ffmpeg.txt
           else
-            curl -fsSL https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz | tar -xJ -C /tmp || echo "ffmpeg: the static CDN failed; the receipt keeps the distro-absent state"
-            FFMPEG_DIR=$(ls -d /tmp/ffmpeg-*static 2>/dev/null | head -1)
-            if [ -n "$FFMPEG_DIR" ]; then
-              echo "$FFMPEG_DIR" >> "$GITHUB_PATH"
-              export PATH="$FFMPEG_DIR:$PATH"
-            fi
-            if command -v ffmpeg >/dev/null 2>&1; then
-              ffmpeg -version | head -1 | tee /tmp/ffmpeg.txt
-            else
-              echo "ffmpeg absent (receipt stays truthful, M6 encode will fail visibly)" | tee /tmp/ffmpeg.txt
-            fi
+            echo "ffmpeg absent (m6=$M6)" | tee /tmp/ffmpeg.txt
           fi
 
       - name: M6 -- render the 900-frame schedule and encode queen-live.mp4
