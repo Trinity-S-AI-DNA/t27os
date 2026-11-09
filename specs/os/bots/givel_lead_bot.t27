@@ -131,15 +131,66 @@ pub fn is_contact(step: u32) -> bool {
 pub fn is_quiz_step(step: u32) -> bool {
     return step < STEP_COUNT;
 }
-
-/// Two funnel languages: the client's own, auto-detected by the host's
-/// has-cyrillic primitive; RU stays the default for silent entries (QR, ads).
+/// Three funnel languages. The language is a CHOICE (the /start picker) kept
+/// in the user's profile; message text never decides it (2026-11-09: an
+/// e-mail typed without Cyrillic switched a Russian client to English).
 pub const LANG_RU : str = "ru";
 pub const LANG_EN : str = "en";
+pub const LANG_ZH : str = "zh";
+pub const LANG_LABEL_RU : str = "Русский";
+pub const LANG_LABEL_EN : str = "English";
+pub const LANG_LABEL_ZH : str = "中文";
 
-pub fn lang_for(has_cyrillic: bool) -> str {
-    if (has_cyrillic) { return LANG_RU; }
-    return LANG_EN;
+pub fn lang_valid(l: str) -> bool {
+    return l == LANG_RU or l == LANG_EN or l == LANG_ZH;
+}
+
+/// A valid explicit choice wins; else a valid stored language; else RU.
+pub fn lang_for(stored: str, choice: str) -> str {
+    if (lang_valid(choice)) { return choice; }
+    if (lang_valid(stored)) { return stored; }
+    return LANG_RU;
+}
+
+/// /start shows the RU / EN / ZH picker until a language is stored.
+pub fn start_needs_picker(stored: str) -> bool {
+    return lang_valid(stored) == false;
+}
+
+/// The unit printed after a room count.
+pub fn rooms_unit(lang: str) -> str {
+    if (lang == LANG_EN) { return "br."; }
+    if (lang == LANG_ZH) { return "卧"; }
+    return "сп.";
+}
+
+/// Catalog property types arrive in Russian; unknown types pass unchanged.
+pub fn type_label(ru_type: str, lang: str) -> str {
+    if (lang == LANG_EN) {
+        if (ru_type == "вилла") { return "Villa"; }
+        if (ru_type == "кондоминиум") { return "Condominium"; }
+        if (ru_type == "апартаменты") { return "Apartment"; }
+        if (ru_type == "таунхаус") { return "Townhouse"; }
+        if (ru_type == "дом") { return "House"; }
+        if (ru_type == "земля") { return "Land"; }
+    }
+    if (lang == LANG_ZH) {
+        if (ru_type == "вилла") { return "别墅"; }
+        if (ru_type == "кондоминиум") { return "公寓"; }
+        if (ru_type == "апартаменты") { return "酒店式公寓"; }
+        if (ru_type == "таунхаус") { return "联排别墅"; }
+        if (ru_type == "дом") { return "住宅"; }
+        if (ru_type == "земля") { return "土地"; }
+    }
+    return ru_type;
+}
+
+/// Listed prices under the floor are placeholders (the partner says they are
+/// not real): the card says "price on request" instead.
+pub const PRICE_FLOOR_THB : u64 = 500000;
+
+pub fn price_shown(price_min_thb: u64) -> bool {
+    return price_min_thb >= PRICE_FLOOR_THB;
 }
 
 /// A client with at least one prior lead is a REPEAT client: the funnel
@@ -189,11 +240,57 @@ test a_contact_makes_the_lead_hot {
     assert hot_lead_ok("") == false;
 }
 
-test the_two_languages_and_the_default {
-    assert lang_for(true) == LANG_RU;
-    assert lang_for(false) == LANG_EN;
+test the_three_languages_and_the_default {
     assert LANG_RU == "ru";
     assert LANG_EN == "en";
+    assert LANG_ZH == "zh";
+    assert lang_valid("ru") == true;
+    assert lang_valid("zh") == true;
+    assert lang_valid("de") == false;
+    assert lang_valid("") == false;
+}
+
+test message_text_never_decides_the_language {
+    assert lang_for("", "") == LANG_RU;        // regression: an e-mail answer cannot switch it
+    assert lang_for("ru", "") == LANG_RU;
+    assert lang_for("en", "") == LANG_EN;
+    assert lang_for("ru", "zh") == LANG_ZH;    // an explicit choice wins
+    assert lang_for("en", "xx") == LANG_EN;    // an invalid choice is ignored
+    assert lang_for("xx", "") == LANG_RU;
+}
+
+test the_picker_shows_until_a_language_is_stored {
+    assert start_needs_picker("") == true;
+    assert start_needs_picker("xx") == true;
+    assert start_needs_picker("ru") == false;
+    assert start_needs_picker("zh") == false;
+    assert LANG_LABEL_RU == "Русский";
+    assert LANG_LABEL_EN == "English";
+    assert LANG_LABEL_ZH == "中文";
+}
+
+test types_and_units_follow_the_language {
+    assert type_label("вилла", "ru") == "вилла";
+    assert type_label("вилла", "en") == "Villa";
+    assert type_label("вилла", "zh") == "别墅";
+    assert type_label("кондоминиум", "en") == "Condominium";
+    assert type_label("апартаменты", "en") == "Apartment";
+    assert type_label("таунхаус", "zh") == "联排别墅";
+    assert type_label("дом", "en") == "House";
+    assert type_label("земля", "zh") == "土地";
+    assert type_label("замок", "en") == "замок";   // unknown: unchanged
+    assert rooms_unit("ru") == "сп.";
+    assert rooms_unit("en") == "br.";
+    assert rooms_unit("zh") == "卧";
+}
+
+test prices_under_the_floor_are_not_shown {
+    assert PRICE_FLOOR_THB == 500000;
+    assert price_shown(499999) == false;
+    assert price_shown(100000) == false;
+    assert price_shown(0) == false;
+    assert price_shown(500000) == true;
+    assert price_shown(12000000) == true;
 }
 
 test a_repeat_client_has_prior_leads {
@@ -424,4 +521,54 @@ test window_counts_the_recent_tail {
     assert window_count(ts, 4, 12000, 2) == 3;
     assert window_count(ts, 4, 12000, 24) == 4;
     assert window_count(ts, 4, 12000, 0) == 0;
+}
+
+/// Catalog dedupe (owner order V2 item 3). The catalog keeps duplicate data
+/// rows (leads and chats reference their ids), but a search shows one card for
+/// rows equal on (name, district, type, price_min, price_max, rooms, deadline).
+/// The host walks the hits in catalog order, counts the EARLIER hits that are
+/// `same_card` as the current one, and shows the current hit only when
+/// `keep_card` of that count is true: the first id of a group is kept, a row
+/// that differs in any field stays a separate card.
+pub fn same_card(a_name: str, a_district: str, a_type: str, a_pmin: u64, a_pmax: u64, a_rooms: str, a_deadline: str, b_name: str, b_district: str, b_type: str, b_pmin: u64, b_pmax: u64, b_rooms: str, b_deadline: str) -> bool {
+    return a_name == b_name and a_district == b_district and a_type == b_type and a_pmin == b_pmin and a_pmax == b_pmax and a_rooms == b_rooms and a_deadline == b_deadline;
+}
+
+pub fn keep_card(earlier_same: u32) -> bool {
+    return earlier_same == 0;
+}
+
+/// 1 when the two rows collapse (test helper and host counter).
+pub fn dup_count(same: bool) -> u32 {
+    if (same) { return 1; }
+    return 0;
+}
+
+test the_laya_copies_collapse_to_one_card {
+    // rows 0..2 are the identical Laya copies, row 3 is the real 3.5M listing
+    assert same_card("Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready", "Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready") == true;
+    assert same_card("Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready", "Laya Resort", "Bang Tao", "condominium", 3500000, 3500000, "1", "ready") == false;
+    // earlier equal rows per row: 0, 1, 2 (rows 0,1), 0 (row 3 differs)
+    assert keep_card(0) == true;     // row 0: first id kept
+    assert keep_card(1) == false;    // row 1: equals row 0
+    assert keep_card(2) == false;    // row 2: equals rows 0 and 1
+    assert keep_card(dup_count(false) + dup_count(false) + dup_count(false)) == true;   // row 3: real distinct listing
+    var cards : u32 = 0;
+    if (keep_card(0)) { cards = cards + 1; }
+    if (keep_card(1)) { cards = cards + 1; }
+    if (keep_card(2)) { cards = cards + 1; }
+    if (keep_card(0)) { cards = cards + 1; }
+    assert cards == 2;
+}
+
+test rows_differing_in_one_field_stay_separate {
+    // negative control: only the price differs -> two cards from two rows
+    assert same_card("Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready", "Laya Resort", "Bang Tao", "condominium", 2600000, 2500000, "1", "ready") == false;
+    assert same_card("Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready", "Laya Resort", "Bang Tao", "condominium", 2500000, 2600000, "1", "ready") == false;
+    assert same_card("Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready", "Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "2", "ready") == false;
+    assert same_card("Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready", "Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "2028") == false;
+    assert same_card("Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready", "Laya Resort", "Kamala", "condominium", 2500000, 2500000, "1", "ready") == false;
+    assert same_card("Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready", "Laya Beach", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready") == false;
+    assert same_card("Laya Resort", "Bang Tao", "condominium", 2500000, 2500000, "1", "ready", "Laya Resort", "Bang Tao", "villa", 2500000, 2500000, "1", "ready") == false;
+    assert keep_card(dup_count(false)) == true;
 }
