@@ -63,6 +63,126 @@ pub fn theme_from_tenant() -> bool {
     return true;
 }
 
+// ---- MiniAppViewport: how the Mini App opens (order GIVEL_MINIAPP_FULLSCREEN_V1) ----
+// Source: Telegram Bot API 8.0 Mini Apps docs -- expand(), requestFullscreen(),
+// isFullscreen, the events fullscreenChanged / fullscreenFailed / safeAreaChanged /
+// contentSafeAreaChanged / viewportChanged, and the CSS variables that
+// telegram-web-app.js keeps on <html>: --tg-viewport-height and
+// --tg-safe-area-inset-* / --tg-content-safe-area-inset-*. The host only calls
+// these; every choice below is the law's.
+
+pub const MODE_EXPANDED : u32 = 1;
+pub const MODE_FULLSCREEN : u32 = 2;
+/// The mode the app asks for on open.
+pub const OPEN_MODE : u32 = MODE_FULLSCREEN;
+/// The mode it keeps when fullscreen is refused or not offered.
+pub const FALLBACK_MODE : u32 = MODE_EXPANDED;
+/// requestFullscreen exists from this Bot API version (WebApp.isVersionAtLeast).
+pub const FULLSCREEN_MIN_VERSION : str = "8.0";
+
+/// Fullscreen is asked for on phones only: on Telegram Desktop, macOS and the
+/// web clients it would cover the whole monitor (WebApp.platform values).
+pub const FULLSCREEN_PLATFORM_COUNT : u32 = 3;
+pub const FULLSCREEN_PLATFORMS : [3]str = ["ios", "android", "android_x"];
+
+/// fullscreenFailed carries an error string; the law maps it to a code.
+pub const FAIL_UNSUPPORTED : u32 = 1;
+pub const FAIL_ALREADY_FULLSCREEN : u32 = 2;
+pub const FAIL_OTHER : u32 = 3;
+
+/// T27L (LOGS) events: the host logs one line per state change, by this name.
+pub const EV_READY : u32 = 0;
+pub const EV_EXPANDED : u32 = 1;
+pub const EV_FULLSCREEN_REQUESTED : u32 = 2;
+pub const EV_FULLSCREEN_ON : u32 = 3;
+pub const EV_FULLSCREEN_OFF : u32 = 4;
+pub const EV_FULLSCREEN_FAILED : u32 = 5;
+pub const EV_SAFE_AREA_CHANGED : u32 = 6;
+pub const EV_VIEWPORT_CHANGED : u32 = 7;
+pub const EVENT_COUNT : u32 = 8;
+pub const EVENT_NAMES : [8]str = [
+    "tma.ready", "tma.expanded", "tma.fullscreen_requested", "tma.fullscreen_on",
+    "tma.fullscreen_off", "tma.fullscreen_failed", "tma.safe_area_changed",
+    "tma.viewport_changed",
+];
+
+/// UI Kit tokens of the viewport: the app fills the Telegram viewport (100vh
+/// only outside Telegram) and pads by both insets, so the same style holds in
+/// expanded mode (insets 0) and in fullscreen.
+pub const CSS_APP_HEIGHT : str = "min-height:var(--tg-viewport-height,100vh);";
+pub const CSS_TOP_PAD : str = "padding-top:calc(var(--tg-safe-area-inset-top,0px) + var(--tg-content-safe-area-inset-top,0px));";
+pub const CSS_BOTTOM_INSET : str = "calc(var(--tg-safe-area-inset-bottom,0px) + var(--tg-content-safe-area-inset-bottom,0px))";
+
+/// Byte equality; `==` on str does not lower to Zig.
+pub fn str_eq(a: str, b: str) -> bool {
+    if (a.len != b.len) { return false; }
+    var i : usize = 0;
+    while (i < a.len) {
+        if (a[i] != b[i]) { return false; }
+        i = i + 1;
+    }
+    return true;
+}
+
+pub fn platform_allows_fullscreen(platform: str) -> bool {
+    var i : u32 = 0;
+    while (i < FULLSCREEN_PLATFORM_COUNT) {
+        if (str_eq(FULLSCREEN_PLATFORMS[i], platform)) { return true; }
+        i = i + 1;
+    }
+    return false;
+}
+
+/// On open the host calls ready() and expand() first, always; then it asks for
+/// fullscreen only when the open mode wants it, the client has the API, the
+/// platform is a phone and the app is not fullscreen already.
+pub fn should_request_fullscreen(has_api: bool, platform: str, is_fullscreen: bool) -> bool {
+    if (OPEN_MODE != MODE_FULLSCREEN) { return false; }
+    if (!has_api) { return false; }
+    if (is_fullscreen) { return false; }
+    return platform_allows_fullscreen(platform);
+}
+
+/// expand() runs on open and on every resume unless the app is fullscreen.
+pub fn should_expand(is_fullscreen: bool) -> bool {
+    return !is_fullscreen;
+}
+
+pub fn fail_code(err: str) -> u32 {
+    if (str_eq(err, "UNSUPPORTED")) { return FAIL_UNSUPPORTED; }
+    if (str_eq(err, "ALREADY_FULLSCREEN")) { return FAIL_ALREADY_FULLSCREEN; }
+    return FAIL_OTHER;
+}
+
+/// The mode after fullscreenFailed: ALREADY_FULLSCREEN means it is fullscreen;
+/// any other error keeps the fallback, which expand() already set.
+pub fn mode_after_failure(code: u32) -> u32 {
+    if (code == FAIL_ALREADY_FULLSCREEN) { return MODE_FULLSCREEN; }
+    return FALLBACK_MODE;
+}
+
+/// The mode after fullscreenChanged (WebApp.isFullscreen).
+pub fn mode_after_change(is_fullscreen: bool) -> u32 {
+    if (is_fullscreen) { return MODE_FULLSCREEN; }
+    return FALLBACK_MODE;
+}
+
+/// The event to log after fullscreenChanged.
+pub fn change_event(is_fullscreen: bool) -> u32 {
+    if (is_fullscreen) { return EV_FULLSCREEN_ON; }
+    return EV_FULLSCREEN_OFF;
+}
+
+pub fn bottom_inset_px(device_inset: u32, content_inset: u32) -> u32 {
+    return device_inset + content_inset;
+}
+
+/// The T27L name of an event; "" for a code that is not an event.
+pub fn event_name(ev: u32) -> str {
+    if (ev >= EVENT_COUNT) { return ""; }
+    return EVENT_NAMES[ev];
+}
+
 test touch_targets_are_44_px_with_a_gap {
     assert touch_ok(44, 8) == true;
     assert touch_ok(48, 12) == true;
@@ -117,4 +237,67 @@ test one_main_button_per_screen {
 test the_theme_comes_from_the_tenant {
     assert theme_from_tenant() == true;
     assert theme_from_tenant() != false;
+}
+
+test the_app_opens_fullscreen_with_an_expanded_fallback {
+    assert OPEN_MODE == MODE_FULLSCREEN;
+    assert FALLBACK_MODE == MODE_EXPANDED;
+    assert str_eq(FULLSCREEN_MIN_VERSION, "8.0");
+}
+
+test fullscreen_is_asked_for_on_phones_with_the_api_only {
+    assert should_request_fullscreen(true, "ios", false) == true;
+    assert should_request_fullscreen(true, "android", false) == true;
+    assert should_request_fullscreen(true, "android_x", false) == true;
+    assert should_request_fullscreen(false, "ios", false) == false;
+    assert should_request_fullscreen(true, "ios", true) == false;
+    assert should_request_fullscreen(true, "tdesktop", false) == false;
+    assert should_request_fullscreen(true, "macos", false) == false;
+    assert should_request_fullscreen(true, "weba", false) == false;
+    assert should_request_fullscreen(true, "", false) == false;
+    assert should_request_fullscreen(true, "iosx", false) == false;
+}
+
+test expand_runs_unless_fullscreen {
+    assert should_expand(false) == true;
+    assert should_expand(true) == false;
+}
+
+test a_failed_request_keeps_the_expanded_fallback {
+    assert fail_code("UNSUPPORTED") == FAIL_UNSUPPORTED;
+    assert fail_code("ALREADY_FULLSCREEN") == FAIL_ALREADY_FULLSCREEN;
+    assert fail_code("SOMETHING_NEW") == FAIL_OTHER;
+    assert fail_code("") == FAIL_OTHER;
+    assert mode_after_failure(FAIL_UNSUPPORTED) == MODE_EXPANDED;
+    assert mode_after_failure(FAIL_OTHER) == MODE_EXPANDED;
+    assert mode_after_failure(FAIL_ALREADY_FULLSCREEN) == MODE_FULLSCREEN;
+}
+
+test a_fullscreen_change_sets_the_mode_and_its_event {
+    assert mode_after_change(true) == MODE_FULLSCREEN;
+    assert mode_after_change(false) == MODE_EXPANDED;
+    assert change_event(true) == EV_FULLSCREEN_ON;
+    assert change_event(false) == EV_FULLSCREEN_OFF;
+}
+
+test both_bottom_insets_add_up {
+    assert bottom_inset_px(34, 0) == 34;
+    assert bottom_inset_px(34, 10) == 44;
+    assert bottom_inset_px(0, 0) == 0;
+}
+
+test every_state_change_has_a_t27l_name {
+    assert str_eq(event_name(EV_READY), "tma.ready");
+    assert str_eq(event_name(EV_EXPANDED), "tma.expanded");
+    assert str_eq(event_name(EV_FULLSCREEN_FAILED), "tma.fullscreen_failed");
+    assert str_eq(event_name(EV_VIEWPORT_CHANGED), "tma.viewport_changed");
+    assert str_eq(event_name(EVENT_COUNT), "");
+    assert str_eq(event_name(EV_READY), "tma.expanded") == false;
+}
+
+test the_viewport_tokens_use_the_telegram_variables {
+    assert str_eq(CSS_APP_HEIGHT, "min-height:var(--tg-viewport-height,100vh);");
+    assert CSS_TOP_PAD.len > 0;
+    assert CSS_BOTTOM_INSET.len > 0;
+    assert str_eq(CSS_APP_HEIGHT, "min-height:100vh;") == false;
 }
