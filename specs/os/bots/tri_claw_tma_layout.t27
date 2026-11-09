@@ -183,6 +183,31 @@ pub fn event_name(ev: u32) -> str {
     return EVENT_NAMES[ev];
 }
 
+/// The SDK events the host subscribes to, in this order (concierge #117, FR-003).
+pub const SDK_EVENT_COUNT : u32 = 5;
+pub const SDK_EVENTS : [5]str = [
+    "fullscreenFailed",
+    "fullscreenChanged",
+    "safeAreaChanged",
+    "contentSafeAreaChanged",
+    "viewportChanged",
+];
+
+/// The T27L event to log for SDK event i (an index into SDK_EVENTS).
+pub fn sdk_event(i: u32, is_fullscreen: bool) -> u32 {
+    if (i == 0) { return EV_FULLSCREEN_FAILED; }
+    if (i == 1) { return change_event(is_fullscreen); }
+    if (i == 4) { return EV_VIEWPORT_CHANGED; }
+    return EV_SAFE_AREA_CHANGED;
+}
+
+/// Whether the host calls expand() after SDK event i; err is fullscreenFailed's error.
+pub fn sdk_expands(i: u32, is_fullscreen: bool, err: str) -> bool {
+    if (i == 0) { return mode_after_failure(fail_code(err)) == MODE_EXPANDED; }
+    if (i == 1) { return should_expand(is_fullscreen); }
+    return false;
+}
+
 test touch_targets_are_44_px_with_a_gap {
     assert touch_ok(44, 8) == true;
     assert touch_ok(48, 12) == true;
@@ -300,4 +325,28 @@ test the_viewport_tokens_use_the_telegram_variables {
     assert CSS_TOP_PAD.len > 0;
     assert CSS_BOTTOM_INSET.len > 0;
     assert str_eq(CSS_APP_HEIGHT, "min-height:100vh;") == false;
+}
+
+test each_sdk_event_logs_its_t27l_event {
+    assert str_eq(SDK_EVENTS[0], "fullscreenFailed");
+    assert str_eq(SDK_EVENTS[1], "fullscreenChanged");
+    assert str_eq(SDK_EVENTS[4], "viewportChanged");
+    assert sdk_event(0, false) == EV_FULLSCREEN_FAILED;
+    assert sdk_event(1, true) == EV_FULLSCREEN_ON;
+    assert sdk_event(1, false) == EV_FULLSCREEN_OFF;
+    assert sdk_event(2, false) == EV_SAFE_AREA_CHANGED;
+    assert sdk_event(3, true) == EV_SAFE_AREA_CHANGED;
+    assert sdk_event(4, false) == EV_VIEWPORT_CHANGED;
+    assert (sdk_event(4, false) == EV_SAFE_AREA_CHANGED) == false;
+}
+
+test only_a_failure_or_a_fullscreen_exit_expands {
+    assert sdk_expands(0, false, "UNSUPPORTED");
+    assert sdk_expands(0, false, "");
+    assert sdk_expands(0, true, "ALREADY_FULLSCREEN") == false;
+    assert sdk_expands(1, false, "");
+    assert sdk_expands(1, true, "") == false;
+    assert sdk_expands(2, false, "") == false;
+    assert sdk_expands(3, false, "") == false;
+    assert sdk_expands(4, false, "") == false;
 }
