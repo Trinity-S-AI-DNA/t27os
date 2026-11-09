@@ -1,0 +1,15 @@
+{
+  "sha": "5e8756f6541c1eedcc89447665034c2c0c3a2f5a",
+  "challenge_sha256": "9507e76b7de2791d83b53929d8c36359d30a4924a9ff21e295450fad5e042bea",
+  "t27c_build_stamp": "5e8756f6541c1eedcc89447665034c2c0c3a2f5a",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T08:25:31Z",
+  "specs": [
+    {"spec": "specs/tri/t27b/check_elide_plan.t27", "tests": "tests=26", "pass": "pass=26", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/shootout/check_elide.t27", "tests": "tests=16", "pass": "pass=16", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tri/t27b/check_elide_plan.t27", "tests": 26, "pass": 26, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tri/shootout/check_elide.t27", "tests": 16, "pass": 16, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 2, "reported": 2}
+}
