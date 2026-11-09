@@ -1,0 +1,6 @@
+specs/t27os/queen_dash.t27|tests=23|pass=23|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 68aea35d68929eb3bdc68c04b46688b1529ee0ce; specs specs/t27os/queen_dash.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 539 s wall-clock on one GitHub runner (lab run 42590967088)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=68aea35d68929eb3bdc68c04b46688b1529ee0ce -f challenge=<fresh hex> -f specs="specs/t27os/queen_dash.t27"
