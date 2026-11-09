@@ -1,0 +1,19 @@
+{
+  "sha": "5b67db6e14cbb35328e06933e34987177eafdce8",
+  "challenge_sha256": "2fc94476e78263b5b7516fed5794697a1cd3a43afa7984186c22ffcd10148c8f",
+  "t27c_build_stamp": "5b67db6e14cbb35328e06933e34987177eafdce8",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T06:05:28Z",
+  "specs": [
+    {"spec": "specs/tri/t27b/inline.t27", "tests": "tests=24", "pass": "pass=24", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/shootout/inline_select.t27", "tests": "tests=17", "pass": "pass=17", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/shootout/bench_audit.t27", "tests": "tests=1", "pass": "pass=1", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/shootout/l1_clamp.t27", "tests": "tests=7", "pass": "pass=7", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tri/t27b/inline.t27", "tests": 24, "pass": 24, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tri/shootout/inline_select.t27", "tests": 17, "pass": 17, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tri/shootout/bench_audit.t27", "tests": 1, "pass": 1, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tri/shootout/l1_clamp.t27", "tests": 7, "pass": 7, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 4, "reported": 4}
+}
