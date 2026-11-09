@@ -1,0 +1,15 @@
+{
+  "sha": "e768edd2c0cdab6990c08b73be6a402c4acbd645",
+  "challenge_sha256": "d31a79c71d0c9225bd0eaacdc7d3d3ff4f6fb6782b984495e52e4cd9356abc5f",
+  "t27c_build_stamp": "e768edd2c0cdab6990c08b73be6a402c4acbd645",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-09T05:43:28Z",
+  "specs": [
+    {"spec": "specs/tri/t27b/inline.t27", "tests": "tests=10", "pass": "pass=10", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tri/shootout/bench_audit.t27", "tests": "tests=1", "pass": "pass=1", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tri/t27b/inline.t27", "tests": 10, "pass": 10, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tri/shootout/bench_audit.t27", "tests": 1, "pass": 1, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 2, "reported": 2}
+}

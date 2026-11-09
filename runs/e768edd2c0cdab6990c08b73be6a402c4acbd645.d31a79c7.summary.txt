@@ -1,0 +1,7 @@
+specs/tri/t27b/inline.t27|tests=10|pass=10|FAIL=0|vacuous=0|blocked=0
+specs/tri/shootout/bench_audit.t27|tests=1|pass=1|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 e768edd2c0cdab6990c08b73be6a402c4acbd645; specs specs/tri/t27b/inline.t27 specs/tri/shootout/bench_audit.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 109 s wall-clock on one GitHub runner (lab run 42568763269)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=e768edd2c0cdab6990c08b73be6a402c4acbd645 -f challenge=<fresh hex> -f specs="specs/tri/t27b/inline.t27 specs/tri/shootout/bench_audit.t27"
