@@ -1,0 +1,5 @@
+specs/compiler/use_splice.t27|leg=t27b|tests=30|pass=30|FAIL=0|vacuous=0|asserts=81
+specs/compiler/use_before_endmodule.t27|leg=t27b|tests=3|pass=3|FAIL=0|vacuous=0|asserts=5
+specs/numeric/sha256_nabits.t27|leg=t27b|tests=32|pass=32|FAIL=0|vacuous=0|asserts=32
+specs/t27os/dev_swap.t27|leg=t27b|tests=8|pass=8|FAIL=0|vacuous=0|asserts=28
+specs/fpga/w5_cast_widen.t27|leg=t27b|tests=4|pass=4|FAIL=0|vacuous=0|asserts=15
