@@ -1,10 +1,7 @@
 # The T27 OS lab executor (specs/os/lab.t27 is the contract; t27#11781 the migration).
-# Foreign file (.yml) under owner-approved-foreign, granted by the owner in session
-# on 2026-10-23 (this chat): "owner-approved-foreign". One dispatch = one run:
-# checkout Trinity-S-AI-DNA/t27 at the requested sha, build t27c, test-report the named
-# specs, publish the receipt into THIS repo's runs/ directory. No Railway anywhere.
+# Foreign file (.yml) under owner-approved-foreign (owner, 2026-10-23). One dispatch = one run:
+# check out t27 at the sha, build t27c, test-report the named specs, publish the receipt into runs/.
 name: lab
-# re-registration touch 2026-10-23: the dispatch API cached the pre-trigger definition
 on:
   schedule:
     - cron: '*/15 * * * *'
@@ -35,6 +32,10 @@ on:
         description: 'true = reseal what drifted (tri seals drift --fix) and publish the changed seals beside the receipt'
         required: false
         default: 'false'
+      seal_new:
+        description: 'space-separated spec paths: save a first seal for each with the lab t27c (t27c seal --save) and publish it beside the receipt'
+        required: false
+        default: ''
       gen:
         description: 'true = regenerate the tracked gen/rust and gen/c copies of the named specs and publish them beside the receipt'
         required: false
@@ -49,10 +50,8 @@ permissions:
   actions: read
 
 concurrency:
-  # one group per event: a queued die-witness dispatch must never be superseded
-  # by a newer schedule tick (observed 2026-10-25: run 40151417889 cancelled by
-  # the 01:42Z schedule run while QUEUED -- GitHub cancels older QUEUED runs in
-  # a group even with cancel-in-progress: false)
+  # one group per event: a queued dispatch must not be superseded by a schedule tick
+  # (run 40151417889, 2026-10-25: GitHub cancels older QUEUED runs even with cancel-in-progress: false)
   group: lab-run-${{ github.event }}
   cancel-in-progress: false
 
@@ -145,6 +144,19 @@ jobs:
           git ls-files -z -m -o --exclude-standard -- .trinity/seals | xargs -0 -r cp -t "$out"
           git ls-files -m -o --exclude-standard -- .trinity/seals > "$out/CHANGED.txt"
           wc -l < "$out/CHANGED.txt"
+
+      - name: seal_new leg -- first seals saved by the lab's own t27c (t27#12871)
+        if: inputs.seal_new != ''
+        shell: bash
+        env:
+          NEW: ${{ inputs.seal_new }}
+        run: |
+          out="$GITHUB_WORKSPACE/runs/${{ steps.sha.outputs.resolved }}.seals"
+          mkdir -p "$out"
+          cd t27
+          for spec in $NEW; do ./target/release/t27c seal "$spec" --save | tee -a "$out/new.txt"; done
+          git ls-files -z -m -o --exclude-standard -- .trinity/seals | xargs -0 -r cp -t "$out"
+          git ls-files -m -o --exclude-standard -- .trinity/seals >> "$out/CHANGED.txt"
 
       - name: gen leg -- regenerate the tracked gen/ copies of the named specs (L2 GENERATION, t27#11840)
         if: inputs.gen == 'true'
@@ -312,14 +324,8 @@ jobs:
           cp t27f_live.wasm "$GITHUB_WORKSPACE/runs/t27f_live.wasm"
           cp t27f_live.wasm.sha256 "$GITHUB_WORKSPACE/runs/t27f_live.wasm.sha256"
 
-      # The die witness (t27os#3): the runner CANNOT touch the board, so a witness spec's
-      # crossing of the AX7203 die is measured HOST-side (the owner's bench) and handed to
-      # this run as witness_json. This step validates the SHAPE against specs/os/lab.t27's
-      # witness_shape law -- the seven data fields present and well-formed, bit_exact
-      # exactly true, a FULL 64-hex bitstream digest -- and stages the fragment. A witness
-      # that fails any of this fails the run BEFORE the receipt is written: no half-witness
-      # can land. What the runner embeds is EVIDENCE ABOUT the second node; the runner did
-      # not verify the die run, and the note quoted into the receipt says exactly that.
+      # The die witness (t27os#3): measured host-side on the board, shape-checked here against
+      # specs/os/lab.t27 witness_shape before the receipt is written; evidence, not verified.
       - name: die witness -- shape-check a host-measured crossing (t27os#3)
         if: inputs.witness_json != ''
         shell: bash
@@ -399,9 +405,7 @@ jobs:
             echo '  ]'
             echo '}'
           } > "$file"
-          # the die witness, when one was staged: merged as a dict AFTER the receipt is
-          # written, so the result is valid JSON by construction (t27os#3). The note the
-          # runner quotes beside it comes verbatim from specs/os/lab.t27 WITNESS_NOTE.
+          # the die witness, if staged: merged as a dict after the receipt (t27os#3; note = lab.t27 WITNESS_NOTE)
           if [ -f /tmp/witness.frag.json ]; then
             python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); r.update(json.load(open(sys.argv[2]))); json.dump(r,open(sys.argv[1],"w"),indent=2)' "$file" /tmp/witness.frag.json
           fi
@@ -540,8 +544,7 @@ jobs:
           done
           exit 1
 
-      # The verdict gate (t27os#9): a named spec that is BLOCKED, FAIL or NA fails the run,
-      # after the receipt landed, so the evidence never disappears again.
+      # The verdict gate (t27os#9): fails the run after the receipt landed.
       - name: gate -- a named spec that is BLOCKED, FAIL or NA fails the run (receipt already published)
         if: always()
         shell: bash
@@ -552,10 +555,7 @@ jobs:
             if [ -n "$BAD" ]; then echo "::error::regression rows above (BLOCKED, FAIL or non-zero test-report exit)"; echo "$BAD"; exit 1; fi
             echo "gate: every named spec passed (FAIL=0, blocked=0)"; }
 
-      # The closure watch (t27 specs/crons/t27-t27f-closure-lab.t27) names
-      # Trinity-S-AI-DNA/trinity#1717 as its ON_FAILURE issue; this step is that
-      # naming, gated to runs whose spec list touches t27f so core-set failures
-      # do not noise the page thread.
+      # The closure watch (t27 specs/crons/t27-t27f-closure-lab.t27): ON_FAILURE issue trinity#1717, t27f runs only.
       - name: a FAIL names the closure watch (trinity 1717)
         if: failure()
         shell: bash
