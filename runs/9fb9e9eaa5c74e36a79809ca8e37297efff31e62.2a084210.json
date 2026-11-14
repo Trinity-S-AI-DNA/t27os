@@ -1,0 +1,23 @@
+{
+  "sha": "9fb9e9eaa5c74e36a79809ca8e37297efff31e62",
+  "challenge_sha256": "2a0842103ed4c5a57e7894f132be299b7675991ee008b38e30b9a98062903329",
+  "t27c_build_stamp": "9fb9e9eaa5c74e36a79809ca8e37297efff31e62",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=)",
+  "utc": "2026-11-14T20:01:37Z",
+  "specs": [
+    {"spec": "specs/t27f/work_graph.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+,
+    {"spec": "specs/queen/actors.t27", "tests": "tests=37", "pass": "pass=37", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27f/export_video.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+,
+    {"spec": "specs/t27f/frame_render.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+,
+    {"spec": "specs/t27f/live_mode.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+,
+    {"spec": "specs/t27f/hud.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/queen/actors.t27", "tests": 37, "pass": 37, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": false, "asked": 0, "reported": 1}
+}
