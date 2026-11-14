@@ -1,0 +1,17 @@
+{
+  "sha": "fd46a9c6d35268f9eb1940a6ebec0950daf5f4cd",
+  "challenge_sha256": "808756b606b64bd7aea590666f7af000e2d6018456cda20efb4524af9ca1ae26",
+  "t27c_build_stamp": "fd46a9c6d35268f9eb1940a6ebec0950daf5f4cd",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T05:55:01Z",
+  "specs": [
+    {"spec": "specs/t27f/netlist_tokens.t27", "tests": "tests=5", "pass": "pass=5", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/analog/netlist_structure.t27", "tests": "tests=5", "pass": "pass=5", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/analog/netlist_block_svg.t27", "tests": "tests=6", "pass": "pass=6", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27f/netlist_tokens.t27", "tests": 5, "pass": 5, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/analog/netlist_structure.t27", "tests": 5, "pass": 5, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/analog/netlist_block_svg.t27", "tests": 6, "pass": 6, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 3, "reported": 3}
+}
