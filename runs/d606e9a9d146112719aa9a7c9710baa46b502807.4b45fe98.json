@@ -1,0 +1,13 @@
+{
+  "sha": "d606e9a9d146112719aa9a7c9710baa46b502807",
+  "challenge_sha256": "4b45fe987fd429f838cfe73731dea426eb2fe7f53349ac53d347919e4e21719f",
+  "t27c_build_stamp": "d606e9a9d146112719aa9a7c9710baa46b502807",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T04:45:29Z",
+  "specs": [
+    {"spec": "specs/t27f/netlist_tokens.t27", "tests": "tests=5", "pass": "pass=5", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/t27f/netlist_tokens.t27", "tests": 5, "pass": 5, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}

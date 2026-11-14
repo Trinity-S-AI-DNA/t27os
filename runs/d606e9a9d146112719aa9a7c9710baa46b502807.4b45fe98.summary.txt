@@ -1,0 +1,6 @@
+specs/t27f/netlist_tokens.t27|tests=5|pass=5|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 d606e9a9d146112719aa9a7c9710baa46b502807; specs specs/t27f/netlist_tokens.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 87 s wall-clock on one GitHub runner (lab run 43558099091)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=d606e9a9d146112719aa9a7c9710baa46b502807 -f challenge=<fresh hex> -f specs="specs/t27f/netlist_tokens.t27"
