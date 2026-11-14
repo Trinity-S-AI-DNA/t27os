@@ -1,0 +1,13 @@
+{
+  "sha": "832ed84062decb25f96ad1a78830a35b4e739a34",
+  "challenge_sha256": "b4e030ab0628f2689bc7e3cdfd2ba95153378847c119db4cda35aa5bf56ab67c",
+  "t27c_build_stamp": "832ed84062decb25f96ad1a78830a35b4e739a34",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T06:39:47Z",
+  "specs": [
+    {"spec": "specs/analog/netlist_card.t27", "tests": "tests=6", "pass": "pass=6", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/analog/netlist_card.t27", "tests": 6, "pass": 6, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
