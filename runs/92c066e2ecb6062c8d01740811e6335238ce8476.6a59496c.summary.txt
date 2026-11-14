@@ -1,0 +1,7 @@
+specs/analog/netlist_meaning.t27|tests=4|pass=4|FAIL=0|vacuous=0|blocked=0
+specs/analog/netlist_accept.t27|tests=6|pass=6|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 92c066e2ecb6062c8d01740811e6335238ce8476; specs specs/analog/netlist_meaning.t27 specs/analog/netlist_accept.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 128 s wall-clock on one GitHub runner (lab run 43562939897)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=92c066e2ecb6062c8d01740811e6335238ce8476 -f challenge=<fresh hex> -f specs="specs/analog/netlist_meaning.t27 specs/analog/netlist_accept.t27"
