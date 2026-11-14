@@ -1,0 +1,15 @@
+{
+  "sha": "845c603d29059cfb22f7c3569488e4fa38df04fc",
+  "challenge_sha256": "b8a637b55f6b69917f7f46553bd5247862d098203020250facc79e8562b89dbf",
+  "t27c_build_stamp": "845c603d29059cfb22f7c3569488e4fa38df04fc",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T05:19:41Z",
+  "specs": [
+    {"spec": "../specs/tools/t27o/spice_census_host.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=0"}
+,
+    {"spec": "../specs/tools/t27o/spice_convert.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [], "ok": false, "asked": 2, "reported": 0}
+}
