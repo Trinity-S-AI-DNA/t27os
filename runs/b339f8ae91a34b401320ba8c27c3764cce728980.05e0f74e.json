@@ -1,0 +1,17 @@
+{
+  "sha": "b339f8ae91a34b401320ba8c27c3764cce728980",
+  "challenge_sha256": "05e0f74ebc038070c017906d60b510d8270c7efc5f12af9bf65c8ce22dd0d9e8",
+  "t27c_build_stamp": "b339f8ae91a34b401320ba8c27c3764cce728980",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T04:49:28Z",
+  "specs": [
+    {"spec": "specs/analog/accept_sar.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+,
+    {"spec": "specs/analog/linear.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+,
+    {"spec": "specs/tools/t27o/rust_convert.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+
+  ]
+  ,"result": {"specs": [], "ok": false, "asked": 3, "reported": 0}
+}
