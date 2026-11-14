@@ -1,0 +1,15 @@
+{
+  "sha": "26f2bfd176a97ad3308b642bf785d6d2f71f1c15",
+  "challenge_sha256": "6c5195478f1c5fcdf6a0ec5b0fd3353774e007ed75be17e7ce18b8c2d6377cc5",
+  "t27c_build_stamp": "26f2bfd176a97ad3308b642bf785d6d2f71f1c15",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T06:36:49Z",
+  "specs": [
+    {"spec": "specs/analog/netlist_card.t27", "tests": "tests=6", "pass": "pass=5", "FAIL": "FAIL=the_card_text_is_the_census", "vacuous": "", "blocked": ""}
+,
+    {"spec": "1", "tests": "vacuous=0", "pass": "blocked=0", "FAIL": "", "vacuous": "", "blocked": ""}
+
+  ]
+  ,"result": {"specs": [], "ok": false, "asked": 1, "reported": 0}
+}
