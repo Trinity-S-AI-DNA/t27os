@@ -1,0 +1,13 @@
+{
+  "sha": "b339f8ae91a34b401320ba8c27c3764cce728980",
+  "challenge_sha256": "abf2b6c38386a3c03267e1e00b5661ed538baa13fa636d399e2f517e773ba5f5",
+  "t27c_build_stamp": "b339f8ae91a34b401320ba8c27c3764cce728980",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T04:56:33Z",
+  "specs": [
+    {"spec": "specs/analog/mos_psp103_data.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=1"}
+
+  ]
+  ,"result": {"specs": [], "ok": false, "asked": 1, "reported": 0}
+}
