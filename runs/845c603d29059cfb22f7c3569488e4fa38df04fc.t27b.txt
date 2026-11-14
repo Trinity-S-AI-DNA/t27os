@@ -1,0 +1,2 @@
+specs/tools/t27o/spice_census_host.t27|leg=t27b|tests=2|pass=2|FAIL=0|vacuous=0|asserts=9
+specs/tools/t27o/spice_convert.t27|leg=t27b|tests=47|pass=47|FAIL=0|vacuous=0|asserts=463
