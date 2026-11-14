@@ -1,0 +1,11 @@
+specs/tools/t27o/spice_convert.t27|tests=NA|pass=NA|FAIL=NA|vacuous=NA|blocked=1
+specs/tools/t27o/rust_convert.t27|tests=NA|pass=NA|FAIL=NA|vacuous=NA|blocked=1
+specs/analog/linear.t27|tests=NA|pass=NA|FAIL=NA|vacuous=NA|blocked=1
+specs/analog/accept_sar.t27|tests=NA|pass=NA|FAIL=NA|vacuous=NA|blocked=1
+specs/analog/mos_psp103_data.t27|tests=NA|pass=NA|FAIL=NA|vacuous=NA|blocked=1
+specs/analog/netlist_accept.t27|tests=NA|pass=NA|FAIL=NA|vacuous=NA|blocked=0
+reader: t27c 0.5.2 built from t27 5afd1f8a766a764e9756d6c8b0c382996437094c; specs specs/tools/t27o/spice_convert.t27 specs/tools/t27o/rust_convert.t27 specs/analog/linear.t27 specs/analog/accept_sar.t27 specs/analog/mos_psp103_data.t27 specs/analog/netlist_accept.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 114 s wall-clock on one GitHub runner (lab run 43559460437)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=5afd1f8a766a764e9756d6c8b0c382996437094c -f challenge=<fresh hex> -f specs="specs/tools/t27o/spice_convert.t27 specs/tools/t27o/rust_convert.t27 specs/analog/linear.t27 specs/analog/accept_sar.t27 specs/analog/mos_psp103_data.t27 specs/analog/netlist_accept.t27"
