@@ -1,0 +1,11 @@
+specs/analog/netlist_meaning.t27|tests=4|pass=4|FAIL=0|vacuous=0|blocked=0
+specs/t27f/netlist_tokens.t27|tests=5|pass=5|FAIL=0|vacuous=0|blocked=0
+specs/analog/netlist_structure.t27|tests=5|pass=5|FAIL=0|vacuous=0|blocked=0
+specs/analog/netlist_accept.t27|tests=6|pass=6|FAIL=0|vacuous=0|blocked=0
+specs/analog/netlist_block_svg.t27|tests=6|pass=6|FAIL=0|vacuous=0|blocked=0
+specs/t27f/task_template.t27|tests=5|pass=5|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 2facd706fee01bfdb37b386d6bebf168c948ee2e; specs specs/analog/netlist_meaning.t27 specs/t27f/netlist_tokens.t27 specs/analog/netlist_structure.t27 specs/analog/netlist_accept.t27 specs/analog/netlist_block_svg.t27 specs/t27f/task_template.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 118 s wall-clock on one GitHub runner (lab run 43564759874)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=2facd706fee01bfdb37b386d6bebf168c948ee2e -f challenge=<fresh hex> -f specs="specs/analog/netlist_meaning.t27 specs/t27f/netlist_tokens.t27 specs/analog/netlist_structure.t27 specs/analog/netlist_accept.t27 specs/analog/netlist_block_svg.t27 specs/t27f/task_template.t27"

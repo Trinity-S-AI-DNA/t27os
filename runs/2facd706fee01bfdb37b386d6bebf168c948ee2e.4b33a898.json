@@ -1,0 +1,23 @@
+{
+  "sha": "2facd706fee01bfdb37b386d6bebf168c948ee2e",
+  "challenge_sha256": "4b33a898ba73944003f08e0055cc545716f9928cd35efd51d36842ded52f57bb",
+  "t27c_build_stamp": "2facd706fee01bfdb37b386d6bebf168c948ee2e",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T06:09:12Z",
+  "specs": [
+    {"spec": "specs/analog/netlist_meaning.t27", "tests": "tests=4", "pass": "pass=4", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27f/netlist_tokens.t27", "tests": "tests=5", "pass": "pass=5", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/analog/netlist_structure.t27", "tests": "tests=5", "pass": "pass=5", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/analog/netlist_accept.t27", "tests": "tests=6", "pass": "pass=6", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/analog/netlist_block_svg.t27", "tests": "tests=6", "pass": "pass=6", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/t27f/task_template.t27", "tests": "tests=5", "pass": "pass=5", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/analog/netlist_meaning.t27", "tests": 4, "pass": 4, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27f/netlist_tokens.t27", "tests": 5, "pass": 5, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/analog/netlist_structure.t27", "tests": 5, "pass": 5, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/analog/netlist_accept.t27", "tests": 6, "pass": 6, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/analog/netlist_block_svg.t27", "tests": 6, "pass": 6, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/t27f/task_template.t27", "tests": 5, "pass": 5, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 6, "reported": 6}
+}
