@@ -1,0 +1,23 @@
+{
+  "sha": "fbadb954634455952d38315f4d56d30aec11a38a",
+  "challenge_sha256": "56c7abef577968d6d0d1445ada698a355e1770b7802015fc28caf6ad20339ed4",
+  "t27c_build_stamp": "fbadb954634455952d38315f4d56d30aec11a38a",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T05:11:05Z",
+  "specs": [
+    {"spec": "specs/tools/t27o/spice_convert.t27", "tests": "tests=47", "pass": "pass=47", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tools/t27o/rust_convert.t27", "tests": "tests=363", "pass": "pass=363", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/analog/linear.t27", "tests": "tests=26", "pass": "pass=26", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/analog/accept_sar.t27", "tests": "tests=26", "pass": "pass=26", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/analog/mos_psp103_data.t27", "tests": "tests=13", "pass": "pass=13", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/analog/netlist_accept.t27", "tests": "tests=NA", "pass": "pass=NA", "FAIL": "FAIL=NA", "vacuous": "vacuous=NA", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tools/t27o/spice_convert.t27", "tests": 47, "pass": 47, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tools/t27o/rust_convert.t27", "tests": 363, "pass": 363, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/analog/linear.t27", "tests": 26, "pass": 26, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/analog/accept_sar.t27", "tests": 26, "pass": 26, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/analog/mos_psp103_data.t27", "tests": 13, "pass": 13, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": false, "asked": 6, "reported": 5}
+}
