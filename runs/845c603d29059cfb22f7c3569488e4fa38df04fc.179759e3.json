@@ -1,0 +1,15 @@
+{
+  "sha": "845c603d29059cfb22f7c3569488e4fa38df04fc",
+  "challenge_sha256": "179759e36f3cd6b20e485d0b77484cdb5e4f2f09728bf17c15ef73989573e8d8",
+  "t27c_build_stamp": "845c603d29059cfb22f7c3569488e4fa38df04fc",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T05:22:30Z",
+  "specs": [
+    {"spec": "specs/tools/t27o/spice_census_host.t27", "tests": "tests=2", "pass": "pass=2", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+,
+    {"spec": "specs/tools/t27o/spice_convert.t27", "tests": "tests=47", "pass": "pass=47", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tools/t27o/spice_census_host.t27", "tests": 2, "pass": 2, "fail": 0, "vacuous": 0, "blocked": 0}, {"spec": "specs/tools/t27o/spice_convert.t27", "tests": 47, "pass": 47, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 2, "reported": 2}
+}
