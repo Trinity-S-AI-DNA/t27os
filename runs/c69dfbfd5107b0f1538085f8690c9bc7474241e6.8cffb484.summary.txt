@@ -1,0 +1,6 @@
+specs/tools/xvid_fetch.t27|tests=13|pass=13|FAIL=0|vacuous=0|blocked=0
+reader: t27c 0.5.2 built from t27 c69dfbfd5107b0f1538085f8690c9bc7474241e6; specs specs/tools/xvid_fetch.t27
+judge: t27c test-report; vacuous and blocked are counted, never passed (t27os#13)
+n: n=1 run; no confidence interval
+cost: 95 s wall-clock on one GitHub runner (lab run 43556921861)
+repro: gh workflow run lab.yml --repo Trinity-S-AI-DNA/t27os -f sha=c69dfbfd5107b0f1538085f8690c9bc7474241e6 -f challenge=<fresh hex> -f specs="specs/tools/xvid_fetch.t27"

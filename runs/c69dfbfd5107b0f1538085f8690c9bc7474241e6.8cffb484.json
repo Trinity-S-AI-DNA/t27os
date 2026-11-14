@@ -1,0 +1,13 @@
+{
+  "sha": "c69dfbfd5107b0f1538085f8690c9bc7474241e6",
+  "challenge_sha256": "8cffb48440e38c58326cd447c0de26637c209efdec5a0b0c7faa27900e4cc1c6",
+  "t27c_build_stamp": "c69dfbfd5107b0f1538085f8690c9bc7474241e6",
+  "t27c_version": "t27c 0.5.2 build 0 commit unknown ",
+  "ffmpeg": "ffmpeg absent (m6=false)",
+  "utc": "2026-11-14T04:31:21Z",
+  "specs": [
+    {"spec": "specs/tools/xvid_fetch.t27", "tests": "tests=13", "pass": "pass=13", "FAIL": "FAIL=0", "vacuous": "vacuous=0", "blocked": "blocked=0"}
+
+  ]
+  ,"result": {"specs": [{"spec": "specs/tools/xvid_fetch.t27", "tests": 13, "pass": 13, "fail": 0, "vacuous": 0, "blocked": 0}], "ok": true, "asked": 1, "reported": 1}
+}
